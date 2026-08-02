@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>EduPortal Admin - Teacher Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary": "#69577c",
+                    "error": "#ba1a1a",
+                    "surface-container": "#efedf1",
+                    "on-surface-variant": "#45483b",
+                    "tertiary-fixed-dim": "#e1c296",
+                    "outline": "#76796a",
+                    "tertiary-container": "#ffe5c3",
+                    "tertiary": "#725a36",
+                    "on-primary-fixed": "#151f00",
+                    "surface-container-low": "#f4f3f7",
+                    "primary-container": "#daf39f",
+                    "on-tertiary-container": "#7d643f",
+                    "on-primary-fixed-variant": "#3a4d0a",
+                    "on-error-container": "#93000a",
+                    "on-error": "#ffffff",
+                    "on-secondary-fixed": "#241435",
+                    "surface-dim": "#dbd9dd",
+                    "on-tertiary": "#ffffff",
+                    "on-background": "#1a1b1e",
+                    "outline-variant": "#c6c8b7",
+                    "on-primary-container": "#5b702b",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-highest": "#e3e2e6",
+                    "on-primary": "#ffffff",
+                    "surface-tint": "#516522",
+                    "on-secondary": "#ffffff",
+                    "surface": "#faf9fd",
+                    "background": "#B9D9EB", /* Light blue canvas from brand anchors */
+                    "primary-fixed-dim": "#b8d080",
+                    "secondary-fixed": "#efdbff",
+                    "surface-variant": "#e3e2e6",
+                    "on-tertiary-fixed-variant": "#594321",
+                    "primary": "#516522",
+                    "inverse-primary": "#b8d080",
+                    "surface-container-high": "#e9e7eb",
+                    "on-secondary-fixed-variant": "#513f63",
+                    "primary-fixed": "#d3ec99",
+                    "surface-bright": "#faf9fd",
+                    "secondary-container": "#e9d1fd",
+                    "on-surface": "#1a1b1e",
+                    "secondary-fixed-dim": "#d5bee9",
+                    "inverse-surface": "#2f3033",
+                    "error-container": "#ffdad6",
+                    "tertiary-fixed": "#ffdeb0",
+                    "on-secondary-container": "#6a577d",
+                    "on-tertiary-fixed": "#281800",
+                    "inverse-on-surface": "#f1f0f4"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "16px",
+                    "xl": "24px",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "sm": "12px",
+                    "xs": "4px",
+                    "md": "24px",
+                    "margin-mobile": "16px",
+                    "lg": "48px",
+                    "xl": "80px",
+                    "gutter": "24px",
+                    "base": "8px",
+                    "margin-desktop": "48px"
+            },
+            "fontFamily": {
+                    "label-lg": ["Manrope"],
+                    "headline-xl": ["Manrope"],
+                    "headline-lg-mobile": ["Manrope"],
+                    "body-md": ["Manrope"],
+                    "body-lg": ["Manrope"],
+                    "label-sm": ["Manrope"],
+                    "headline-md": ["Manrope"],
+                    "headline-lg": ["Manrope"]
+            },
+            "fontSize": {
+                    "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                    "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-shadow { box-shadow: 0px 10px 30px rgba(32, 33, 36, 0.05); }
+        .glass-card { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #daf39f; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen">
+<!-- SideNavBar Anchor -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-surface-container-low border-r border-outline-variant flex flex-col py-base px-4 z-50 hidden md:flex">
+<div class="flex items-center gap-3 px-2 py-4 mb-8">
+<div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container">school</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary leading-tight">Eleva</h1>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Academic Management</p>
+</div>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">dashboard</span> Dashboard
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 bg-primary-container text-on-primary-container font-bold rounded-lg font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">group</span> Faculty
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">school</span> Students
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">book</span> Courses
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">payments</span> Financials
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">settings</span> Settings
+            </a>
+</nav>
+<div class="mt-auto p-4 bg-secondary-container rounded-xl">
+<p class="text-label-sm font-label-sm text-on-secondary-container mb-2">Need assistance?</p>
+<button class="w-full bg-on-background text-surface py-2 rounded-lg text-label-lg font-label-lg transition-transform active:scale-95">Generate Report</button>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="md:ml-64 min-h-screen">
+<!-- TopNavBar Anchor -->
+<header class="flex justify-between items-center px-gutter w-full h-16 sticky top-0 z-40 bg-surface/80 backdrop-blur-md border-b border-outline-variant">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined md:hidden cursor-pointer">menu</span>
+<h2 class="font-headline-md text-headline-md font-bold text-primary">Faculty Management</h2>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative hidden sm:block">
+<input class="bg-surface-container-low border-none rounded-full px-6 py-2 w-64 text-label-md focus:ring-2 ring-primary-container transition-all" placeholder="Search faculty..." type="text"/>
+<span class="material-symbols-outlined absolute right-4 top-2 text-on-surface-variant">search</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors cursor-pointer">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors cursor-pointer">help</button>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container">
+<img class="w-full h-full object-cover" data-alt="A professional portrait of a school administrator in a modern office, soft natural lighting, light blue and lime green color palette, high-quality digital photography style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_DCLQIt9VTyIFWksvpFDeJyLmEdw1PVxvB5KR4cFxUudCESkSTFrj36MqNExMokvf5maoi52zVgTk8PGNGd5myq8oxcUcdGrTzF4U5dgAzjT9P91529FKVRaTcI86mHYmbgdmekxX6Jph1OYUUIFXudqZbBwIJq3iAYCzfV3UtQ8Qeu9PofYZ7oX3Te5UAKAh958NIzRV7MolZ_vUuLLoq2Yi0WRUrtmmlBe2MzPjZR5uE_qbGS28"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Content Area -->
+<div class="p-8 max-w-7xl mx-auto space-y-8">
+<!-- Invitation Section (Bento Style) -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="lg:col-span-2 bg-surface-container-lowest p-8 rounded-xl border border-outline-variant/30 custom-shadow">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h3 class="font-headline-lg text-headline-lg text-on-background mb-1">Invite New Faculty</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Manage your institution's whitelist and secure staff onboarding.</p>
+</div>
+<div class="p-3 bg-secondary-fixed rounded-full">
+<span class="material-symbols-outlined text-on-secondary-fixed">mail</span>
+</div>
+</div>
+<form class="space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="space-y-2">
+<label class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Email Address</label>
+<input class="w-full bg-surface-container-low border-b-2 border-on-background focus:border-primary-container focus:ring-0 px-4 py-3 text-body-md outline-none transition-all" placeholder="teacher@eleva-academy.com" type="email"/>
+</div>
+<div class="space-y-2">
+<label class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Initial Access Role</label>
+<select class="w-full bg-surface-container-low border-b-2 border-on-background focus:border-primary-container focus:ring-0 px-4 py-3 text-body-md outline-none appearance-none transition-all">
+<option>Senior Lecturer</option>
+<option>Associate Teacher</option>
+<option>Teaching Assistant</option>
+</select>
+</div>
+</div>
+<div class="flex justify-end">
+<button class="bg-primary-container text-on-background font-bold px-8 py-3 rounded-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-2" type="submit">
+<span class="material-symbols-outlined">send</span> Send Invitation
+                            </button>
+</div>
+</form>
+</div>
+<div class="bg-tertiary-fixed p-8 rounded-xl border border-outline-variant/30 custom-shadow flex flex-col justify-between overflow-hidden relative">
+<div class="relative z-10">
+<h4 class="font-headline-md text-headline-md text-on-tertiary-fixed mb-4">Quick Assignments</h4>
+<div class="space-y-3">
+<button class="w-full bg-surface-container-lowest/50 hover:bg-surface-container-lowest py-3 px-4 rounded-lg flex items-center justify-between group transition-all" onclick="toggleModal('homeroom')">
+<span class="font-label-lg text-label-lg text-on-tertiary-fixed">Assign Homeroom</span>
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">chevron_right</span>
+</button>
+<button class="w-full bg-surface-container-lowest/50 hover:bg-surface-container-lowest py-3 px-4 rounded-lg flex items-center justify-between group transition-all" onclick="toggleModal('subject')">
+<span class="font-label-lg text-label-lg text-on-tertiary-fixed">Assign Subject Teacher</span>
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">chevron_right</span>
+</button>
+</div>
+</div>
+<div class="absolute -right-10 -bottom-10 opacity-20 transform rotate-12">
+<span class="material-symbols-outlined text-[160px]">assignment_ind</span>
+</div>
+</div>
+</div>
+<!-- Faculty Table Section -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 custom-shadow overflow-hidden">
+<div class="p-6 border-b border-outline-variant/30 flex flex-wrap justify-between items-center gap-4">
+<h3 class="font-headline-md text-headline-md text-on-background">Staff Directory</h3>
+<div class="flex gap-2">
+<button class="bg-surface-container-high px-4 py-2 rounded-full text-label-sm font-label-sm text-on-surface hover:bg-outline-variant transition-colors">All Staff</button>
+<button class="bg-primary-container px-4 py-2 rounded-full text-label-sm font-label-sm text-on-background font-bold">Invited</button>
+<button class="bg-surface-container-high px-4 py-2 rounded-full text-label-sm font-label-sm text-on-surface hover:bg-outline-variant transition-colors">Active</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="bg-surface-container-low/50">
+<th class="px-6 py-4 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Faculty Member</th>
+<th class="px-6 py-4 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Department</th>
+<th class="px-6 py-4 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Status</th>
+<th class="px-6 py-4 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Role</th>
+<th class="px-6 py-4 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/20">
+<!-- Invited Row -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center font-bold text-on-secondary-fixed">JD</div>
+<div>
+<div class="font-label-lg text-label-lg text-on-background">Julianne Doe</div>
+<div class="text-label-sm text-on-surface-variant">j.doe@eleva.edu</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5 font-body-md text-body-md text-on-background">Humanities</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-label-sm font-label-sm bg-tertiary-container text-on-tertiary-container">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary mr-2 animate-pulse"></span> Invited
+                                    </span>
+</td>
+<td class="px-6 py-5 font-body-md text-body-md text-on-surface-variant italic">Pending...</td>
+<td class="px-6 py-5">
+<button class="p-2 hover:bg-surface-variant rounded-full transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Active Row -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-primary-container">
+<img class="w-full h-full object-cover" data-alt="A portrait of a male science teacher in a brightly lit modern laboratory, wearing professional attire, soft focus background, light pastel tones, professional high-end look." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCY3fZP8ET4Ok5aEXkw4sJ4A4PPON9V06rRUB6k-yyYxL3OZx51I0CZxRDLg59eDoweJV-vFdeuDI9ghjOvgksTmGE9veI6OY8vWcIysO6fapbgozrQVBd1RhavZubJSMxF7sfyiqkdwDpmaU-TvVe7QkPIMxnmtcYvfq4iJATJp-GSasCPi91xFb1UJXqHhPKxVe5G_jdqRgRmeOmnYX9YyUZ1EJQpCI0jg4WYtHtzcCHwSYXZ0m5u"/>
+</div>
+<div>
+<div class="font-label-lg text-label-lg text-on-background">Marcus Thorne</div>
+<div class="text-label-sm text-on-surface-variant">m.thorne@eleva.edu</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5 font-body-md text-body-md text-on-background">Science &amp; Tech</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-label-sm font-label-sm bg-primary-container text-on-primary-container">
+<span class="w-1.5 h-1.5 rounded-full bg-primary mr-2"></span> Active
+                                    </span>
+</td>
+<td class="px-6 py-5">
+<div class="flex flex-wrap gap-1">
+<span class="text-label-sm bg-secondary-container px-2 py-0.5 rounded">Homeroom 10A</span>
+<span class="text-label-sm bg-tertiary-container px-2 py-0.5 rounded">Biology</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<button class="p-2 hover:bg-surface-variant rounded-full transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Invited Row -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center font-bold text-on-secondary-fixed">SK</div>
+<div>
+<div class="font-label-lg text-label-lg text-on-background">Sienna Knight</div>
+<div class="text-label-sm text-on-surface-variant">s.knight@eleva.edu</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-5 font-body-md text-body-md text-on-background">Mathematics</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-3 py-1 rounded-full text-label-sm font-label-sm bg-tertiary-container text-on-tertiary-container">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary mr-2 animate-pulse"></span> Invited
+                                    </span>
+</td>
+<td class="px-6 py-5 font-body-md text-body-md text-on-surface-variant italic">Pending...</td>
+<td class="px-6 py-5">
+<button class="p-2 hover:bg-surface-variant rounded-full transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-6 bg-surface-container-low/30 border-t border-outline-variant/30 flex justify-between items-center">
+<p class="text-label-sm font-label-sm text-on-surface-variant">Showing 3 of 42 faculty members</p>
+<div class="flex gap-2">
+<button class="p-2 border border-outline-variant rounded-lg hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined">chevron_left</span></button>
+<button class="p-2 border border-outline-variant rounded-lg hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined">chevron_right</span></button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Assignment Modal (Generic for demo) -->
+<div class="fixed inset-0 z-[60] flex items-center justify-center p-6 hidden" id="assignment-modal">
+<div class="absolute inset-0 bg-on-background/40 backdrop-blur-sm" onclick="toggleModal()"></div>
+<div class="relative bg-surface rounded-xl custom-shadow w-full max-w-md p-8 overflow-hidden">
+<div id="modal-content">
+<h3 class="font-headline-md text-headline-md mb-2" id="modal-title">Assign Role</h3>
+<p class="text-body-md text-on-surface-variant mb-6" id="modal-desc">Allocate staff resources to classes and subjects.</p>
+<div class="space-y-4">
+<div class="space-y-1">
+<label class="text-label-sm text-on-surface-variant uppercase">Select Faculty</label>
+<select class="w-full bg-surface-container-low border-b-2 border-on-background p-3 outline-none">
+<option>Marcus Thorne</option>
+<option>Julianne Doe (Pending)</option>
+</select>
+</div>
+<div class="space-y-1" id="dynamic-field">
+<!-- Content injected via JS -->
+</div>
+</div>
+<div class="flex gap-3 mt-8">
+<button class="flex-1 border-2 border-on-background py-3 rounded-lg font-bold hover:bg-surface-container-high transition-colors" onclick="toggleModal()">Cancel</button>
+<button class="flex-1 bg-primary-container text-on-background py-3 rounded-lg font-bold hover:scale-105 active:scale-95 transition-all">Confirm Assignment</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Mobile Bottom NavBar Anchor -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-surface border-t border-outline-variant flex justify-around items-center px-4 z-50">
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px] font-label-sm">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="text-[10px] font-label-sm">Faculty</span>
+</button>
+<div class="w-12 h-12 bg-primary-container rounded-full flex items-center justify-center -translate-y-4 shadow-lg">
+<span class="material-symbols-outlined text-on-primary-container">add</span>
+</div>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined">school</span>
+<span class="text-[10px] font-label-sm">Students</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-[10px] font-label-sm">Profile</span>
+</button>
+</nav>
+<script>
+        function toggleModal(type) {
+            const modal = document.getElementById('assignment-modal');
+            const title = document.getElementById('modal-title');
+            const desc = document.getElementById('modal-desc');
+            const dynamic = document.getElementById('dynamic-field');
+            
+            if (type === 'homeroom') {
+                title.innerText = 'Assign Homeroom Teacher';
+                desc.innerText = 'Choose a teacher to be the primary contact for a specific classroom.';
+                dynamic.innerHTML = `
+                    <label class="text-label-sm text-on-surface-variant uppercase">Target Class</label>
+                    <select class="w-full bg-surface-container-low border-b-2 border-on-background p-3 outline-none">
+                        <option>Class 9B - West Wing</option>
+                        <option>Class 10A - Science Lab</option>
+                        <option>Class 11C - Arts Studio</option>
+                    </select>
+                `;
+            } else if (type === 'subject') {
+                title.innerText = 'Assign Subject Teacher';
+                desc.innerText = 'Assign specific curriculum modules to an instructor.';
+                dynamic.innerHTML = `
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="space-y-1">
+                            <label class="text-label-sm text-on-surface-variant uppercase">Subject</label>
+                            <select class="w-full bg-surface-container-low border-b-2 border-on-background p-2 outline-none">
+                                <option>Physics</option>
+                                <option>Calculus</option>
+                                <option>Literature</option>
+                            </select>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-label-sm text-on-surface-variant uppercase">Class</label>
+                            <select class="w-full bg-surface-container-low border-b-2 border-on-background p-2 outline-none">
+                                <option>12-A</option>
+                                <option>12-B</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            modal.classList.toggle('hidden');
+        }
+    </script>
+</body></html>

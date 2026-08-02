@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Eleva | Student Management Portal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary": "#69577c",
+                        "error": "#ba1a1a",
+                        "surface-container": "#efedf1",
+                        "on-surface-variant": "#45483b",
+                        "tertiary-fixed-dim": "#e1c296",
+                        "outline": "#76796a",
+                        "tertiary-container": "#ffe5c3",
+                        "tertiary": "#725a36",
+                        "on-primary-fixed": "#151f00",
+                        "surface-container-low": "#f4f3f7",
+                        "primary-container": "#daf39f",
+                        "on-primary-container": "#5b702b",
+                        "on-primary-fixed-variant": "#3a4d0a",
+                        "on-error-container": "#93000a",
+                        "on-error": "#ffffff",
+                        "on-secondary-fixed": "#241435",
+                        "surface-dim": "#dbd9dd",
+                        "on-tertiary": "#ffffff",
+                        "on-background": "#1a1b1e",
+                        "outline-variant": "#c6c8b7",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#e3e2e6",
+                        "on-primary": "#ffffff",
+                        "surface-tint": "#516522",
+                        "on-secondary": "#ffffff",
+                        "surface": "#faf9fd",
+                        "background": "#B9D9EB", /* Custom Brand Blue Background */
+                        "primary-fixed-dim": "#b8d080",
+                        "secondary-fixed": "#efdbff",
+                        "surface-variant": "#e3e2e6",
+                        "on-tertiary-fixed-variant": "#594321",
+                        "primary": "#516522",
+                        "inverse-primary": "#b8d080",
+                        "surface-container-high": "#e9e7eb",
+                        "on-secondary-fixed-variant": "#513f63",
+                        "primary-fixed": "#d3ec99",
+                        "surface-bright": "#faf9fd",
+                        "secondary-container": "#e9d1fd",
+                        "on-surface": "#1a1b1e",
+                        "secondary-fixed-dim": "#d5bee9",
+                        "inverse-surface": "#2f3033",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed": "#ffdeb0",
+                        "on-secondary-container": "#6a577d",
+                        "on-tertiary-fixed": "#281800",
+                        "inverse-on-surface": "#f1f0f4"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "16px",
+                        "xl": "24px",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "12px",
+                        "xs": "4px",
+                        "md": "24px",
+                        "margin-mobile": "16px",
+                        "lg": "48px",
+                        "xl": "80px",
+                        "gutter": "24px",
+                        "base": "8px",
+                        "margin-desktop": "48px"
+                    },
+                    "fontFamily": {
+                        "label-lg": ["Manrope"],
+                        "headline-xl": ["Manrope"],
+                        "headline-lg-mobile": ["Manrope"],
+                        "body-md": ["Manrope"],
+                        "body-lg": ["Manrope"],
+                        "label-sm": ["Manrope"],
+                        "headline-md": ["Manrope"],
+                        "headline-lg": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                        "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; background-color: #B9D9EB; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-shadow { box-shadow: 0px 10px 30px rgba(32, 33, 36, 0.05); }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .active-tab { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    </style>
+</head>
+<body class="text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+<!-- Sidebar (SideNavBar Anchor) -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-surface-container-low border-r border-outline-variant flex flex-col py-base px-4 z-50" id="sidebar">
+<div class="flex items-center gap-3 px-2 py-6 mb-4">
+<div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container" style="font-variation-settings: 'FILL' 1;">school</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Eleva</h1>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Academic Management</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 bg-primary-container text-on-primary-container font-bold rounded-lg font-label-md text-label-md shadow-sm" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">group</span>
+                Students
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">school</span>
+                Faculty
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">book</span>
+                Courses
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">payments</span>
+                Financials
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+</nav>
+<div class="mt-auto pb-4">
+<button class="w-full py-3 px-4 bg-primary text-on-primary rounded-lg font-bold flex items-center justify-center gap-2 active:scale-95 duration-200 shadow-lg">
+<span class="material-symbols-outlined">add_circle</span>
+                Generate Report
+            </button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 min-h-screen p-gutter md:p-margin-desktop flex flex-col gap-6 relative">
+<!-- Top Navigation Bar (TopNavBar Anchor) -->
+<header class="flex justify-between items-center w-full h-16 sticky top-0 z-40 bg-surface/80 backdrop-blur-md rounded-xl px-gutter mb-4 border border-white/20 custom-shadow">
+<div class="flex items-center gap-4">
+<h2 class="font-headline-md text-headline-md font-bold text-on-background">Student Directory</h2>
+</div>
+<div class="flex items-center gap-6">
+<!-- Search Bar (on_right) -->
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border-b-2 border-outline-variant focus:border-primary outline-none text-body-md rounded-t-lg w-64 transition-all" placeholder="Search students, NISN..." type="text"/>
+</div>
+<div class="flex items-center gap-3">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors cursor-pointer active:opacity-80 relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="h-8 w-[1px] bg-outline-variant mx-2"></div>
+<div class="flex items-center gap-2 group cursor-pointer">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-white">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a middle-aged academic administrator with a warm smile, wearing modern circular glasses and a professional navy blazer. The background is a softly blurred office with minimalist light wood textures and a touch of sage green plants, matching the modern corporate educational aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmKsQ3WnXkPZ_aRgiG1vTtMI6xb8E0rJcWdkecl3BEfMejK2tLjNdML_JBWDTeq9mmWXE0uTjHprXX0oCYj6P7tCl90EJm82owll42AFOWEP9tbLu_SgyXs-wwzKL6r78TorRQk3NV2znAMe5bR76jqw36I4LDZ667yAIGNXg5TKcOJw7v4dkOL00iByIHwwyvWogqy8iQmAMid4Aoy06iEqpKDz2VwqGrFCFjF-xxmdNb8AVW2Mtl"/>
+</div>
+<div class="hidden sm:block">
+<p class="text-label-lg font-label-lg leading-tight">Admin User</p>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Principal Office</p>
+</div>
+</div>
+</div>
+</div>
+</header>
+<!-- Dynamic Content Area (Bento Grid Style) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+<!-- Quick Actions / Create Section -->
+<section class="lg:col-span-4 flex flex-col gap-6">
+<div class="bg-surface-container-lowest p-md rounded-lg custom-shadow border border-white/50">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-headline-md text-headline-md text-on-background">Quick Enrollment</h3>
+<span class="material-symbols-outlined text-primary">person_add</span>
+</div>
+<form class="space-y-4" id="createStudentForm">
+<div class="space-y-1">
+<label class="text-label-sm font-label-sm text-on-surface-variant px-1">Full Name</label>
+<input class="w-full px-4 py-3 bg-surface-container-low border-b-2 border-outline-variant focus:border-primary outline-none text-body-md rounded-t-lg transition-all" id="fullName" placeholder="e.g. Julian Anderson" type="text"/>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-1">
+<label class="text-label-sm font-label-sm text-on-surface-variant px-1">Username</label>
+<div class="relative">
+<input class="w-full px-4 py-3 bg-surface-container-low border-b-2 border-outline-variant outline-none text-body-md rounded-t-lg transition-all opacity-70" id="username" placeholder="Auto-generated" readonly="" type="text"/>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">lock</span>
+</div>
+</div>
+<div class="space-y-1">
+<label class="text-label-sm font-label-sm text-on-surface-variant px-1">NISN</label>
+<input class="w-full px-4 py-3 bg-surface-container-low border-b-2 border-outline-variant outline-none text-body-md rounded-t-lg transition-all opacity-70" id="nisn" placeholder="9903..." readonly="" type="text"/>
+</div>
+</div>
+<div class="space-y-1">
+<label class="text-label-sm font-label-sm text-on-surface-variant px-1">Assign Class</label>
+<select class="w-full px-4 py-3 bg-surface-container-low border-b-2 border-outline-variant focus:border-primary outline-none text-body-md rounded-t-lg appearance-none">
+<option>Select Grade &amp; Section</option>
+<option>10A - Science</option>
+<option>10B - Arts</option>
+<option>11A - Science</option>
+</select>
+</div>
+<button class="w-full py-2 text-label-lg font-label-lg text-primary border border-primary/20 bg-primary-container/20 rounded-lg hover:bg-primary-container/40 transition-colors mb-2" onclick="generateCredentials()" type="button">
+                            Generate Credentials
+                        </button>
+<button class="w-full py-4 bg-primary-container text-on-primary-container font-bold rounded-lg hover:brightness-95 active:scale-98 duration-200 shadow-md" type="submit">
+                            Create Account
+                        </button>
+</form>
+</div>
+<!-- Bulk Enroll Card -->
+<div class="bg-secondary-container/50 p-md rounded-lg border border-secondary-fixed-dim relative overflow-hidden group">
+<div class="relative z-10">
+<div class="flex items-center gap-3 mb-4">
+<div class="p-2 bg-white rounded-lg">
+<span class="material-symbols-outlined text-secondary">upload_file</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-secondary-container">Bulk Enroll</h3>
+</div>
+<p class="text-body-md text-on-secondary-container mb-6 opacity-80">Upload a CSV or Excel file to enroll multiple students instantly into specific classes.</p>
+<button class="flex items-center gap-2 px-6 py-3 bg-white text-on-secondary-container font-bold rounded-full hover:shadow-lg transition-all active:scale-95">
+<span class="material-symbols-outlined">attachment</span>
+                            Select Files
+                        </button>
+</div>
+<!-- Decorative Element -->
+<div class="absolute -right-8 -bottom-8 w-32 h-32 bg-secondary/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-700"></div>
+</div>
+</section>
+<!-- Table Section -->
+<section class="lg:col-span-8 flex flex-col gap-6">
+<!-- Stats Overview Chips -->
+<div class="flex flex-wrap gap-4">
+<div class="bg-surface-container-lowest px-6 py-3 rounded-full flex items-center gap-3 border border-white/50 shadow-sm">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<span class="text-label-lg font-label-lg">Total Students: <span class="text-primary ml-1">1,248</span></span>
+</div>
+<div class="bg-surface-container-lowest px-6 py-3 rounded-full flex items-center gap-3 border border-white/50 shadow-sm">
+<div class="w-2 h-2 rounded-full bg-tertiary-fixed"></div>
+<span class="text-label-lg font-label-lg">New This Month: <span class="text-tertiary ml-1">+42</span></span>
+</div>
+<div class="bg-surface-container-lowest px-6 py-3 rounded-full flex items-center gap-3 border border-white/50 shadow-sm ml-auto">
+<button class="text-label-lg font-label-lg text-on-surface-variant flex items-center gap-1 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">filter_list</span> Filter
+                        </button>
+</div>
+</div>
+<!-- Table View -->
+<div class="bg-surface-container-lowest rounded-lg border border-white/50 custom-shadow overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-surface-container-low/50 border-b border-outline-variant">
+<tr>
+<th class="px-6 py-4 font-label-lg text-label-lg text-on-surface-variant">Student Name</th>
+<th class="px-6 py-4 font-label-lg text-label-lg text-on-surface-variant">NISN</th>
+<th class="px-6 py-4 font-label-lg text-label-lg text-on-surface-variant">Username</th>
+<th class="px-6 py-4 font-label-lg text-label-lg text-on-surface-variant">Grade</th>
+<th class="px-6 py-4 font-label-lg text-label-lg text-on-surface-variant">Status</th>
+<th class="px-6 py-4 font-label-lg text-label-lg text-on-surface-variant text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/30">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center font-bold text-xs">AJ</div>
+<div>
+<p class="font-label-lg text-label-lg text-on-surface">Alice Johnson</p>
+<p class="text-label-sm font-label-sm text-on-surface-variant">alice.j@eleva.edu</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-body-md font-mono text-[14px]">0029341822</td>
+<td class="px-6 py-4 text-body-md">alice_j_24</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-label-sm font-label-sm">11-A</span>
+</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-primary-container text-on-primary-container rounded-full text-label-sm font-label-sm">Active</span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-xs">BT</div>
+<div>
+<p class="font-label-lg text-label-lg text-on-surface">Brian Thompson</p>
+<p class="text-label-sm font-label-sm text-on-surface-variant">brian.t@eleva.edu</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-body-md font-mono text-[14px]">0029345511</td>
+<td class="px-6 py-4 text-body-md">brian_t_99</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-label-sm font-label-sm">10-B</span>
+</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-primary-container text-on-primary-container rounded-full text-label-sm font-label-sm">Active</span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold text-xs">CD</div>
+<div>
+<p class="font-label-lg text-label-lg text-on-surface">Clara Davis</p>
+<p class="text-label-sm font-label-sm text-on-surface-variant">clara.d@eleva.edu</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-body-md font-mono text-[14px]">0029348877</td>
+<td class="px-6 py-4 text-body-md">clara_d_88</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-label-sm font-label-sm">11-C</span>
+</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-tertiary-container text-on-tertiary-container rounded-full text-label-sm font-label-sm">On Leave</span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-full bg-surface-container-highest text-on-surface flex items-center justify-center font-bold text-xs">DM</div>
+<div>
+<p class="font-label-lg text-label-lg text-on-surface">David Miller</p>
+<p class="text-label-sm font-label-sm text-on-surface-variant">david.m@eleva.edu</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 text-body-md font-mono text-[14px]">0029350022</td>
+<td class="px-6 py-4 text-body-md">david_m_10</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-label-sm font-label-sm">12-A</span>
+</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-primary-container text-on-primary-container rounded-full text-label-sm font-label-sm">Active</span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="px-6 py-4 flex items-center justify-between border-t border-outline-variant bg-surface-container-low/20">
+<span class="text-label-sm font-label-sm text-on-surface-variant">Showing 4 of 1,248 students</span>
+<div class="flex gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-primary text-on-primary font-bold">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-surface-container-high transition-colors text-label-sm font-label-sm">2</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-surface-container-high transition-colors text-label-sm font-label-sm">3</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Atmospheric Footer (Small Detail) -->
+<footer class="mt-auto pt-xl pb-base text-center">
+<p class="text-label-sm font-label-sm text-on-surface-variant/60 flex items-center justify-center gap-1">
+                Powered by <span class="font-bold text-primary">Eleva Core</span> • Academic Year 2024/2025
+            </p>
+</footer>
+</main>
+<!-- Success Toast (Hidden by default) -->
+<div class="fixed bottom-gutter right-gutter bg-on-background text-white px-6 py-3 rounded-lg shadow-2xl flex items-center gap-3 translate-y-20 opacity-0 transition-all duration-500 z-[100]" id="toast">
+<span class="material-symbols-outlined text-primary-container">check_circle</span>
+<span class="font-label-md text-label-md">Student account created successfully!</span>
+</div>
+<script>
+        // Micro-interaction: Auto-generate NISN and Username
+        function generateCredentials() {
+            const fullName = document.getElementById('fullName').value.trim();
+            const usernameField = document.getElementById('username');
+            const nisnField = document.getElementById('nisn');
+            
+            if (fullName) {
+                // Generate simple username
+                const formattedName = fullName.toLowerCase().replace(/\s+/g, '_');
+                const randomId = Math.floor(10 + Math.random() * 90);
+                usernameField.value = `${formattedName}_${randomId}`;
+                
+                // Generate random 10-digit NISN
+                const randomNisn = Math.floor(1000000000 + Math.random() * 9000000000);
+                nisnField.value = randomNisn;
+
+                // Visual feedback
+                usernameField.classList.remove('opacity-70');
+                nisnField.classList.remove('opacity-70');
+                
+                // Flash effect
+                [usernameField, nisnField].forEach(f => {
+                    f.classList.add('bg-primary-container/20');
+                    setTimeout(() => f.classList.remove('bg-primary-container/20'), 500);
+                });
+            } else {
+                alert('Please enter a Full Name first.');
+            }
+        }
+
+        // Form Submission Logic
+        document.getElementById('createStudentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Show toast
+            const toast = document.getElementById('toast');
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            
+            // Clear form
+            setTimeout(() => {
+                this.reset();
+                document.getElementById('username').classList.add('opacity-70');
+                document.getElementById('nisn').classList.add('opacity-70');
+                
+                // Hide toast
+                setTimeout(() => {
+                    toast.classList.add('translate-y-20', 'opacity-0');
+                }, 3000);
+            }, 500);
+        });
+
+        // Hover effect for table rows
+        const rows = document.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            row.addEventListener('mouseenter', () => {
+                row.querySelector('.material-symbols-outlined').style.fontVariationSettings = "'FILL' 1";
+            });
+            row.addEventListener('mouseleave', () => {
+                row.querySelector('.material-symbols-outlined').style.fontVariationSettings = "'FILL' 0";
+            });
+        });
+    </script>
+</body></html>
