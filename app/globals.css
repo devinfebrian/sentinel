@@ -1,0 +1,160 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #516522;
+  --color-primary-fixed: #d3ec99;
+  --color-primary-fixed-dim: #b8d080;
+  --color-primary-container: #daf39f;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #5b702b;
+  --color-on-primary-fixed: #151f00;
+  --color-on-primary-fixed-variant: #3a4d0a;
+
+  --color-secondary: #69577c;
+  --color-secondary-container: #e9d1fd;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-container: #6a577d;
+  --color-secondary-fixed: #efdbff;
+  --color-secondary-fixed-dim: #d5bee9;
+  --color-on-secondary-fixed-variant: #513f63;
+
+  --color-tertiary: #725a36;
+  --color-tertiary-container: #ffe5c3;
+  --color-on-tertiary: #ffffff;
+  --color-on-tertiary-container: #7d643f;
+  --color-tertiary-fixed: #ffdeb0;
+  --color-tertiary-fixed-dim: #e1c296;
+  --color-on-tertiary-fixed-variant: #594321;
+
+  --color-background: #faf9fd;
+  --color-on-background: #1a1b1e;
+  --color-surface: #faf9fd;
+  --color-on-surface: #1a1b1e;
+  --color-surface-variant: #e3e2e6;
+  --color-on-surface-variant: #45483b;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f4f3f7;
+  --color-surface-container: #efedf1;
+  --color-surface-container-high: #e9e7eb;
+  --color-surface-container-highest: #e3e2e6;
+  --color-surface-dim: #dbd9dd;
+  --color-surface-bright: #faf9fd;
+  --color-surface-tint: #516522;
+
+  --color-outline: #76796a;
+  --color-outline-variant: #c6c8b7;
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+  --color-on-error: #ffffff;
+  --color-on-error-container: #93000a;
+  --color-custom-sky: #B9D9EB;
+
+  --font-sans: var(--font-manrope), system-ui, sans-serif;
+  --font-manrope: var(--font-manrope), sans-serif;
+}
+
+:root {
+  font-family: var(--font-manrope), system-ui, -apple-system, sans-serif;
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #B9D9EB;
+  color: #1a1b1e;
+}
+
+/* Custom Spacing Utility Classes to avoid overriding Tailwind max-w-sm / max-w-md */
+.space-y-xs > :not([hidden]) ~ :not([hidden]) { margin-top: 4px; }
+.space-y-base > :not([hidden]) ~ :not([hidden]) { margin-top: 8px; }
+.space-y-sm > :not([hidden]) ~ :not([hidden]) { margin-top: 12px; }
+.space-y-md > :not([hidden]) ~ :not([hidden]) { margin-top: 24px; }
+.space-y-lg > :not([hidden]) ~ :not([hidden]) { margin-top: 48px; }
+.space-y-xl > :not([hidden]) ~ :not([hidden]) { margin-top: 80px; }
+
+.space-x-xs > :not([hidden]) ~ :not([hidden]) { margin-left: 4px; }
+.space-x-base > :not([hidden]) ~ :not([hidden]) { margin-left: 8px; }
+.space-x-sm > :not([hidden]) ~ :not([hidden]) { margin-left: 12px; }
+.space-x-md > :not([hidden]) ~ :not([hidden]) { margin-left: 24px; }
+
+.p-margin-mobile { padding: 16px; }
+.p-margin-desktop { padding: 48px; }
+.p-gutter { padding: 24px; }
+
+.pt-xs { padding-top: 4px; }
+.pt-base { padding-top: 8px; }
+.pt-sm { padding-top: 12px; }
+.pt-md { padding-top: 24px; }
+.pt-lg { padding-top: 48px; }
+.pt-xl { padding-top: 80px; }
+
+.font-headline-md {
+  font-family: var(--font-manrope), sans-serif;
+  font-weight: 700;
+}
+
+.text-headline-md {
+  font-size: 1.5rem;
+  line-height: 2rem;
+}
+
+.font-label-lg {
+  font-family: var(--font-manrope), sans-serif;
+  font-weight: 600;
+}
+
+.text-label-lg {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.font-label-sm {
+  font-family: var(--font-manrope), sans-serif;
+  font-weight: 500;
+}
+
+.text-label-sm {
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+.font-body-md {
+  font-family: var(--font-manrope), sans-serif;
+  font-weight: 400;
+}
+
+.text-body-md {
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
+.tonal-layer-1 {
+  background-color: #F5F5F4;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  vertical-align: middle;
+  display: inline-block;
+  user-select: none;
+}
+
+.material-symbols-outlined.filled {
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeInScale 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
