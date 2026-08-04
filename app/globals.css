@@ -1,68 +1,73 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #516522;
-  --color-primary-fixed: #d3ec99;
-  --color-primary-fixed-dim: #b8d080;
-  --color-primary-container: #daf39f;
+  --color-primary: #576400;
+  --color-primary-fixed: #daec7b;
+  --color-primary-fixed-dim: #becf63;
+  --color-primary-container: #edff8c;
   --color-on-primary: #ffffff;
-  --color-on-primary-container: #5b702b;
-  --color-on-primary-fixed: #151f00;
-  --color-on-primary-fixed-variant: #3a4d0a;
+  --color-on-primary-container: #687710;
+  --color-on-primary-fixed: #191e00;
+  --color-on-primary-fixed-variant: #414c00;
+  --color-inverse-primary: #becf63;
 
-  --color-secondary: #69577c;
-  --color-secondary-container: #e9d1fd;
+  --color-secondary: #5a605d;
+  --color-secondary-container: #dce1dd;
   --color-on-secondary: #ffffff;
-  --color-on-secondary-container: #6a577d;
-  --color-secondary-fixed: #efdbff;
-  --color-secondary-fixed-dim: #d5bee9;
-  --color-on-secondary-fixed-variant: #513f63;
+  --color-on-secondary-container: #5e6461;
+  --color-secondary-fixed: #dfe4e0;
+  --color-secondary-fixed-dim: #c2c8c4;
+  --color-on-secondary-fixed: #171d1b;
+  --color-on-secondary-fixed-variant: #424845;
 
-  --color-tertiary: #725a36;
-  --color-tertiary-container: #ffe5c3;
+  --color-tertiary: #536350;
+  --color-tertiary-container: #e9fbe3;
   --color-on-tertiary: #ffffff;
-  --color-on-tertiary-container: #7d643f;
-  --color-tertiary-fixed: #ffdeb0;
-  --color-tertiary-fixed-dim: #e1c296;
-  --color-on-tertiary-fixed-variant: #594321;
+  --color-on-tertiary-container: #647461;
+  --color-tertiary-fixed: #d6e8d0;
+  --color-tertiary-fixed-dim: #bacbb5;
+  --color-on-tertiary-fixed: #111f11;
+  --color-on-tertiary-fixed-variant: #3b4b3a;
 
-  --color-background: #faf9fd;
-  --color-on-background: #1a1b1e;
-  --color-surface: #faf9fd;
-  --color-on-surface: #1a1b1e;
-  --color-surface-variant: #e3e2e6;
-  --color-on-surface-variant: #45483b;
+  --color-background: #f7f9ff;
+  --color-on-background: #151c23;
+  --color-surface: #f7f9ff;
+  --color-on-surface: #151c23;
+  --color-surface-variant: #dce3ed;
+  --color-on-surface-variant: #464838;
   --color-surface-container-lowest: #ffffff;
-  --color-surface-container-low: #f4f3f7;
-  --color-surface-container: #efedf1;
-  --color-surface-container-high: #e9e7eb;
-  --color-surface-container-highest: #e3e2e6;
-  --color-surface-dim: #dbd9dd;
-  --color-surface-bright: #faf9fd;
-  --color-surface-tint: #516522;
+  --color-surface-container-low: #edf4fe;
+  --color-surface-container: #e7eef9;
+  --color-surface-container-high: #e2e9f3;
+  --color-surface-container-highest: #dce3ed;
+  --color-surface-dim: #d4dbe5;
+  --color-surface-bright: #f7f9ff;
+  --color-surface-tint: #576400;
 
-  --color-outline: #76796a;
-  --color-outline-variant: #c6c8b7;
+  --color-outline: #777867;
+  --color-outline-variant: #c7c8b3;
   --color-error: #ba1a1a;
   --color-error-container: #ffdad6;
   --color-on-error: #ffffff;
   --color-on-error-container: #93000a;
-  --color-custom-sky: #B9D9EB;
 
-  --font-sans: var(--font-manrope), system-ui, sans-serif;
-  --font-manrope: var(--font-manrope), sans-serif;
+  --color-inverse-surface: #2a3139;
+  --color-inverse-on-surface: #eaf1fb;
+
+  --font-sans: var(--font-urbanist), system-ui, sans-serif;
+  --font-urbanist: var(--font-urbanist), sans-serif;
 }
 
 :root {
-  font-family: var(--font-manrope), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-urbanist), system-ui, -apple-system, sans-serif;
   color-scheme: light;
 }
 
 body {
   margin: 0;
   padding: 0;
-  background-color: #B9D9EB;
-  color: #1a1b1e;
+  background-color: #f7f9ff;
+  color: #151c23;
 }
 
 /* Custom Spacing Utility Classes to avoid overriding Tailwind max-w-sm / max-w-md */
@@ -89,18 +94,60 @@ body {
 .pt-lg { padding-top: 48px; }
 .pt-xl { padding-top: 80px; }
 
-.font-headline-md {
-  font-family: var(--font-manrope), sans-serif;
+.font-display {
+  font-family: var(--font-urbanist), sans-serif;
   font-weight: 700;
 }
 
+.text-display {
+  font-size: 4.5rem;
+  line-height: 5rem;
+  letter-spacing: -0.02em;
+}
+
+.font-headline-lg {
+  font-family: var(--font-urbanist), sans-serif;
+  font-weight: 600;
+}
+
+.text-headline-lg {
+  font-size: 2.5rem;
+  line-height: 3rem;
+  letter-spacing: -0.01em;
+}
+
+.font-headline-lg-mobile {
+  font-family: var(--font-urbanist), sans-serif;
+  font-weight: 600;
+}
+
+.text-headline-lg-mobile {
+  font-size: 2rem;
+  line-height: 2.5rem;
+}
+
+.font-headline-md {
+  font-family: var(--font-urbanist), sans-serif;
+  font-weight: 600;
+}
+
 .text-headline-md {
-  font-size: 1.5rem;
-  line-height: 2rem;
+  font-size: 1.75rem;
+  line-height: 2.25rem;
+}
+
+.font-body-lg {
+  font-family: var(--font-urbanist), sans-serif;
+  font-weight: 400;
+}
+
+.text-body-lg {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
 }
 
 .font-label-lg {
-  font-family: var(--font-manrope), sans-serif;
+  font-family: var(--font-urbanist), sans-serif;
   font-weight: 600;
 }
 
@@ -110,17 +157,18 @@ body {
 }
 
 .font-label-sm {
-  font-family: var(--font-manrope), sans-serif;
-  font-weight: 500;
+  font-family: var(--font-urbanist), sans-serif;
+  font-weight: 600;
 }
 
 .text-label-sm {
   font-size: 0.75rem;
   line-height: 1rem;
+  letter-spacing: 0.05em;
 }
 
 .font-body-md {
-  font-family: var(--font-manrope), sans-serif;
+  font-family: var(--font-urbanist), sans-serif;
   font-weight: 400;
 }
 
@@ -130,7 +178,7 @@ body {
 }
 
 .tonal-layer-1 {
-  background-color: #F5F5F4;
+  background-color: #e7eef9;
 }
 
 .material-symbols-outlined {

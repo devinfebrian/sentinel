@@ -20,7 +20,7 @@ export default function HomePageClient() {
 
   if (isLoading || !isAuthenticated || mustChangePassword) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#B9D9EB]">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-3">
           <span className="material-symbols-outlined text-primary text-4xl animate-spin">
             progress_activity
@@ -32,15 +32,15 @@ export default function HomePageClient() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-on-background">
-      <div className="bg-white border border-outline-variant p-8 rounded-2xl shadow-lg max-w-md w-full text-center space-y-4">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-on-surface">
+      <div className="bg-surface-container-lowest border border-outline-variant p-8 rounded-xl shadow-sm max-w-md w-full text-center space-y-4">
         <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto text-primary">
           <span className="material-symbols-outlined text-4xl">verified_user</span>
         </div>
         <h1 className="font-headline-md text-headline-md text-on-surface">
           Welcome Back, {user?.name || user?.email || 'User'}!
         </h1>
-        <p className="font-body-md text-on-surface-variant">
+        <p className="font-body-md text-body-md text-on-surface-variant">
           You have successfully logged in as{' '}
           <span className="font-bold uppercase text-primary">{user?.role || 'User'}</span>.
         </p>
