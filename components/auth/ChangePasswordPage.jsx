@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import BackgroundAtmosphere from '@/components/auth/BackgroundAtmosphere';
 import BrandingHeader from '@/components/auth/BrandingHeader';
 import PasswordInput from '@/components/common/PasswordInput';
 import PrimaryButton from '@/components/common/PrimaryButton';
@@ -70,19 +69,18 @@ export default function ChangePasswordPage({ accessToken = '', onPasswordChanged
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 md:p-12 overflow-hidden relative">
-      <BackgroundAtmosphere />
+    <div className="min-h-screen flex items-center justify-center p-margin-mobile md:p-margin-desktop bg-background overflow-hidden relative font-body-md text-body-md">
       <ToastContainer position="top-right" autoClose={4000} hideProgressBar={false} newestOnTop closeOnClick pauseOnHover draggable />
 
       <main className="relative z-10 w-full max-w-[480px] animate-in fade-in zoom-in duration-700">
         <BrandingHeader
-          title="Eleva"
-          subtitle="Empowering Education, One Portal at a Time."
+          title="Sentinel"
+          subtitle="Enterprise Finance"
         />
 
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-[0px_20px_50px_rgba(0,0,0,0.06)] p-6 md:p-8 transition-all relative">
+        <div className="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-6 md:p-8 transition-all relative">
           {loading && (
-            <div className="absolute inset-0 z-20 bg-white/60 backdrop-blur-xs rounded-2xl flex items-center justify-center">
+            <div className="absolute inset-0 z-20 bg-white/60 backdrop-blur-xs rounded-xl flex items-center justify-center">
               <div className="flex flex-col items-center gap-2">
                 <span className="material-symbols-outlined text-primary text-3xl animate-spin">
                   progress_activity
@@ -107,8 +105,8 @@ export default function ChangePasswordPage({ accessToken = '', onPasswordChanged
 
           {/* Proportional Server Error Banner */}
           {serverError && (
-            <div className="mb-5 py-3.5 px-4 rounded-xl bg-red-50 border border-red-200/80 text-red-700 flex items-center gap-3 text-sm font-medium leading-normal animate-fade-in text-left shadow-2xs">
-              <span className="material-symbols-outlined text-[20px] text-red-600 shrink-0">
+            <div className="mb-5 py-3.5 px-4 rounded-xl bg-error-container/50 border border-error-container text-on-error-container flex items-center gap-3 text-sm font-medium leading-normal animate-fade-in text-left">
+              <span className="material-symbols-outlined text-[20px] shrink-0">
                 error
               </span>
               <span className="flex-1">{serverError}</span>

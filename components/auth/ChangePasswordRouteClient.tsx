@@ -22,7 +22,7 @@ export default function ChangePasswordRouteClient() {
 
   if (isLoading || !isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#B9D9EB]">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-3">
           <span className="material-symbols-outlined text-primary text-4xl animate-spin">
             progress_activity

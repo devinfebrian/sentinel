@@ -14,12 +14,12 @@ export default function InputField({
   disabled = false,
 }) {
   return (
-    <div className="space-y-xs group text-left">
+    <div className="space-y-1 group text-left">
       {label && (
         <label
           htmlFor={id}
-          className={`block font-label-lg text-label-lg transition-colors ${
-            error ? 'text-error font-semibold' : 'text-on-surface-variant group-focus-within:text-primary'
+          className={`block font-label-sm text-label-sm uppercase transition-colors ${
+            error ? 'text-error font-bold' : 'text-on-surface group-focus-within:text-primary'
           }`}
         >
           {label}
@@ -44,10 +44,10 @@ export default function InputField({
           placeholder={placeholder}
           required={required}
           disabled={disabled}
-          className={`w-full py-3 bg-[#F5F5F4] border-b-2 transition-all font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none ${
+          className={`w-full py-3 bg-surface-container-lowest border rounded transition-all font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none ${
             error
-              ? 'border-error focus:border-error bg-error-container/10'
-              : 'border-outline-variant focus:border-primary'
+              ? 'border-error focus:border-error focus:ring-2 focus:ring-error/20'
+              : 'border-outline-variant focus:border-primary-container focus:ring-2 focus:ring-primary-container/20'
           } ${icon ? 'pl-10 pr-4' : 'px-4'}`}
         />
       </div>
