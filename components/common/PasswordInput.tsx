@@ -1,4 +1,18 @@
+'use client';
+
 import React, { useState } from 'react';
+
+export interface PasswordInputProps {
+  id: string;
+  label?: string;
+  placeholder?: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  icon?: string;
+  required?: boolean;
+  helperText?: string;
+  error?: string | null;
+}
 
 export default function PasswordInput({
   id,
@@ -10,7 +24,7 @@ export default function PasswordInput({
   required = false,
   helperText,
   error,
-}) {
+}: PasswordInputProps) {
   const [showPassword, setShowPassword] = useState(false);
 
   return (

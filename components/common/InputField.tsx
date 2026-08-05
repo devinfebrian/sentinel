@@ -1,5 +1,19 @@
 import React from 'react';
 
+export interface InputFieldProps {
+  id: string;
+  label?: string;
+  type?: string;
+  placeholder?: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  icon?: string;
+  required?: boolean;
+  helperText?: string;
+  error?: string | null;
+  disabled?: boolean;
+}
+
 export default function InputField({
   id,
   label,
@@ -12,7 +26,7 @@ export default function InputField({
   helperText,
   error,
   disabled = false,
-}) {
+}: InputFieldProps) {
   return (
     <div className="space-y-1 group text-left">
       {label && (

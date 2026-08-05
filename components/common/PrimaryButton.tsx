@@ -1,5 +1,14 @@
 import React from 'react';
 
+export interface PrimaryButtonProps {
+  children: React.ReactNode;
+  type?: 'button' | 'submit' | 'reset';
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  disabled?: boolean;
+  icon?: string;
+  className?: string;
+}
+
 export default function PrimaryButton({
   children,
   type = 'submit',
@@ -7,7 +16,7 @@ export default function PrimaryButton({
   disabled = false,
   icon = 'arrow_forward',
   className = '',
-}) {
+}: PrimaryButtonProps) {
   return (
     <button
       type={type}

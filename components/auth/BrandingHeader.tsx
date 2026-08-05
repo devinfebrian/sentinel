@@ -1,9 +1,14 @@
 import React from 'react';
 
+export interface BrandingHeaderProps {
+  title?: string;
+  subtitle?: string;
+}
+
 export default function BrandingHeader({
   title = 'Sentinel',
   subtitle = 'Enterprise Finance',
-}) {
+}: BrandingHeaderProps) {
   return (
     <div className="flex flex-col items-center mb-8 text-center">
       <span className="material-symbols-outlined text-primary-container bg-on-surface p-3 rounded-lg mb-4" style={{ fontVariationSettings: "'FILL' 1" }}>

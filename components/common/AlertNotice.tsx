@@ -1,12 +1,19 @@
 import React from 'react';
 
+export interface AlertNoticeProps {
+  icon?: string;
+  message?: string;
+  variant?: 'tertiary' | 'secondary' | 'info';
+  children?: React.ReactNode;
+}
+
 export default function AlertNotice({
   icon = 'info',
   message,
   variant = 'tertiary',
   children,
-}) {
-  const styles = {
+}: AlertNoticeProps) {
+  const styles: Record<string, { bg: string; border: string; icon: string; text: string }> = {
     tertiary: {
       bg: 'bg-tertiary-container/30',
       border: 'border-tertiary-container',
