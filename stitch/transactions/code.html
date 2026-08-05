@@ -1,0 +1,582 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Transactions - AI Financial Analyst</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Urbanist:wght@600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#585f68",
+                        "secondary-fixed": "#d6e8d0",
+                        "on-secondary-fixed": "#111f11",
+                        "tertiary-fixed": "#dce3ed",
+                        "surface-container": "#eaefeb",
+                        "on-secondary-fixed-variant": "#3b4b3a",
+                        "outline": "#777867",
+                        "surface-variant": "#dfe4e0",
+                        "inverse-surface": "#2c322f",
+                        "on-error-container": "#93000a",
+                        "surface-dim": "#d6dbd7",
+                        "inverse-primary": "#becf63",
+                        "error-container": "#ffdad6",
+                        "surface-container-high": "#e4e9e5",
+                        "on-surface": "#171d1b",
+                        "surface-tint": "#576400",
+                        "secondary-fixed-dim": "#bacbb5",
+                        "on-tertiary-fixed-variant": "#40474f",
+                        "tertiary-fixed-dim": "#c0c7d1",
+                        "surface": "#f6fbf6",
+                        "surface-container-highest": "#dfe4e0",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-container": "#586956",
+                        "on-error": "#ffffff",
+                        "secondary": "#536350",
+                        "surface-bright": "#f6fbf6",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed": "#daec7b",
+                        "on-primary-fixed-variant": "#414c00",
+                        "inverse-on-surface": "#edf2ee",
+                        "background": "#f6fbf6",
+                        "outline-variant": "#c7c8b3",
+                        "secondary-container": "#d6e8d0",
+                        "primary-container": "#edff8c",
+                        "on-tertiary-container": "#697179",
+                        "on-surface-variant": "#464838",
+                        "on-primary": "#ffffff",
+                        "surface-container-low": "#f0f5f1",
+                        "on-primary-container": "#687710",
+                        "primary-fixed-dim": "#becf63",
+                        "error": "#ba1a1a",
+                        "primary": "#576400",
+                        "on-tertiary-fixed": "#151c23",
+                        "on-primary-fixed": "#191e00",
+                        "tertiary-container": "#f0f6ff",
+                        "on-tertiary": "#ffffff",
+                        "on-background": "#171d1b"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-lg": "48px",
+                        "stack-md": "24px",
+                        "unit": "8px",
+                        "gutter": "24px",
+                        "container-padding": "32px",
+                        "stack-sm": "12px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Urbanist"],
+                        "display-lg": ["Urbanist"],
+                        "kpi-value": ["Urbanist"],
+                        "table-data": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-md": ["Urbanist"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg-mobile": ["Urbanist"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "kpi-value": ["36px", { "lineHeight": "44px", "fontWeight": "700" }],
+                        "table-data": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Kinetic Glow for AI Elements */
+        .ai-glow {
+            box-shadow: inset 2px 0 0 0 theme('colors.primary-container');
+        }
+        
+        /* Ambient Shadows */
+        .shadow-ambient-lvl-1 {
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.04);
+        }
+        .shadow-ambient-lvl-2 {
+            box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Input focus state override */
+        .form-input:focus {
+            border-color: theme('colors.secondary');
+            box-shadow: 0 0 0 1px theme('colors.secondary');
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md font-body-md overflow-hidden flex h-screen">
+<!-- SideNavBar -->
+<nav class="bg-surface-container-low dark:bg-surface-container-lowest flex flex-col items-center h-full py-6 border-r border-outline-variant/50 h-screen w-16 fixed left-0 top-0 z-20 flex-shrink-0">
+  <!-- Brand / Logo -->
+  <div class="mb-8">
+    <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-on-primary font-bold shadow-ambient-lvl-1">
+      <span class="material-symbols-outlined">finance_chip</span>
+    </div>
+  </div>
+  
+  <!-- Theme Toggle -->
+  <div class="flex flex-col gap-2 mb-8 bg-surface-container rounded-full p-1">
+    <button class="w-8 h-8 rounded-full flex items-center justify-center bg-surface-container-lowest text-on-surface shadow-sm">
+      <span class="material-symbols-outlined text-[18px]">light_mode</span>
+    </button>
+    <button class="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high">
+      <span class="material-symbols-outlined text-[18px]">dark_mode</span>
+    </button>
+  </div>
+
+  <!-- Main Nav Icons -->
+  <ul class="flex flex-col gap-4 flex-grow">
+    <li>
+      <a class="w-10 h-10 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-secondary-container/50 transition-all" href="#" title="Dashboard">
+        <span class="material-symbols-outlined">grid_view</span>
+      </a>
+    </li>
+    <li>
+      <a class="w-10 h-10 flex items-center justify-center rounded-xl text-on-primary-container bg-primary-container shadow-ambient-lvl-1" href="#" title="Transactions">
+        <span class="material-symbols-outlined">receipt_long</span>
+      </a>
+    </li>
+    <li>
+      <a class="w-10 h-10 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-secondary-container/50 transition-all" href="#" title="Analytics">
+        <span class="material-symbols-outlined">monitoring</span>
+      </a>
+    </li>
+    <li>
+      <a class="w-10 h-10 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-secondary-container/50 transition-all" href="#" title="Chat">
+        <span class="material-symbols-outlined">chat_bubble</span>
+      </a>
+    </li>
+    <li>
+      <a class="w-10 h-10 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-secondary-container/50 transition-all" href="#" title="Settings">
+        <span class="material-symbols-outlined">settings</span>
+      </a>
+    </li>
+  </ul>
+
+  <!-- Bottom Profile Switcher -->
+  <div class="mt-auto flex flex-col gap-4 items-center">
+    <button class="w-10 h-10 rounded-full border-2 border-primary-container overflow-hidden shadow-ambient-lvl-1 hover:scale-105 transition-transform">
+      <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCP0CdoAnTxVm7dXfSSOLNPSOSKyBmuqmzJjB9_Ku6_g5zjdxVBgEvR0MlItgmSgC-epi8o0Ajyf6JxiBrhwkSNjIDGTfeLsr8pW9vqcsyhUkJpjuHQ5PozzMDqnr5SJ0q7fDRYV4jvvZbyNpfW8ICQZdAMuGLtQg2cmPLCjZfdrVSnOyQtZ9Vnwya7d4qZMOWeZK19mSPo_577wJRBrgqnlF6gBivwikogfQ7DP8XKYV5CRB-prYTC" class="w-full h-full object-cover" alt="Profile">
+    </button>
+    <button class="w-10 h-10 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-error-container/20 hover:text-error transition-all" title="Logout">
+      <span class="material-symbols-outlined">logout</span>
+    </button>
+  </div>
+</nav>
+<!-- Main Content Canvas -->
+<div class="flex flex-col flex-grow h-screen overflow-hidden ml-16">
+<!-- TopNavBar -->
+<header class="bg-surface dark:bg-surface-dim flex justify-between items-center px-container-padding w-full h-16 border-b border-outline-variant/50 dark:border-outline/30 z-10 flex-shrink-0">
+<!-- Left: Page Title / Breadcrumb (Contextual, overriding brand logo since sidebar has it) -->
+<div class="flex items-center gap-2">
+<h2 class="font-headline-md text-headline-md font-bold text-on-surface">Ledger Actions</h2>
+</div>
+<!-- Middle: Search (Search_bar: on_left conceptually placed here for balance) -->
+<div class="flex-grow max-w-md mx-gutter hidden md:block"><div class="relative w-full">
+  <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-variation-settings: 'FILL' 0;">search</span>
+  <input class="w-full bg-surface-container-low border border-outline-variant/50 text-on-surface font-body-md text-body-md rounded-full py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-primary/20 form-input h-10 shadow-ambient-lvl-1" placeholder="Search transactions, entities..." type="text">
+</div></div>
+<!-- Right: Actions & Profile -->
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors relative">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-error"></span>
+</button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">settings</span>
+</button>
+<div class="w-9 h-9 rounded-full bg-tertiary-fixed border border-outline-variant/50 overflow-hidden ml-2 shadow-ambient-lvl-1">
+<img alt="Executive User Profile" class="w-full h-full object-cover" data-alt="A professional headshot of a corporate executive in a modern office setting. Crisp lighting, shallow depth of field, conveying trust and competence in a high-end financial environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCP0CdoAnTxVm7dXfSSOLNPSOSKyBmuqmzJjB9_Ku6_g5zjdxVBgEvR0MlItgmSgC-epi8o0Ajyf6JxiBrhwkSNjIDGTfeLsr8pW9vqcsyhUkJpjuHQ5PozzMDqnr5SJ0q7fDRYV4jvvZbyNpfW8ICQZdAMuGLtQg2cmPLCjZfdrVSnOyQtZ9Vnwya7d4qZMOWeZK19mSPo_577wJRBrgqnlF6gBivwikogfQ7DP8XKYV5CRB-prYTC">
+</div>
+</div>
+</header>
+<!-- Scrollable Content Area -->
+<main class="flex-grow overflow-y-auto p-container-padding bg-background relative">
+<!-- Header & Toolbar Section -->
+<div class="flex flex-col gap-stack-md mb-stack-lg">
+<div class="flex justify-between items-end">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-2">Transactions</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Manage and review categorized ledger entries. AI models have pre-processed recent uploads.</p>
+</div>
+<!-- Primary Actions -->
+<div class="flex gap-3">
+<button class="h-12 px-6 rounded-lg bg-surface-container text-on-surface font-label-sm text-label-sm font-semibold border border-outline-variant/50 hover:bg-surface-container-high transition-colors shadow-ambient-lvl-1 flex items-center gap-2" onclick="document.getElementById('import-dialog').classList.remove('hidden')">
+<span class="material-symbols-outlined text-[18px]">upload_file</span>
+                            Import Excel
+                        </button>
+<button class="h-12 px-6 rounded-lg bg-primary-container text-on-primary-container font-label-sm text-label-sm font-semibold hover:bg-primary-fixed shadow-ambient-lvl-1 transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                            Add Transaction
+                        </button>
+</div>
+</div>
+<!-- Filters Toolbar -->
+<div class="bg-surface-container-lowest p-2 rounded-xl shadow-ambient-lvl-1 border border-outline-variant/30 flex flex-wrap gap-2 items-center">
+<div class="flex items-center px-3 border-r border-outline-variant/30 text-on-surface-variant font-label-sm text-label-sm gap-2">
+<span class="material-symbols-outlined text-[18px]">filter_list</span> Filters
+                    </div>
+<!-- Filter Chips -->
+<div class="flex gap-2">
+<select class="bg-surface-container-low border-none rounded-lg text-on-surface font-body-md text-table-data py-1.5 pl-3 pr-8 focus:ring-0 cursor-pointer hover:bg-surface-container transition-colors">
+<option>Division: All</option>
+<option>North America</option>
+<option>EMEA</option>
+</select>
+<select class="bg-surface-container-low border-none rounded-lg text-on-surface font-body-md text-table-data py-1.5 pl-3 pr-8 focus:ring-0 cursor-pointer hover:bg-surface-container transition-colors">
+<option>Vendor: All</option>
+<option>AWS</option>
+<option>GCP</option>
+</select>
+<button class="bg-surface-container-low rounded-lg text-on-surface font-body-md text-table-data py-1.5 px-3 hover:bg-surface-container transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">calendar_today</span>
+                             Date Range
+                        </button>
+<select class="bg-surface-container-low border-none rounded-lg text-on-surface font-body-md text-table-data py-1.5 pl-3 pr-8 focus:ring-0 cursor-pointer hover:bg-surface-container transition-colors">
+<option>Type: All</option>
+<option>Credit</option>
+<option>Debit</option>
+</select>
+</div>
+<div class="ml-auto flex items-center gap-2 px-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Showing 2,405 records</span>
+<div class="w-px h-4 bg-outline-variant/50 mx-2"></div>
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center">
+<span class="material-symbols-outlined text-[20px]">download</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Data Table Container -->
+<div class="bg-surface-container-lowest rounded-xl shadow-ambient-lvl-1 border border-outline-variant/30 overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse min-w-[1000px]">
+<thead>
+<tr class="bg-tertiary-fixed text-on-tertiary-fixed-variant font-label-sm text-label-sm border-b border-surface-variant">
+<th class="py-3 px-4 font-semibold w-12 text-center">
+<input class="rounded border-outline-variant text-primary focus:ring-primary h-4 w-4" type="checkbox">
+</th>
+<th class="py-3 px-4 font-semibold">Date</th>
+<th class="py-3 px-4 font-semibold w-[25%]">Description</th>
+<th class="py-3 px-4 font-semibold">Category</th>
+<th class="py-3 px-4 font-semibold">Division</th>
+<th class="py-3 px-4 font-semibold">Vendor</th>
+<th class="py-3 px-4 font-semibold text-right">Amount</th>
+<th class="py-3 px-4 font-semibold">AI Status</th>
+<th class="py-3 px-4 font-semibold w-10"></th>
+</tr>
+</thead>
+<tbody class="font-table-data text-table-data text-on-surface divide-y divide-surface-container">
+<!-- Row 1: AI Clean -->
+<tr class="hover:bg-surface-container/50 transition-colors group">
+<td class="py-3 px-4 text-center">
+<input class="rounded border-outline-variant text-primary focus:ring-primary h-4 w-4" type="checkbox">
+</td>
+<td class="py-3 px-4 text-on-surface-variant">Oct 24, 2023</td>
+<td class="py-3 px-4 font-medium truncate max-w-xs">AWS US-East Server Hosting Q3</td>
+<td class="py-3 px-4">Cloud Infrastructure</td>
+<td class="py-3 px-4">North America</td>
+<td class="py-3 px-4">
+<button class="text-secondary hover:underline font-medium focus:outline-none" onclick="document.getElementById('vendor-drawer').classList.remove('translate-x-full'); document.getElementById('drawer-overlay').classList.remove('hidden');">Amazon Web Services</button>
+</td>
+<td class="py-3 px-4 text-right font-medium">-$12,450.00</td>
+<td class="py-3 px-4">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-container/50 text-on-secondary-container text-xs font-semibold">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                                        Clean
+                                    </div>
+</td>
+<td class="py-3 px-4 text-right">
+<button class="text-on-surface-variant hover:text-on-surface opacity-0 group-hover:opacity-100 transition-opacity"><span class="material-symbols-outlined text-[18px]">more_vert</span></button>
+</td>
+</tr>
+<!-- Row 2: Flagged Risk -->
+<tr class="hover:bg-surface-container/50 transition-colors group ai-glow bg-surface-container-low/30">
+<td class="py-3 px-4 text-center">
+<input class="rounded border-outline-variant text-primary focus:ring-primary h-4 w-4" type="checkbox">
+</td>
+<td class="py-3 px-4 text-on-surface-variant">Oct 23, 2023</td>
+<td class="py-3 px-4 font-medium truncate max-w-xs">Consulting Fees - Acme Corp</td>
+<td class="py-3 px-4">Professional Services</td>
+<td class="py-3 px-4">EMEA</td>
+<td class="py-3 px-4">
+<button class="text-secondary hover:underline font-medium focus:outline-none">Acme Corp</button>
+</td>
+<td class="py-3 px-4 text-right font-medium">-$45,000.00</td>
+<td class="py-3 px-4">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-error-container/50 text-on-error-container text-xs font-semibold">
+<span class="material-symbols-outlined text-[14px]">warning</span>
+                                        Flagged: High Risk
+                                    </div>
+</td>
+<td class="py-3 px-4 text-right">
+<button class="text-on-surface-variant hover:text-on-surface opacity-0 group-hover:opacity-100 transition-opacity"><span class="material-symbols-outlined text-[18px]">more_vert</span></button>
+</td>
+</tr>
+<!-- Row 3: Pending Batch -->
+<tr class="hover:bg-surface-container/50 transition-colors group">
+<td class="py-3 px-4 text-center">
+<input class="rounded border-outline-variant text-primary focus:ring-primary h-4 w-4" type="checkbox">
+</td>
+<td class="py-3 px-4 text-on-surface-variant">Oct 23, 2023</td>
+<td class="py-3 px-4 font-medium truncate max-w-xs">Stripe Payout Settlement</td>
+<td class="py-3 px-4">Revenue</td>
+<td class="py-3 px-4">Global</td>
+<td class="py-3 px-4">
+<button class="text-secondary hover:underline font-medium focus:outline-none">Stripe</button>
+</td>
+<td class="py-3 px-4 text-right font-medium text-secondary">+$142,000.50</td>
+<td class="py-3 px-4">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-variant text-on-surface-variant text-xs font-semibold border border-outline-variant/30">
+<span class="material-symbols-outlined text-[14px] animate-spin">sync</span>
+                                        Pending Batch
+                                    </div>
+</td>
+<td class="py-3 px-4 text-right">
+<button class="text-on-surface-variant hover:text-on-surface opacity-0 group-hover:opacity-100 transition-opacity"><span class="material-symbols-outlined text-[18px]">more_vert</span></button>
+</td>
+</tr>
+<!-- Row 4: Normal -->
+<tr class="hover:bg-surface-container/50 transition-colors group">
+<td class="py-3 px-4 text-center">
+<input class="rounded border-outline-variant text-primary focus:ring-primary h-4 w-4" type="checkbox">
+</td>
+<td class="py-3 px-4 text-on-surface-variant">Oct 22, 2023</td>
+<td class="py-3 px-4 font-medium truncate max-w-xs">WeWork Office Lease NYC</td>
+<td class="py-3 px-4">Real Estate</td>
+<td class="py-3 px-4">North America</td>
+<td class="py-3 px-4">
+<button class="text-secondary hover:underline font-medium focus:outline-none">WeWork</button>
+</td>
+<td class="py-3 px-4 text-right font-medium">-$18,200.00</td>
+<td class="py-3 px-4">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-container/50 text-on-secondary-container text-xs font-semibold">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                                        Clean
+                                    </div>
+</td>
+<td class="py-3 px-4 text-right">
+<button class="text-on-surface-variant hover:text-on-surface opacity-0 group-hover:opacity-100 transition-opacity"><span class="material-symbols-outlined text-[18px]">more_vert</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination Footer -->
+<div class="bg-surface-container-low px-4 py-3 border-t border-surface-variant flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Page 1 of 120</span>
+<div class="flex gap-1">
+<button class="w-8 h-8 rounded flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<button class="w-8 h-8 rounded bg-primary-container text-on-primary-container font-label-sm font-semibold flex items-center justify-center">1</button>
+<button class="w-8 h-8 rounded text-on-surface-variant hover:bg-surface-container transition-colors font-label-sm flex items-center justify-center">2</button>
+<button class="w-8 h-8 rounded text-on-surface-variant hover:bg-surface-container transition-colors font-label-sm flex items-center justify-center">3</button>
+<button class="w-8 h-8 rounded flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- OVERLAYS & MODALS -->
+<!-- Backdrop for Drawer / Dialogs -->
+<div class="fixed inset-0 bg-inverse-surface/40 backdrop-blur-sm z-30 hidden transition-opacity" id="drawer-overlay" onclick="closeAllOverlays()"></div>
+<!-- Vendor Details Side-Over Drawer -->
+<div class="fixed right-0 top-0 h-screen w-[480px] bg-surface-container-lowest shadow-ambient-lvl-2 z-40 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col border-l border-outline-variant/30" id="vendor-drawer">
+<!-- Drawer Header -->
+<div class="flex justify-between items-start p-6 border-b border-surface-variant">
+<div class="flex gap-4 items-center">
+<div class="w-12 h-12 rounded-lg bg-surface-container-high border border-outline-variant/50 flex items-center justify-center text-xl font-bold text-tertiary">
+                    AW
+                 </div>
+<div>
+<h3 class="font-headline-md text-headline-md font-bold text-on-surface">Amazon Web Services</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1 mt-1">
+<span class="w-2 h-2 rounded-full bg-secondary-container"></span>
+                        Active Vendor ID: V-8472
+                    </p>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface bg-surface-container hover:bg-surface-container-high rounded-full w-8 h-8 flex items-center justify-center transition-colors" onclick="document.getElementById('vendor-drawer').classList.add('translate-x-full'); document.getElementById('drawer-overlay').classList.add('hidden');">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<!-- Drawer Content Scrollable -->
+<div class="flex-grow overflow-y-auto p-6 flex flex-col gap-stack-md bg-background">
+<!-- Risk Assessment Card (Kinetic Style) -->
+<div class="bg-surface-container-lowest rounded-xl p-5 shadow-ambient-lvl-1 border border-outline-variant/30 ai-glow relative overflow-hidden">
+<div class="absolute right-0 top-0 opacity-5 pointer-events-none">
+<span class="material-symbols-outlined text-[120px]">shield_person</span>
+</div>
+<div class="flex justify-between items-start mb-4 relative z-10">
+<div>
+<h4 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">AI Risk Assessment</h4>
+<div class="flex items-center gap-2">
+<span class="font-kpi-value text-headline-lg font-bold text-on-surface">Low Risk</span>
+<div class="px-2 py-0.5 rounded text-[10px] font-bold bg-secondary-container/50 text-on-secondary-container border border-secondary-container">Score: 92/100</div>
+</div>
+</div>
+</div>
+<p class="font-body-md text-[13px] text-on-surface-variant leading-relaxed mb-3 relative z-10">
+                    Vendor transaction patterns remain highly consistent with historical data. No anomalies detected in the last 12 months. Contract terms align with industry standards for Cloud Infrastructure.
+                </p>
+<button class="text-primary font-label-sm text-label-sm hover:underline flex items-center gap-1 relative z-10">
+                    View Full Audit Trail <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+<!-- Quick Stats Bento -->
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-lowest p-4 rounded-xl shadow-ambient-lvl-1 border border-outline-variant/30">
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-1">YTD Spend</p>
+<p class="font-headline-md text-headline-md font-semibold text-on-surface">$148,500</p>
+<p class="text-[11px] text-secondary mt-1 flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">trending_up</span> 12% vs LY</p>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl shadow-ambient-lvl-1 border border-outline-variant/30">
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-1">Avg Transaction</p>
+<p class="font-headline-md text-headline-md font-semibold text-on-surface">$12,375</p>
+<p class="text-[11px] text-on-surface-variant mt-1">Monthly frequency</p>
+</div>
+</div>
+<!-- Recent History List -->
+<div>
+<h4 class="font-headline-md text-[18px] font-semibold text-on-surface mb-3">Recent Transactions</h4>
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 overflow-hidden">
+<ul class="divide-y divide-surface-variant font-table-data text-[13px]">
+<li class="p-3 flex justify-between items-center hover:bg-surface-container/50 transition-colors">
+<div>
+<p class="font-medium text-on-surface">Oct 24, 2023</p>
+<p class="text-on-surface-variant text-[11px]">AWS US-East Server...</p>
+</div>
+<span class="font-medium">-$12,450.00</span>
+</li>
+<li class="p-3 flex justify-between items-center hover:bg-surface-container/50 transition-colors">
+<div>
+<p class="font-medium text-on-surface">Sep 24, 2023</p>
+<p class="text-on-surface-variant text-[11px]">AWS US-East Server...</p>
+</div>
+<span class="font-medium">-$12,120.00</span>
+</li>
+<li class="p-3 flex justify-between items-center hover:bg-surface-container/50 transition-colors">
+<div>
+<p class="font-medium text-on-surface">Aug 24, 2023</p>
+<p class="text-on-surface-variant text-[11px]">AWS US-East Server...</p>
+</div>
+<span class="font-medium">-$11,890.00</span>
+</li>
+</ul>
+<div class="p-2 text-center bg-surface-container-low border-t border-surface-variant">
+<button class="text-primary font-label-sm text-[11px] font-semibold hover:underline">View All History</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Import Excel Multi-Step Dialog -->
+<div class="fixed inset-0 z-50 hidden flex items-center justify-center p-4" id="import-dialog">
+<!-- Dialog Overlay -->
+<div class="absolute inset-0 bg-inverse-surface/60 backdrop-blur-sm" onclick="document.getElementById('import-dialog').classList.add('hidden')"></div>
+<!-- Dialog Box -->
+<div class="bg-surface-container-lowest rounded-xl shadow-ambient-lvl-2 border border-outline-variant/30 w-full max-w-2xl relative z-10 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+<!-- Header -->
+<div class="px-6 py-4 border-b border-surface-variant flex justify-between items-center bg-surface">
+<h3 class="font-headline-md text-[20px] font-bold text-on-surface">Import Ledger Data</h3>
+<button class="text-on-surface-variant hover:bg-surface-container p-1 rounded transition-colors" onclick="document.getElementById('import-dialog').classList.add('hidden')">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<!-- Stepper Indicator -->
+<div class="px-6 py-3 bg-surface-container-low border-b border-surface-variant flex gap-2 items-center font-label-sm text-[11px] font-semibold">
+<span class="text-on-surface flex items-center gap-1"><span class="w-5 h-5 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center">1</span> Upload</span>
+<div class="w-8 h-px bg-outline-variant/50"></div>
+<span class="text-on-surface-variant flex items-center gap-1"><span class="w-5 h-5 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center">2</span> Map Columns</span>
+<div class="w-8 h-px bg-outline-variant/50"></div>
+<span class="text-on-surface-variant flex items-center gap-1"><span class="w-5 h-5 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center">3</span> Validate</span>
+</div>
+<!-- Content Area (Step 1: Upload Active) -->
+<div class="p-8 flex flex-col items-center justify-center bg-background min-h-[300px]">
+<div class="w-full max-w-md border-2 border-dashed border-outline-variant/50 rounded-xl bg-surface-container-lowest p-8 flex flex-col items-center text-center hover:border-primary transition-colors cursor-pointer group">
+<div class="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center mb-4 group-hover:bg-primary-container transition-colors">
+<span class="material-symbols-outlined text-[32px] text-tertiary group-hover:text-on-primary-container">upload_file</span>
+</div>
+<h4 class="font-headline-md text-[16px] font-semibold text-on-surface mb-1">Drag and drop your Excel file</h4>
+<p class="font-body-md text-[13px] text-on-surface-variant mb-4">Supported formats: .xlsx, .csv (Max 50MB)</p>
+<button class="px-4 py-2 bg-surface border border-outline-variant/50 rounded-lg text-on-surface font-label-sm text-label-sm font-semibold hover:bg-surface-container transition-colors shadow-ambient-lvl-1">
+                        Browse Files
+                    </button>
+</div>
+<div class="w-full max-w-md mt-6 ai-glow bg-surface-container-lowest rounded-lg p-3 flex items-start gap-3 border border-outline-variant/30">
+<span class="material-symbols-outlined text-primary text-[20px] mt-0.5">auto_awesome</span>
+<div>
+<p class="font-label-sm text-label-sm font-semibold text-on-surface mb-0.5">AI Auto-Mapping enabled</p>
+<p class="font-body-md text-[12px] text-on-surface-variant">Our models will automatically detect and map headers based on historical ledger structures.</p>
+</div>
+</div>
+</div>
+<!-- Footer Actions -->
+<div class="px-6 py-4 border-t border-surface-variant bg-surface flex justify-end gap-3">
+<button class="px-5 py-2 rounded-lg text-on-surface-variant font-label-sm text-label-sm font-semibold hover:bg-surface-container transition-colors" onclick="document.getElementById('import-dialog').classList.add('hidden')">
+                    Cancel
+                </button>
+<button class="px-5 py-2 rounded-lg bg-primary-container text-on-primary-container font-label-sm text-label-sm font-semibold hover:bg-primary-fixed transition-colors shadow-ambient-lvl-1 flex items-center gap-2" onclick="showToast()">
+                    Simulate Upload <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Success Toast (Hidden by default) -->
+<div class="fixed bottom-6 right-6 bg-inverse-surface text-inverse-on-surface px-4 py-3 rounded-lg shadow-ambient-lvl-2 font-body-md text-sm flex items-center gap-3 z-50 transform translate-y-20 opacity-0 transition-all duration-300" id="toast">
+<span class="material-symbols-outlined text-primary-container">check_circle</span>
+<div>
+<p class="font-semibold">Import Started</p>
+<p class="text-xs text-outline-variant">Processing 1,240 rows. AI mapping in progress.</p>
+</div>
+</div>
+<script>
+        function closeAllOverlays() {
+            document.getElementById('vendor-drawer').classList.add('translate-x-full');
+            document.getElementById('import-dialog').classList.add('hidden');
+            document.getElementById('drawer-overlay').classList.add('hidden');
+        }
+
+        function showToast() {
+            // Close dialog
+            document.getElementById('import-dialog').classList.add('hidden');
+            
+            // Show toast
+            const toast = document.getElementById('toast');
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            
+            // Hide after 3 seconds
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+
+
+</body></html>

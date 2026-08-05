@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Urbanist } from "next/font/google";
+import { Urbanist, Inter } from "next/font/google";
 import Script from "next/script";
 import { AuthProvider } from "@/context/AuthContext";
 import "./globals.css";
@@ -8,6 +8,12 @@ const urbanist = Urbanist({
   variable: "--font-urbanist",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
+});
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -21,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${urbanist.variable} h-full antialiased`}>
+    <html lang="en" className={`${urbanist.variable} ${inter.variable} h-full antialiased`}>
       <head>
         <link
           rel="stylesheet"
@@ -32,7 +38,7 @@ export default function RootLayout({
           strategy="beforeInteractive"
         />
       </head>
-      <body className="min-h-full flex flex-col bg-[#f7f9ff] font-sans antialiased text-on-surface">
+      <body className="min-h-full flex flex-col bg-[#f6fbf6] font-sans antialiased text-on-surface">
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
