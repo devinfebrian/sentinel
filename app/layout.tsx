@@ -1,18 +1,18 @@
 import type { Metadata } from "next";
-import { Manrope } from "next/font/google";
+import { Urbanist } from "next/font/google";
 import Script from "next/script";
 import { AuthProvider } from "@/context/AuthContext";
 import "./globals.css";
 
-const manrope = Manrope({
-  variable: "--font-manrope",
+const urbanist = Urbanist({
+  variable: "--font-urbanist",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
-  title: "Eleva - K-12 Learning Portal",
-  description: "Eleva K-12 Learning Portal",
+  title: "Sentinel - Financial Intelligence",
+  description: "Sentinel AI financial intelligence and risk analysis platform",
 };
 
 export default function RootLayout({
@@ -21,7 +21,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${manrope.variable} h-full antialiased`}>
+    <html lang="en" className={`${urbanist.variable} h-full antialiased`}>
       <head>
         <link
           rel="stylesheet"
@@ -32,10 +32,9 @@ export default function RootLayout({
           strategy="beforeInteractive"
         />
       </head>
-      <body className="min-h-full flex flex-col bg-[#B9D9EB] font-sans antialiased text-on-surface">
+      <body className="min-h-full flex flex-col bg-[#f7f9ff] font-sans antialiased text-on-surface">
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );
 }
-
