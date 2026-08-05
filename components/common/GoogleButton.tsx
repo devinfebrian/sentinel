@@ -2,11 +2,37 @@
 
 import React, { useEffect, useRef } from 'react';
 
+/** Minimal shape of the bits of Google Identity Services this component uses. */
+interface GsiCredentialResponse {
+  credential?: string;
+  select_by?: string;
+}
+
+interface GsiButtonOptions {
+  theme?: 'outline' | 'filled_blue' | 'filled_black';
+  size?: 'small' | 'medium' | 'large';
+  type?: 'standard' | 'icon';
+  shape?: 'rectangular' | 'pill' | 'circle' | 'square';
+  width?: number;
+}
+
+interface GsiClient {
+  accounts: {
+    id: {
+      initialize: (config: {
+        client_id: string;
+        callback: (response: GsiCredentialResponse) => void;
+      }) => void;
+      renderButton: (parent: HTMLElement, options: GsiButtonOptions) => void;
+    };
+  };
+}
+
 declare global {
   interface Window {
-    __gsi_callback?: (response: any) => void;
+    __gsi_callback?: (response: GsiCredentialResponse) => void;
     __gsi_initialized_clientId?: string;
-    google?: any;
+    google?: GsiClient;
   }
 }
 
@@ -26,12 +52,17 @@ export default function GoogleButton({ role, onClick, onGoogleTokenSuccess, labe
   }, [onGoogleTokenSuccess, role]);
 
   useEffect(() => {
-    const clientId =
-      process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
-      '591941627936-pk635n6ibijpaaf0b3ckov864uf6ses2.apps.googleusercontent.com';
+    // Comes from the environment only. A hardcoded fallback used to live here,
+    // which meant a real OAuth client ID sat in the repository and was what
+    // actually ran, since no .env file existed.
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    if (!clientId) {
+      console.warn('[GoogleButton] NEXT_PUBLIC_GOOGLE_CLIENT_ID is not set; sign-in disabled.');
+      return;
+    }
 
     // Store callback globally so initialize is only called ONCE per client ID
-    window.__gsi_callback = (response: any) => {
+    window.__gsi_callback = (response: GsiCredentialResponse) => {
       const { onGoogleTokenSuccess: cb, role: r } = callbackRef.current;
       if (response?.credential && cb) {
         cb(response.credential, r);
@@ -44,7 +75,7 @@ export default function GoogleButton({ role, onClick, onGoogleTokenSuccess, labe
           if (!window.__gsi_initialized_clientId) {
             window.google.accounts.id.initialize({
               client_id: clientId,
-              callback: (response: any) => {
+              callback: (response: GsiCredentialResponse) => {
                 if (window.__gsi_callback) {
                   window.__gsi_callback(response);
                 }

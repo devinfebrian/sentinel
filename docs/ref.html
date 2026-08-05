@@ -1,0 +1,327 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>FinAnalyst AI - Overview Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@600;700&amp;family=Inter:wght@400;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#585f68",
+                        "secondary-fixed": "#d6e8d0",
+                        "on-secondary-fixed": "#111f11",
+                        "tertiary-fixed": "#dce3ed",
+                        "surface-container": "#eaefeb",
+                        "on-secondary-fixed-variant": "#3b4b3a",
+                        "outline": "#777867",
+                        "surface-variant": "#dfe4e0",
+                        "inverse-surface": "#2c322f",
+                        "on-error-container": "#93000a",
+                        "surface-dim": "#d6dbd7",
+                        "inverse-primary": "#becf63",
+                        "error-container": "#ffdad6",
+                        "surface-container-high": "#e4e9e5",
+                        "on-surface": "#171d1b",
+                        "surface-tint": "#576400",
+                        "secondary-fixed-dim": "#bacbb5",
+                        "on-tertiary-fixed-variant": "#40474f",
+                        "tertiary-fixed-dim": "#c0c7d1",
+                        "surface": "#f6fbf6",
+                        "surface-container-highest": "#dfe4e0",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-container": "#586956",
+                        "on-error": "#ffffff",
+                        "secondary": "#536350",
+                        "surface-bright": "#f6fbf6",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed": "#daec7b",
+                        "on-primary-fixed-variant": "#414c00",
+                        "inverse-on-surface": "#edf2ee",
+                        "background": "#f6fbf6",
+                        "outline-variant": "#c7c8b3",
+                        "secondary-container": "#d6e8d0",
+                        "primary-container": "#edff8c",
+                        "on-tertiary-container": "#697179",
+                        "on-surface-variant": "#464838",
+                        "on-primary": "#ffffff",
+                        "surface-container-low": "#f0f5f1",
+                        "on-primary-container": "#687710",
+                        "primary-fixed-dim": "#becf63",
+                        "error": "#ba1a1a",
+                        "primary": "#576400",
+                        "on-tertiary-fixed": "#151c23",
+                        "on-primary-fixed": "#191e00",
+                        "tertiary-container": "#f0f6ff",
+                        "on-tertiary": "#ffffff",
+                        "on-background": "#171d1b"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-lg": "48px",
+                        "stack-md": "24px",
+                        "unit": "8px",
+                        "gutter": "24px",
+                        "container-padding": "32px",
+                        "stack-sm": "12px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Urbanist"],
+                        "display-lg": ["Urbanist"],
+                        "kpi-value": ["Urbanist"],
+                        "table-data": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-md": ["Urbanist"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg-mobile": ["Urbanist"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "kpi-value": ["36px", { "lineHeight": "44px", "fontWeight": "700" }],
+                        "table-data": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .shadow-level-1 { box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.04); }
+        .shadow-level-2 { box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.08); }
+        .ai-glow { box-shadow: inset 0 0 15px rgba(237, 255, 140, 0.4); border-left: 2px solid #EDFF8C; }
+    </style>
+</head>
+<body class="bg-[#E9EEEA] text-on-surface font-body-md text-body-md flex min-h-screen">
+<!-- SideNavBar (Hidden on Mobile) -->
+<nav class="hidden md:flex flex-col h-screen w-20 fixed left-0 top-0 bg-surface-container-lowest py-6 items-center border-r border-outline-variant/30 z-50">
+  <!-- Top: Theme Toggle -->
+  <div class="flex flex-col gap-4 mb-8">
+    <div class="bg-surface-container rounded-full p-1 flex flex-col gap-1">
+      <button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-lowest text-primary shadow-level-1">
+        <span class="material-symbols-outlined">light_mode</span>
+      </button>
+      <button class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-variant transition-colors">
+        <span class="material-symbols-outlined">dark_mode</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Middle: Navigation Icons -->
+  <ul class="flex flex-col gap-4 flex-grow">
+    <li>
+      <a href="#" class="w-12 h-12 flex items-center justify-center rounded-xl bg-on-surface text-primary-container shadow-level-1 transition-all" title="Dashboard">
+        <span class="material-symbols-outlined">grid_view</span>
+      </a>
+    </li>
+    <li>
+      <a href="#" class="w-12 h-12 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container transition-all" title="Transactions">
+        <span class="material-symbols-outlined">receipt_long</span>
+      </a>
+    </li>
+    <li>
+      <a href="#" class="w-12 h-12 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container transition-all" title="Analytics">
+        <span class="material-symbols-outlined">insert_chart</span>
+      </a>
+    </li>
+    <li>
+      <a href="#" class="w-12 h-12 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container transition-all" title="Chat">
+        <span class="material-symbols-outlined">forum</span>
+      </a>
+    </li>
+  </ul>
+
+  <!-- Bottom: Profile & Actions -->
+  <div class="mt-auto flex flex-col gap-6 pb-4">
+    <button class="text-on-surface-variant hover:text-primary transition-colors">
+      <span class="material-symbols-outlined">help</span>
+    </button>
+    <button class="text-on-surface-variant hover:text-primary transition-colors">
+      <span class="material-symbols-outlined">settings</span>
+    </button>
+    <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container cursor-pointer hover:shadow-level-2 transition-shadow">
+      <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuB28yGp2RnUqAi7GMqK4RfVvHyFVOHE8XeVngTxghaFSFPawAA51Eub1y1XJI6bF5W8-GDxsZoGKHecasGrcPn8nZ-WUmHhqbxMvqV927NCMnNConfiMsnI0Bq0SmvOGZ8uEmGnitwNYOD97837ItPKq8uet0Y4eHPiAz7bnFw_tP8y0GtQh4racnMNvsc_ekfCDiEW3JWShuCO7HXP3S1rNccVKk3VrdewyYtpDGh-otw6RAU3EOQI" alt="User" class="w-full h-full object-cover">
+    </div>
+  </div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-grow flex flex-col w-full" style="margin-left: 5rem;">
+<!-- TopAppBar (Simplified for Web Layout) -->
+<header class="h-16 w-full flex justify-between items-center px-margin-desktop md:px-container-padding bg-surface">
+<!-- Mobile Menu Toggle (Visible only on mobile) -->
+<button class="md:hidden text-on-surface">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<!-- Search -->
+<div class="flex-1 flex items-center max-w-md mx-4 md:mx-0">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full bg-surface-container-lowest border border-[#CFE1CA] rounded-[14px] pl-10 pr-4 py-2 text-body-md focus:outline-none focus:border-secondary transition-colors placeholder:text-outline" placeholder="Search financials..." type="text">
+</div>
+</div>
+<!-- Trailing Actions & Profile -->
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<img alt="Executive User Profile" class="w-10 h-10 rounded-full object-cover shadow-level-1" data-alt="A professional headshot of a corporate executive in a modern, well-lit office environment. Soft, natural light emphasizes a calm and confident demeanor. The color palette features neutral grays and crisp whites, aligning with a premium, high-end corporate aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB28yGp2RnUqAi7GMqK4RfVvHyFVOHE8XeVngTxghaFSFPawAA51Eub1y1XJI6bF5W8-GDxsZoGKHecasGrcPn8nZ-WUmHhqbxMvqV927NCMnNConfiMsnI0Bq0SmvOGZ8uEmGnitwNYOD97837ItPKq8uet0Y4eHPiAz7bnFw_tP8y0GtQh4racnMNvsc_ekfCDiEW3JWShuCO7HXP3S1rNccVKk3VrdewyYtpDGh-otw6RAU3EOQI">
+</div>
+</header>
+<!-- Dashboard Content Canvas -->
+<div class="p-4 md:p-container-padding flex-grow flex flex-col gap-stack-lg max-w-[1440px] mx-auto w-full">
+<!-- Page Header -->
+<div>
+<h2 class="font-headline-lg md:text-display-lg text-headline-lg-mobile text-on-surface">Overview</h2>
+<p class="text-on-surface-variant mt-2">Executive Summary - Q3 Performance</p>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Hero KPIs (Span 12 on mobile, 8 on desktop) -->
+<div class="col-span-1 md:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+<!-- KPI 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-level-1 flex flex-col justify-between hover:shadow-level-2 transition-shadow">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Total Income</span>
+<div class="flex items-end justify-between mt-4">
+<span class="font-kpi-value text-kpi-value text-on-surface">$4.2M</span>
+<div class="flex items-center text-primary">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+<span class="font-label-sm text-label-sm ml-1">+12%</span>
+</div>
+</div>
+</div>
+<!-- KPI 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-level-1 flex flex-col justify-between hover:shadow-level-2 transition-shadow">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Total Expense</span>
+<div class="flex items-end justify-between mt-4">
+<span class="font-kpi-value text-kpi-value text-on-surface">$2.8M</span>
+<div class="flex items-center text-error">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+<span class="font-label-sm text-label-sm ml-1">+5%</span>
+</div>
+</div>
+</div>
+<!-- KPI 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-level-1 flex flex-col justify-between hover:shadow-level-2 transition-shadow">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Net Cash Flow</span>
+<div class="flex items-end justify-between mt-4">
+<span class="font-kpi-value text-kpi-value text-on-surface">$1.4M</span>
+<div class="flex items-center text-primary">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+<span class="font-label-sm text-label-sm ml-1">+8%</span>
+</div>
+</div>
+</div>
+<!-- KPI 4 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-level-1 flex flex-col justify-between hover:shadow-level-2 transition-shadow ai-glow">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container bg-on-surface rounded-full p-0.5 text-xs">auto_awesome</span>
+                            Open Findings
+                        </span>
+<div class="flex items-end justify-between mt-4">
+<span class="font-kpi-value text-kpi-value text-on-surface">3</span>
+<span class="font-label-sm text-label-sm text-error bg-error/10 px-2 py-1 rounded-full">High Risk</span>
+</div>
+</div>
+</div>
+<!-- AI Quick Summary (Span 12 on mobile, 4 on desktop) -->
+<div class="col-span-1 md:col-span-4 bg-surface-container-lowest rounded-xl p-6 shadow-level-1 ai-glow flex flex-col h-full">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-on-surface">psychology</span>
+<h3 class="font-headline-md text-lg font-bold text-on-surface">AI Synthesis</h3>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant flex-grow">
+                        Cash flow remains strong, exceeding Q3 targets by 8%. However, marketing expenses in the APAC division show anomalous spending patterns over the last 14 days. Recommend immediate review of vendor contracts.
+                    </p>
+<button class="mt-6 w-full bg-primary-container text-on-primary-container h-12 rounded-lg font-label-sm text-label-sm font-semibold hover:bg-primary-fixed transition-colors">
+                        View Detailed Report
+                    </button>
+</div>
+</div>
+<!-- Charts Section -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-gutter">
+<!-- Line Chart Placeholder -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-level-1">
+<h3 class="font-headline-md text-lg font-bold text-on-surface mb-4">Income vs Expense</h3>
+<div class="h-64 w-full bg-surface-container flex items-center justify-center rounded-lg border border-outline-variant/30">
+<span class="text-on-surface-variant font-label-sm">[Line Chart Render Area]</span>
+</div>
+</div>
+<!-- Donut Chart Placeholder -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-level-1">
+<h3 class="font-headline-md text-lg font-bold text-on-surface mb-4">Expense by Division</h3>
+<div class="h-64 w-full bg-surface-container flex items-center justify-center rounded-lg border border-outline-variant/30">
+<span class="text-on-surface-variant font-label-sm">[Donut Chart Render Area]</span>
+</div>
+</div>
+</div>
+<!-- Recent AI Findings Table -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-level-1 overflow-x-auto">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-headline-md text-lg font-bold text-on-surface">Recent Anomalies</h3>
+<button class="text-on-surface-variant hover:text-primary font-label-sm text-label-sm flex items-center gap-1 transition-colors">
+                        View All <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-[#D8DFE9] text-on-surface border-b border-surface-container">
+<th class="font-label-sm text-label-sm py-3 px-4 font-semibold uppercase tracking-wider rounded-tl-lg">Date</th>
+<th class="font-label-sm text-label-sm py-3 px-4 font-semibold uppercase tracking-wider">Vendor</th>
+<th class="font-label-sm text-label-sm py-3 px-4 font-semibold uppercase tracking-wider">Division</th>
+<th class="font-label-sm text-label-sm py-3 px-4 font-semibold uppercase tracking-wider">Risk Level</th>
+<th class="font-label-sm text-label-sm py-3 px-4 font-semibold uppercase tracking-wider rounded-tr-lg">Status</th>
+</tr>
+</thead>
+<tbody class="font-table-data text-table-data text-on-surface divide-y divide-[#E9EEEA]">
+<tr class="hover:bg-surface-container/50 transition-colors">
+<td class="py-3 px-4 whitespace-nowrap">Oct 12, 2023</td>
+<td class="py-3 px-4 font-semibold">Acme Corp Services</td>
+<td class="py-3 px-4 text-on-surface-variant">Marketing (APAC)</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-error/20 text-error">High</span>
+</td>
+<td class="py-3 px-4">Pending Review</td>
+</tr>
+<tr class="hover:bg-surface-container/50 transition-colors">
+<td class="py-3 px-4 whitespace-nowrap">Oct 10, 2023</td>
+<td class="py-3 px-4 font-semibold">Global Tech Supplies</td>
+<td class="py-3 px-4 text-on-surface-variant">IT Infrastructure</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-secondary/20 text-secondary">Medium</span>
+</td>
+<td class="py-3 px-4">Investigating</td>
+</tr>
+<tr class="hover:bg-surface-container/50 transition-colors">
+<td class="py-3 px-4 whitespace-nowrap">Oct 08, 2023</td>
+<td class="py-3 px-4 font-semibold">Stellar Logistics</td>
+<td class="py-3 px-4 text-on-surface-variant">Supply Chain</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-surface-variant text-on-surface-variant">Low</span>
+</td>
+<td class="py-3 px-4">Resolved</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</main>
+
+
+</body></html>

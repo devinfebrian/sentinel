@@ -3,7 +3,7 @@ import React from 'react';
 export interface AlertNoticeProps {
   icon?: string;
   message?: string;
-  variant?: 'tertiary' | 'secondary' | 'info';
+  variant?: 'tertiary' | 'secondary' | 'info' | 'error';
   children?: React.ReactNode;
 }
 
@@ -32,12 +32,21 @@ export default function AlertNotice({
       icon: 'text-primary',
       text: 'text-on-primary-container',
     },
+    // Auth failures need to read as failures; without this every page was
+    // hand-rolling its own red banner.
+    error: {
+      bg: 'bg-error-container/50',
+      border: 'border-error-container',
+      icon: 'text-error',
+      text: 'text-on-error-container',
+    },
   };
 
   const currentStyle = styles[variant] || styles.tertiary;
 
   return (
     <div
+      role={variant === 'error' ? 'alert' : undefined}
       className={`flex items-start gap-3 p-3 rounded-lg border text-left transition-all ${currentStyle.bg} ${currentStyle.border}`}
     >
       <span className={`material-symbols-outlined text-[20px] shrink-0 mt-0.5 ${currentStyle.icon}`}>
