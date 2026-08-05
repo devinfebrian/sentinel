@@ -12,6 +12,7 @@ export interface PasswordInputProps {
   required?: boolean;
   helperText?: string;
   error?: string | null;
+  disabled?: boolean;
 }
 
 export default function PasswordInput({
@@ -24,6 +25,7 @@ export default function PasswordInput({
   required = false,
   helperText,
   error,
+  disabled = false,
 }: PasswordInputProps) {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -57,7 +59,9 @@ export default function PasswordInput({
           onChange={onChange}
           placeholder={placeholder}
           required={required}
-          className={`w-full py-3 bg-surface-container-lowest border rounded transition-all font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none ${
+          disabled={disabled}
+          aria-invalid={Boolean(error)}
+          className={`w-full py-3 bg-surface-container-lowest border rounded transition-all font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed ${
             error
               ? 'border-error focus:border-error focus:ring-2 focus:ring-error/20'
               : 'border-outline-variant focus:border-primary-container focus:ring-2 focus:ring-primary-container/20'
@@ -66,7 +70,8 @@ export default function PasswordInput({
         <button
           type="button"
           onClick={() => setShowPassword(!showPassword)}
-          className="absolute right-3 text-outline hover:text-on-surface focus:outline-none transition-colors p-1"
+          disabled={disabled}
+          className="absolute right-3 text-outline hover:text-on-surface focus:outline-none transition-colors p-1 disabled:opacity-50"
           aria-label={showPassword ? 'Hide password' : 'Show password'}
         >
           <span className="material-symbols-outlined text-[20px]">
