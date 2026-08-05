@@ -1,5 +1,5 @@
-import HomePageClient from '@/components/home/HomePageClient';
+import OverviewDashboard from '@/components/dashboard/OverviewDashboard';
 
 export default function HomePage() {
-  return <HomePageClient />;
+  return <OverviewDashboard />;
 }
