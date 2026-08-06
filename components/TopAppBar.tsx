@@ -19,15 +19,48 @@ export default function TopAppBar() {
   const roleLabel = user?.isAdmin ? 'Finance Lead' : 'Finance Staff';
 
   return (
-    <header className="flex justify-between items-center w-full px-margin-desktop h-16 top-0 sticky z-40 bg-surface-container-lowest border-b border-outline-variant">
-      <div className="flex items-center gap-3">
-        <span className="material-symbols-outlined text-primary">shield_person</span>
-        <span className="font-label-sm text-label-sm uppercase text-on-surface-variant">
-          Sentinel
-        </span>
+    <header className="sticky top-0 z-40 flex h-16 min-w-0 w-full items-center gap-4 border-b border-outline-variant bg-surface-container-lowest px-4 md:px-6 lg:px-8">
+      <div className="min-w-0 flex-1">
+        <p className="truncate font-headline-md text-lg font-semibold text-on-surface sm:text-xl">
+          Ledger Actions
+        </p>
       </div>
 
-      <div className="flex items-center gap-2 text-on-surface-variant">
+      <div className="hidden min-w-0 flex-1 justify-center sm:flex">
+        <div className="relative w-full max-w-[420px]">
+          <span
+            aria-hidden="true"
+            className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant"
+          >
+            search
+          </span>
+          <input
+            type="search"
+            readOnly
+            aria-label="Search transactions and entities"
+            placeholder="Search transactions, entities..."
+            className="h-10 w-full rounded-lg border border-outline-variant bg-surface-container-low pl-10 pr-4 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+          />
+        </div>
+      </div>
+
+      <div className="ml-auto flex shrink-0 items-center gap-1 text-on-surface-variant">
+        <button
+          type="button"
+          disabled
+          aria-label="Notifications"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-surface-container-high disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <span className="material-symbols-outlined">notifications</span>
+        </button>
+        <button
+          type="button"
+          disabled
+          aria-label="Settings"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-surface-container-high disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <span className="material-symbols-outlined">settings</span>
+        </button>
         <div className="relative">
           <button
             type="button"

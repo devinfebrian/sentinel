@@ -373,21 +373,21 @@ export default function TransactionsPage() {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <header className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
         <div>
           <h1 className="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">
             Transactions
           </h1>
           <p className="font-body-md text-body-md text-on-surface-variant mt-2">
-            Manage Finance Lead and Finance Staff accounts
+            Manage and review categorized ledger entries. AI models have pre-processed recent uploads.
           </p>
         </div>
 
-        <div className="flex gap-3 shrink-0">
+        <div className="flex flex-wrap gap-3 shrink-0">
           <button 
             type="button"
             onClick={() => setIsImportOpen(true)}
-            className="inline-flex items-center justify-center gap-2 bg-surface text-primary px-6 py-3 rounded-lg font-label-lg text-label-lg uppercase border border-outline-variant hover:bg-surface-container transition-colors"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-outline-variant bg-surface-container-lowest px-5 font-label-lg text-label-lg text-primary shadow-ambient-lvl-1 transition-colors hover:bg-surface-container"
           >
             <span className="material-symbols-outlined text-[20px]">upload_file</span>
             Import Excel
@@ -395,18 +395,25 @@ export default function TransactionsPage() {
           <button 
             type="button"
             onClick={handleAddNewClick}
-            className="inline-flex items-center justify-center gap-2 bg-primary-container text-on-primary-container px-6 py-3 rounded-lg font-label-lg text-label-lg uppercase hover:bg-primary-fixed transition-colors"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-primary-container bg-primary-container px-5 font-label-lg text-label-lg text-on-primary-container shadow-ambient-lvl-1 transition-colors hover:bg-primary-fixed"
           >
             <span className="material-symbols-outlined text-[20px]">add</span>
-            Transaction
+            Add Transaction
           </button>
         </div>
       </header>
 
       <div className="space-y-6">
-        <div className="flex flex-col md:flex-row gap-6 bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/40">
-          <div className="flex-1 md:max-w-sm relative">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px] pointer-events-none">
+        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-outline-variant/40 bg-surface-container-lowest p-4 shadow-ambient-lvl-1">
+          <div className="flex shrink-0 items-center gap-2 text-on-surface-variant">
+            <span className="material-symbols-outlined text-[20px]" aria-hidden="true">
+              filter_alt
+            </span>
+            <span className="font-label-lg text-label-lg">Filters</span>
+          </div>
+
+          <div className="relative min-w-0 flex-[1_1_16rem]">
+            <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[20px] text-on-surface-variant" aria-hidden="true">
               search
             </span>
             <input 
@@ -414,14 +421,15 @@ export default function TransactionsPage() {
               placeholder="Search transactions..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-surface-container-lowest border border-outline-variant rounded font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all"
+              aria-label="Search transactions"
+              className="h-12 w-full rounded-xl border border-outline-variant bg-surface-container-lowest pl-10 pr-4 font-body-md text-body-md text-on-surface placeholder:text-outline transition-all focus:border-primary-container focus:outline-none focus:ring-2 focus:ring-primary-container/20"
             />
           </div>
 
-          <div className="flex flex-wrap gap-4">
-            <div className="relative">
+          <div className="relative min-w-0 flex-[1_1_10rem] md:flex-none">
               <select 
-                className="appearance-none bg-surface-container-lowest border border-outline-variant rounded pl-3 pr-9 py-2.5 font-body-md text-body-md text-on-surface-variant focus:outline-none focus:border-primary-container"
+                aria-label="Filter by type"
+                className="h-12 w-full appearance-none rounded-xl border border-outline-variant bg-surface-container-lowest pl-3 pr-9 font-body-md text-body-md text-on-surface-variant focus:border-primary-container focus:outline-none md:min-w-[9rem]"
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
               >
@@ -429,42 +437,45 @@ export default function TransactionsPage() {
                 <option value="income">Income</option>
                 <option value="expense">Expense</option>
               </select>
-              <span className="material-symbols-outlined pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">
+              <span aria-hidden="true" className="material-symbols-outlined pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">
                 expand_more
               </span>
-            </div>
+          </div>
 
-            <div className="relative">
+          <div className="relative min-w-0 flex-[1_1_10rem] md:flex-none">
               <select 
-                className="appearance-none bg-surface-container-lowest border border-outline-variant rounded pl-3 pr-9 py-2.5 font-body-md text-body-md text-on-surface-variant focus:outline-none focus:border-primary-container"
+                aria-label="Filter by category"
+                className="h-12 w-full appearance-none rounded-xl border border-outline-variant bg-surface-container-lowest pl-3 pr-9 font-body-md text-body-md text-on-surface-variant focus:border-primary-container focus:outline-none md:min-w-[10rem]"
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
               >
                 <option value="All">All Categories</option>
                 {allCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
               </select>
-              <span className="material-symbols-outlined pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">
+              <span aria-hidden="true" className="material-symbols-outlined pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">
                 expand_more
               </span>
-            </div>
+          </div>
 
-            <div className="relative">
+          <div className="relative min-w-0 flex-[1_1_10rem] md:flex-none">
               <select 
-                className="appearance-none bg-surface-container-lowest border border-outline-variant rounded pl-3 pr-9 py-2.5 font-body-md text-body-md text-on-surface-variant focus:outline-none focus:border-primary-container"
+                aria-label="Filter by vendor"
+                className="h-12 w-full appearance-none rounded-xl border border-outline-variant bg-surface-container-lowest pl-3 pr-9 font-body-md text-body-md text-on-surface-variant focus:border-primary-container focus:outline-none md:min-w-[10rem]"
                 value={vendorFilter}
                 onChange={(e) => setVendorFilter(e.target.value)}
               >
                 <option value="All">All Vendors</option>
                 {allVendors.map(v => <option key={v.id} value={v.id.toString()}>{v.vendor_name}</option>)}
               </select>
-              <span className="material-symbols-outlined pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">
+              <span aria-hidden="true" className="material-symbols-outlined pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">
                 expand_more
               </span>
-            </div>
+          </div>
 
-            <div className="relative">
+          <div className="relative min-w-0 flex-[1_1_12rem] md:flex-none">
               <select 
-                className="appearance-none bg-surface-container-lowest border border-outline-variant rounded pl-3 pr-9 py-2.5 font-body-md text-body-md text-on-surface-variant focus:outline-none focus:border-primary-container"
+                aria-label="Sort transactions"
+                className="h-12 w-full appearance-none rounded-xl border border-outline-variant bg-surface-container-lowest pl-3 pr-9 font-body-md text-body-md text-on-surface-variant focus:border-primary-container focus:outline-none md:min-w-[12rem]"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
               >
@@ -473,32 +484,44 @@ export default function TransactionsPage() {
                 <option value="amount-desc">Sort by Amount (Highest)</option>
                 <option value="amount-asc">Sort by Amount (Lowest)</option>
               </select>
-              <span className="material-symbols-outlined pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">
+              <span aria-hidden="true" className="material-symbols-outlined pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">
                 expand_more
               </span>
-            </div>
           </div>
+
+          <span className="basis-full font-body-md text-sm text-on-surface-variant md:ml-auto md:basis-auto">
+            Showing {totalItems} records
+          </span>
+
+          <button
+            type="button"
+            disabled
+            aria-label="Export transactions"
+            className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-outline-variant bg-surface-container-lowest text-on-surface-variant shadow-ambient-lvl-1 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <span className="material-symbols-outlined text-[20px]" aria-hidden="true">download</span>
+          </button>
         </div>
 
-        <div className="bg-surface-container-lowest rounded-xl border border-outline-variant/40 overflow-hidden shadow-sm">
+        <div className="overflow-hidden rounded-xl border border-outline-variant/40 bg-surface-container-lowest shadow-ambient-lvl-1">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[1000px]">
+          <table className="w-full min-w-[960px] border-collapse text-left">
             <thead>
-              <tr className="bg-tertiary-fixed text-on-tertiary-fixed-variant font-label-sm text-label-sm border-b border-surface-variant">
-                <th className="py-3 px-4 font-semibold w-12 text-center text-on-surface-variant">No.</th>
-                <th className="py-3 px-4 font-semibold">Date</th>
-                <th className="py-3 px-4 font-semibold w-[25%]">Description</th>
-                <th className="py-3 px-4 font-semibold">Category</th>
-                <th className="py-3 px-4 font-semibold">Types</th>
-                <th className="py-3 px-4 font-semibold">Vendor</th>
-                <th className="py-3 px-4 font-semibold text-right">Amount</th>
-                <th className="py-3 px-4 font-semibold w-16 text-right">Actions</th>
+              <tr className="border-b border-tertiary-fixed-dim bg-tertiary-fixed font-label-sm text-label-sm text-on-tertiary-fixed-variant">
+                <th className="w-12 px-4 py-3 text-center font-semibold">No.</th>
+                <th className="px-4 py-3 font-semibold">Date</th>
+                <th className="w-[25%] px-4 py-3 font-semibold">Description</th>
+                <th className="px-4 py-3 font-semibold">Category</th>
+                <th className="px-4 py-3 font-semibold">Type</th>
+                <th className="px-4 py-3 font-semibold">Vendor</th>
+                <th className="px-4 py-3 text-right font-semibold">Amount</th>
+                <th className="w-16 px-4 py-3 text-right font-semibold">Actions</th>
               </tr>
             </thead>
-            <tbody className="font-table-data text-table-data text-on-surface divide-y divide-surface-container">
+            <tbody className="divide-y divide-surface-variant/70 text-[14px] leading-5 text-on-surface">
               {filteredTransactions.length === 0 && !isLoading && (
                 <tr>
-                  <td colSpan={8} className="py-8 text-center text-on-surface-variant">
+                  <td colSpan={8} className="px-4 py-8 text-center text-on-surface-variant">
                     No transactions found matching criteria.
                   </td>
                 </tr>
@@ -508,18 +531,19 @@ export default function TransactionsPage() {
                 const absoluteIndex = (currentPage - 1) * itemsPerPage + idx + 1;
                 
                 return (
-                  <tr key={tx.id} className="hover:bg-surface-container/50 transition-colors group">
-                    <td className="py-3 px-4 text-center font-mono text-sm text-on-surface-variant">
+                  <tr key={tx.id} className="group transition-colors hover:bg-surface-container/50">
+                    <td className="px-4 py-3 text-center font-mono text-sm text-on-surface-variant">
                       {absoluteIndex}
                     </td>
-                    <td className="py-3 px-4 text-on-surface-variant">{dateStr}</td>
-                    <td className="py-3 px-4 font-medium truncate max-w-xs">{tx.description}</td>
-                    <td className="py-3 px-4">{tx.category}</td>
-                    <td className="py-3 px-4 capitalize">{tx.type}</td>
-                    <td className="py-3 px-4">
+                    <td className="px-4 py-3 text-on-surface-variant">{dateStr}</td>
+                    <td className="max-w-xs truncate px-4 py-3 font-medium">{tx.description}</td>
+                    <td className="px-4 py-3">{tx.category}</td>
+                    <td className="px-4 py-3 capitalize">{tx.type}</td>
+                    <td className="px-4 py-3">
                       {tx.vendor_name ? (
                         <button 
-                          className="text-secondary hover:underline font-medium focus:outline-none"
+                          type="button"
+                          className="font-medium text-secondary hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-container"
                           onClick={() => setSelectedVendor(tx.vendor_name)}
                         >
                           {tx.vendor_name}
@@ -528,14 +552,15 @@ export default function TransactionsPage() {
                         <span className="text-on-surface-variant">-</span>
                       )}
                     </td>
-                    <td className={`py-3 px-4 text-right font-medium ${tx.type === 'income' ? 'text-secondary' : ''}`}>
+                    <td className={`px-4 py-3 text-right font-medium ${tx.type === 'income' ? 'text-secondary' : ''}`}>
                       {formatCurrency(tx.amount, tx.type)}
                     </td>
-                    <td className="py-3 px-4 text-right">
-                      <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex justify-end gap-1 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
                         <button 
-                          className="p-1.5 text-on-surface-variant hover:text-primary transition-colors rounded-md hover:bg-surface-container" 
-                          title="Edit Transaction"
+                          type="button"
+                          aria-label="Edit transaction"
+                          className="rounded-md p-1.5 text-on-surface-variant transition-colors hover:bg-surface-container hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-container"
                           onClick={() => handleEditClick(tx)}
                         >
                           <span className="material-symbols-outlined text-[18px]">edit</span>

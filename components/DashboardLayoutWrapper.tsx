@@ -7,7 +7,7 @@ export default function DashboardLayoutWrapper({ children }: { children: React.R
   const isCollapsed = useSidebarStore((s) => s.isCollapsed);
 
   return (
-    <div className={`flex-1 flex flex-col ${isCollapsed ? 'md:ml-[80px]' : 'md:ml-[260px]'} h-full overflow-hidden w-full transition-[margin] duration-300 ease-in-out`}>
+    <div className={`flex-1 flex flex-col ${isCollapsed ? 'md:ml-[64px]' : 'md:ml-[260px]'} h-full overflow-hidden w-full transition-[margin] sidebar-shell-transition`}>
       {children}
     </div>
   );

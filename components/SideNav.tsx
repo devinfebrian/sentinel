@@ -28,25 +28,25 @@ export default function SideNav() {
   const items = NAV_ITEMS.filter((item) => !item.adminOnly || isAdmin);
 
   return (
-    <nav className={`hidden md:flex flex-col h-full py-base bg-surface-container-lowest ${isCollapsed ? 'w-[80px]' : 'w-[260px]'} transition-[width] duration-300 ease-in-out fixed left-0 top-0 shadow-[0px_4px_20px_rgba(15,61,145,0.04)] z-50 border-r border-outline-variant/30 group`}>
-      <div className={`pt-stack-sm pb-stack-md flex items-center ${isCollapsed ? 'justify-center px-2' : 'justify-center px-4'} relative`}>
-        <div className={`flex items-center gap-3 w-full ${isCollapsed ? 'justify-center' : 'justify-center'}`}>
-          <span
-            className="material-symbols-outlined text-primary-container bg-on-surface p-2 rounded-lg flex-shrink-0"
-            style={{ fontVariationSettings: "'FILL' 1" }}
-          >
-            security
+    <nav id="dashboard-sidebar" className={`hidden md:flex flex-col h-full py-base bg-surface-container-lowest ${isCollapsed ? 'w-[64px]' : 'w-[260px]'} transition-[width] sidebar-shell-transition fixed left-0 top-0 shadow-[0px_4px_20px_rgba(15,61,145,0.04)] z-50 border-r border-outline-variant/30 group`}>
+      <div className="pt-stack-sm pb-stack-md flex items-center justify-start px-3 relative">
+        <div className="flex items-center w-full justify-start gap-3">
+          <span className="w-10 h-10 flex-shrink-0 flex items-center justify-center">
+            <span
+              className="material-symbols-outlined text-primary-container bg-on-surface p-2 rounded-lg"
+              style={{ fontVariationSettings: "'FILL' 1" }}
+            >
+              security
+            </span>
           </span>
-          {!isCollapsed && (
-            <div className="overflow-hidden whitespace-nowrap transition-all duration-300">
-              <h1 className="font-headline-md text-headline-md font-bold text-primary leading-none">
-                Sentinel
-              </h1>
-              <p className="font-label-sm text-[11px] text-on-surface-variant opacity-80 mt-1">
-                Enterprise Finance
-              </p>
-            </div>
-          )}
+          <div className={`overflow-hidden whitespace-nowrap sidebar-label-transition ${isCollapsed ? 'max-w-0 opacity-0 -translate-x-2' : 'max-w-[180px] opacity-100 translate-x-0'}`}>
+            <span className="font-headline-md text-headline-md font-bold text-primary leading-none">
+              Sentinel
+            </span>
+            <p className="font-label-sm text-[11px] text-on-surface-variant opacity-80 mt-1">
+              Enterprise Finance
+            </p>
+          </div>
         </div>
       </div>
 
@@ -58,24 +58,33 @@ export default function SideNav() {
               key={item.href}
               href={item.href}
               title={isCollapsed ? item.label : undefined}
+              aria-label={isCollapsed ? item.label : undefined}
               aria-current={active ? 'page' : undefined}
-              className={`flex items-center ${isCollapsed ? 'justify-center px-0' : 'gap-3 px-4'} py-3 rounded-lg transition-colors duration-200 ${
+              className={`flex items-center justify-start gap-3 px-0 py-3 rounded-lg transition-colors duration-200 ${
                 active
                   ? 'text-primary font-bold border-r-4 border-primary bg-surface-container-high'
                   : 'text-on-surface-variant opacity-80 hover:bg-surface-container-high'
               }`}
             >
-              <span className="material-symbols-outlined">{item.icon}</span>
-              {!isCollapsed && <span className="font-label-sm text-label-sm overflow-hidden whitespace-nowrap">{item.label}</span>}
+              <span className="w-10 h-10 flex-shrink-0 flex items-center justify-center">
+                <span className="material-symbols-outlined">{item.icon}</span>
+              </span>
+              <span aria-hidden={isCollapsed} className={`font-label-sm text-label-sm overflow-hidden whitespace-nowrap sidebar-label-transition ${isCollapsed ? 'max-w-0 opacity-0 -translate-x-2' : 'max-w-[160px] opacity-100 translate-x-0'}`}>
+                {item.label}
+              </span>
             </Link>
           );
         })}
       </div>
 
       <button
+        type="button"
         onClick={toggleSidebar}
         className="absolute -right-3.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-surface border border-outline-variant/30 text-on-surface-variant hover:text-primary hover:border-primary transition-colors flex items-center justify-center z-50 shadow-ambient-lvl-1"
         title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+        aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        aria-expanded={!isCollapsed}
+        aria-controls="dashboard-sidebar"
       >
         <span className="material-symbols-outlined text-[16px]">
           {isCollapsed ? 'chevron_right' : 'chevron_left'}
