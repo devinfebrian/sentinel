@@ -2,15 +2,24 @@
 
 @theme {
   --color-primary: #576400;
+<<<<<<< HEAD
   --color-on-primary: #ffffff;
   --color-primary-container: #edff8c;
   --color-on-primary-container: #687710;
   --color-primary-fixed: #daec7b;
   --color-primary-fixed-dim: #becf63;
+=======
+  --color-primary-fixed: #daec7b;
+  --color-primary-fixed-dim: #becf63;
+  --color-primary-container: #edff8c;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #687710;
+>>>>>>> 57e293e424e509af77e287fc22a49551929540a5
   --color-on-primary-fixed: #191e00;
   --color-on-primary-fixed-variant: #414c00;
   --color-inverse-primary: #becf63;
 
+<<<<<<< HEAD
   --color-secondary: #536350;
   --color-on-secondary: #ffffff;
   --color-secondary-container: #d6e8d0;
@@ -42,6 +51,39 @@
   --color-surface-container-highest: #dfe4e0;
   --color-surface-dim: #d6dbd7;
   --color-surface-bright: #f6fbf6;
+=======
+  --color-secondary: #5a605d;
+  --color-secondary-container: #dce1dd;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-container: #5e6461;
+  --color-secondary-fixed: #dfe4e0;
+  --color-secondary-fixed-dim: #c2c8c4;
+  --color-on-secondary-fixed: #171d1b;
+  --color-on-secondary-fixed-variant: #424845;
+
+  --color-tertiary: #536350;
+  --color-tertiary-container: #e9fbe3;
+  --color-on-tertiary: #ffffff;
+  --color-on-tertiary-container: #647461;
+  --color-tertiary-fixed: #d6e8d0;
+  --color-tertiary-fixed-dim: #bacbb5;
+  --color-on-tertiary-fixed: #111f11;
+  --color-on-tertiary-fixed-variant: #3b4b3a;
+
+  --color-background: #f7f9ff;
+  --color-on-background: #151c23;
+  --color-surface: #f7f9ff;
+  --color-on-surface: #151c23;
+  --color-surface-variant: #dce3ed;
+  --color-on-surface-variant: #464838;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #edf4fe;
+  --color-surface-container: #e7eef9;
+  --color-surface-container-high: #e2e9f3;
+  --color-surface-container-highest: #dce3ed;
+  --color-surface-dim: #d4dbe5;
+  --color-surface-bright: #f7f9ff;
+>>>>>>> 57e293e424e509af77e287fc22a49551929540a5
   --color-surface-tint: #576400;
 
   --color-outline: #777867;
@@ -51,6 +93,7 @@
   --color-on-error: #ffffff;
   --color-on-error-container: #93000a;
 
+<<<<<<< HEAD
   --font-sans: var(--font-urbanist), var(--font-inter), system-ui, sans-serif;
   --font-urbanist: var(--font-urbanist), sans-serif;
   --font-inter: var(--font-inter), system-ui, sans-serif;
@@ -58,14 +101,30 @@
 
 :root {
   font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+=======
+  --color-inverse-surface: #2a3139;
+  --color-inverse-on-surface: #eaf1fb;
+
+  --font-sans: var(--font-urbanist), system-ui, sans-serif;
+  --font-urbanist: var(--font-urbanist), sans-serif;
+}
+
+:root {
+  font-family: var(--font-urbanist), system-ui, -apple-system, sans-serif;
+>>>>>>> 57e293e424e509af77e287fc22a49551929540a5
   color-scheme: light;
 }
 
 body {
   margin: 0;
   padding: 0;
+<<<<<<< HEAD
   background-color: #f6fbf6;
   color: #171d1b;
+=======
+  background-color: #f7f9ff;
+  color: #151c23;
+>>>>>>> 57e293e424e509af77e287fc22a49551929540a5
 }
 
 /* Custom Spacing Utility Classes */
@@ -104,15 +163,25 @@ body {
 .pt-lg { padding-top: 48px; }
 .pt-xl { padding-top: 80px; }
 
+<<<<<<< HEAD
 /* Typography */
 .font-display-lg {
+=======
+.font-display {
+>>>>>>> 57e293e424e509af77e287fc22a49551929540a5
   font-family: var(--font-urbanist), sans-serif;
   font-weight: 700;
 }
 
+<<<<<<< HEAD
 .text-display-lg {
   font-size: 3rem;
   line-height: 3.5rem;
+=======
+.text-display {
+  font-size: 4.5rem;
+  line-height: 5rem;
+>>>>>>> 57e293e424e509af77e287fc22a49551929540a5
   letter-spacing: -0.02em;
 }
 
@@ -122,6 +191,20 @@ body {
 }
 
 .text-headline-lg {
+<<<<<<< HEAD
+=======
+  font-size: 2.5rem;
+  line-height: 3rem;
+  letter-spacing: -0.01em;
+}
+
+.font-headline-lg-mobile {
+  font-family: var(--font-urbanist), sans-serif;
+  font-weight: 600;
+}
+
+.text-headline-lg-mobile {
+>>>>>>> 57e293e424e509af77e287fc22a49551929540a5
   font-size: 2rem;
   line-height: 2.5rem;
 }
@@ -132,11 +215,25 @@ body {
 }
 
 .text-headline-md {
-  font-size: 1.5rem;
-  line-height: 2rem;
+  font-size: 1.75rem;
+  line-height: 2.25rem;
 }
 
+.font-body-lg {
+  font-family: var(--font-urbanist), sans-serif;
+  font-weight: 400;
+}
+
+.text-body-lg {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
+
+<<<<<<< HEAD
 .font-headline-sm {
+=======
+.font-label-lg {
+>>>>>>> 57e293e424e509af77e287fc22a49551929540a5
   font-family: var(--font-urbanist), sans-serif;
   font-weight: 600;
 }
@@ -146,6 +243,7 @@ body {
   line-height: 1.75rem;
 }
 
+<<<<<<< HEAD
 .font-kpi-value {
   font-family: var(--font-urbanist), sans-serif;
   font-weight: 700;
@@ -168,6 +266,21 @@ body {
 
 .font-body-md {
   font-family: var(--font-inter), sans-serif;
+=======
+.font-label-sm {
+  font-family: var(--font-urbanist), sans-serif;
+  font-weight: 600;
+}
+
+.text-label-sm {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  letter-spacing: 0.05em;
+}
+
+.font-body-md {
+  font-family: var(--font-urbanist), sans-serif;
+>>>>>>> 57e293e424e509af77e287fc22a49551929540a5
   font-weight: 400;
 }
 
@@ -176,6 +289,7 @@ body {
   line-height: 1.5rem;
 }
 
+<<<<<<< HEAD
 .font-body-sm {
   font-family: var(--font-inter), sans-serif;
   font-weight: 400;
@@ -282,6 +396,10 @@ body {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+=======
+.tonal-layer-1 {
+  background-color: #e7eef9;
+>>>>>>> 57e293e424e509af77e287fc22a49551929540a5
 }
 
 .material-symbols-outlined {

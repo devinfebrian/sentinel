@@ -1,10 +1,16 @@
 import React from 'react';
 
+export interface AuthFooterLinkProps {
+  text?: string;
+  linkText?: string;
+  onLinkClick?: () => void;
+}
+
 export default function AuthFooterLink({
   text = 'Need help?',
   linkText = 'Contact Admin',
   onLinkClick,
-}) {
+}: AuthFooterLinkProps) {
   return (
     <div className="mt-lg text-center">
       <p className="font-label-lg text-on-surface-variant">

@@ -2,8 +2,23 @@
 
 import React, { useEffect, useRef } from 'react';
 
-export default function GoogleButton({ role, onClick, onGoogleTokenSuccess, label = 'Continue with Google' }) {
-  const googleBtnRef = useRef(null);
+declare global {
+  interface Window {
+    __gsi_callback?: (response: any) => void;
+    __gsi_initialized_clientId?: string;
+    google?: any;
+  }
+}
+
+export interface GoogleButtonProps {
+  role?: string;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  onGoogleTokenSuccess?: (idToken: string, role?: string) => void;
+  label?: string;
+}
+
+export default function GoogleButton({ role, onClick, onGoogleTokenSuccess, label = 'Continue with Google' }: GoogleButtonProps) {
+  const googleBtnRef = useRef<HTMLDivElement>(null);
   const callbackRef = useRef({ onGoogleTokenSuccess, role });
 
   useEffect(() => {
@@ -16,7 +31,7 @@ export default function GoogleButton({ role, onClick, onGoogleTokenSuccess, labe
       '591941627936-pk635n6ibijpaaf0b3ckov864uf6ses2.apps.googleusercontent.com';
 
     // Store callback globally so initialize is only called ONCE per client ID
-    window.__gsi_callback = (response) => {
+    window.__gsi_callback = (response: any) => {
       const { onGoogleTokenSuccess: cb, role: r } = callbackRef.current;
       if (response?.credential && cb) {
         cb(response.credential, r);
@@ -29,7 +44,7 @@ export default function GoogleButton({ role, onClick, onGoogleTokenSuccess, labe
           if (!window.__gsi_initialized_clientId) {
             window.google.accounts.id.initialize({
               client_id: clientId,
-              callback: (response) => {
+              callback: (response: any) => {
                 if (window.__gsi_callback) {
                   window.__gsi_callback(response);
                 }
@@ -67,19 +82,19 @@ export default function GoogleButton({ role, onClick, onGoogleTokenSuccess, labe
     }
   }, []);
 
-  const handleCustomClick = (e) => {
+  const handleCustomClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     const nativeBtn =
       googleBtnRef.current?.querySelector('div[role="button"]') ||
       googleBtnRef.current?.querySelector('iframe');
     if (nativeBtn) {
-      nativeBtn.click();
+      (nativeBtn as HTMLElement).click();
     } else if (onClick) {
       onClick(e);
     }
   };
 
   return (
-    <div className="relative w-full overflow-hidden rounded-lg">
+    <div className="relative w-full overflow-hidden rounded">
       {/* Invisible container hosting native Google GIS Sign-In button */}
       <div
         ref={googleBtnRef}
@@ -87,11 +102,11 @@ export default function GoogleButton({ role, onClick, onGoogleTokenSuccess, labe
         style={{ transform: 'scale(1.2)' }}
       ></div>
 
-      {/* Visual Eleva Design Google Button */}
+      {/* Visual Sentinel Google Button */}
       <button
         type="button"
         onClick={handleCustomClick}
-        className="w-full flex items-center justify-center gap-3 bg-white border border-outline-variant text-on-surface-variant py-3.5 rounded-lg font-label-lg hover:bg-surface-container-low active:scale-[0.99] transition-all shadow-xs relative z-0 cursor-pointer"
+        className="w-full flex items-center justify-center gap-3 bg-surface-container-lowest border border-outline-variant text-on-surface py-3 rounded font-label-sm text-label-sm hover:bg-surface-container active:scale-[0.99] transition-all relative z-0 cursor-pointer"
       >
         <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
           <path

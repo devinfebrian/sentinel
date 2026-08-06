@@ -1,4 +1,18 @@
+'use client';
+
 import React, { useState } from 'react';
+
+export interface PasswordInputProps {
+  id: string;
+  label?: string;
+  placeholder?: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  icon?: string;
+  required?: boolean;
+  helperText?: string;
+  error?: string | null;
+}
 
 export default function PasswordInput({
   id,
@@ -10,16 +24,16 @@ export default function PasswordInput({
   required = false,
   helperText,
   error,
-}) {
+}: PasswordInputProps) {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <div className="space-y-xs group text-left">
+    <div className="space-y-1 group text-left">
       {label && (
         <label
           htmlFor={id}
-          className={`block font-label-lg text-label-lg transition-colors ${
-            error ? 'text-error font-semibold' : 'text-on-surface-variant group-focus-within:text-primary'
+          className={`block font-label-sm text-label-sm uppercase transition-colors ${
+            error ? 'text-error font-bold' : 'text-on-surface group-focus-within:text-primary'
           }`}
         >
           {label}
@@ -43,10 +57,10 @@ export default function PasswordInput({
           onChange={onChange}
           placeholder={placeholder}
           required={required}
-          className={`w-full py-3 bg-[#F5F5F4] border-b-2 transition-all font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none ${
+          className={`w-full py-3 bg-surface-container-lowest border rounded transition-all font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none ${
             error
-              ? 'border-error focus:border-error bg-error-container/10'
-              : 'border-outline-variant focus:border-primary'
+              ? 'border-error focus:border-error focus:ring-2 focus:ring-error/20'
+              : 'border-outline-variant focus:border-primary-container focus:ring-2 focus:ring-primary-container/20'
           } ${icon ? 'pl-10 pr-10' : 'pl-4 pr-10'}`}
         />
         <button
