@@ -369,34 +369,35 @@ export default function TransactionsPage() {
   const totalItems = filteredTransactions.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const paginatedTransactions = filteredTransactions.slice(
-    (currentPage - 1) * itemsPerPage,
+(currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
 
   return (
-    <div className="space-y-8 animate-fade-in w-full max-w-6xl mx-auto">
+    <div className="space-y-8 animate-fade-in">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">
             Transactions
           </h1>
           <p className="font-body-md text-body-md text-on-surface-variant mt-2">
-            Manage and review categorized ledger entries. AI models have pre-processed recent uploads.
+            Manage Finance Lead and Finance Staff accounts
           </p>
         </div>
+
         <div className="flex gap-3 shrink-0">
           <button 
             type="button"
-            className="inline-flex items-center justify-center gap-2 bg-surface-container text-on-surface px-6 py-3 rounded-lg font-label-lg text-label-lg uppercase border border-outline-variant/50 hover:bg-surface-container-high transition-colors shrink-0"
             onClick={() => setIsImportOpen(true)}
+            className="inline-flex items-center justify-center gap-2 bg-surface text-primary px-6 py-3 rounded-lg font-label-lg text-label-lg uppercase border border-outline-variant hover:bg-surface-container transition-colors"
           >
             <span className="material-symbols-outlined text-[20px]">upload_file</span>
             Import Excel
           </button>
           <button 
             type="button"
-            className="inline-flex items-center justify-center gap-2 bg-primary-container text-on-primary-container px-6 py-3 rounded-lg font-label-lg text-label-lg uppercase hover:bg-primary-fixed transition-colors shrink-0"
             onClick={handleAddNewClick}
+            className="inline-flex items-center justify-center gap-2 bg-primary-container text-on-primary-container px-6 py-3 rounded-lg font-label-lg text-label-lg uppercase hover:bg-primary-fixed transition-colors"
           >
             <span className="material-symbols-outlined text-[20px]">add</span>
             Transaction
@@ -404,72 +405,84 @@ export default function TransactionsPage() {
         </div>
       </header>
 
-        {/* Filters Toolbar */}
-        <div className="bg-surface-container-lowest p-2 rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.04)] border border-outline-variant/30 flex flex-wrap gap-2 items-center">
-          <div className="flex items-center px-3 border-r border-outline-variant/30 text-on-surface-variant font-label-sm text-label-sm gap-2">
-            <span className="material-symbols-outlined text-[18px]">filter_list</span> Filters
+      <div className="space-y-6">
+        <div className="flex flex-col md:flex-row gap-6 bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/40">
+          <div className="flex-1 md:max-w-sm relative">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px] pointer-events-none">
+              search
+            </span>
+            <input 
+              type="text" 
+              placeholder="Search transactions..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 bg-surface-container-lowest border border-outline-variant rounded font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all"
+            />
           </div>
-          {/* Filter Chips */}
-          <div className="flex gap-2">
-            <div className="relative flex items-center bg-surface-container-low rounded-lg focus-within:ring-1 focus-within:ring-primary w-64">
-              <span className="material-symbols-outlined text-[18px] text-on-surface-variant absolute left-2">search</span>
-              <input 
-                type="text" 
-                placeholder="Search descriptions..." 
-                className="w-full bg-transparent border-none rounded-lg text-on-surface font-body-md text-table-data py-1.5 pl-8 pr-3 focus:outline-none"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+
+          <div className="flex flex-wrap gap-4">
+            <div className="relative">
+              <select 
+                className="appearance-none bg-surface-container-lowest border border-outline-variant rounded pl-3 pr-9 py-2.5 font-body-md text-body-md text-on-surface-variant focus:outline-none focus:border-primary-container"
+                value={typeFilter}
+                onChange={(e) => setTypeFilter(e.target.value)}
+              >
+                <option value="All">All Types</option>
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+              </select>
+              <span className="material-symbols-outlined pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">
+                expand_more
+              </span>
             </div>
 
-            <select 
-              className="bg-surface-container-low border-none rounded-lg text-on-surface font-body-md text-table-data py-1.5 pl-3 pr-8 focus:ring-0 cursor-pointer hover:bg-surface-container transition-colors"
-              value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
-            >
-              <option value="All">Type: All</option>
-              <option value="income">Income</option>
-              <option value="expense">Expense</option>
-            </select>
+            <div className="relative">
+              <select 
+                className="appearance-none bg-surface-container-lowest border border-outline-variant rounded pl-3 pr-9 py-2.5 font-body-md text-body-md text-on-surface-variant focus:outline-none focus:border-primary-container"
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+              >
+                <option value="All">All Categories</option>
+                {allCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+              </select>
+              <span className="material-symbols-outlined pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">
+                expand_more
+              </span>
+            </div>
 
-            <select 
-              className="bg-surface-container-low border-none rounded-lg text-on-surface font-body-md text-table-data py-1.5 pl-3 pr-8 focus:ring-0 cursor-pointer hover:bg-surface-container transition-colors max-w-[200px]"
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-            >
-              <option value="All">Category: All</option>
-              {allCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-            </select>
+            <div className="relative">
+              <select 
+                className="appearance-none bg-surface-container-lowest border border-outline-variant rounded pl-3 pr-9 py-2.5 font-body-md text-body-md text-on-surface-variant focus:outline-none focus:border-primary-container"
+                value={vendorFilter}
+                onChange={(e) => setVendorFilter(e.target.value)}
+              >
+                <option value="All">All Vendors</option>
+                {allVendors.map(v => <option key={v.id} value={v.id.toString()}>{v.vendor_name}</option>)}
+              </select>
+              <span className="material-symbols-outlined pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">
+                expand_more
+              </span>
+            </div>
 
-            <select 
-              className="bg-surface-container-low border-none rounded-lg text-on-surface font-body-md text-table-data py-1.5 pl-3 pr-8 focus:ring-0 cursor-pointer hover:bg-surface-container transition-colors max-w-[200px]"
-              value={vendorFilter}
-              onChange={(e) => setVendorFilter(e.target.value)}
-            >
-              <option value="All">Vendor: All</option>
-              {allVendors.map(v => <option key={v.id} value={v.id.toString()}>{v.vendor_name}</option>)}
-            </select>
-
-            <select 
-              className="bg-surface-container-low border-none rounded-lg text-on-surface font-body-md text-table-data py-1.5 pl-3 pr-8 focus:ring-0 cursor-pointer hover:bg-surface-container transition-colors"
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-            >
-              <option value="date-desc">Sort: Newest Date</option>
-              <option value="date-asc">Sort: Oldest Date</option>
-              <option value="amount-desc">Sort: Highest Amount</option>
-              <option value="amount-asc">Sort: Lowest Amount</option>
-            </select>
-          </div>
-          <div className="ml-auto flex items-center gap-2 px-2">
-            <span className="font-label-sm text-label-sm text-on-surface-variant">
-              {isLoading ? 'Loading...' : `Showing ${filteredTransactions.length} records`}
-            </span>
+            <div className="relative">
+              <select 
+                className="appearance-none bg-surface-container-lowest border border-outline-variant rounded pl-3 pr-9 py-2.5 font-body-md text-body-md text-on-surface-variant focus:outline-none focus:border-primary-container"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <option value="date-desc">Sort by Date (Newest)</option>
+                <option value="date-asc">Sort by Date (Oldest)</option>
+                <option value="amount-desc">Sort by Amount (Highest)</option>
+                <option value="amount-asc">Sort by Amount (Lowest)</option>
+              </select>
+              <span className="material-symbols-outlined pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">
+                expand_more
+              </span>
+            </div>
           </div>
         </div>
 
-      {/* Data Table Container */}
-      <div className="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.04)] border border-outline-variant/30 overflow-hidden animate-fade-in">
+        <div className="bg-surface-container-lowest rounded-xl border border-outline-variant/40 overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[1000px]">
             <thead>
@@ -548,6 +561,7 @@ export default function TransactionsPage() {
             setCurrentPage(1);
           }}
         />
+      </div>
       </div>
 
       <ImportDialog isOpen={isImportOpen} onClose={() => setIsImportOpen(false)} />

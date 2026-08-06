@@ -216,63 +216,77 @@ export default function VendorsPage() {
   );
 
   return (
-    <div className="space-y-8 animate-fade-in w-full max-w-6xl mx-auto">
+    <div className="space-y-8 animate-fade-in">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">
             Vendor Management
           </h1>
           <p className="font-body-md text-body-md text-on-surface-variant mt-2">
-            Manage third-party vendors and financial counterparties
+            Manage your registered vendor details
           </p>
         </div>
+
         <button 
           type="button"
           onClick={handleAddNewClick}
           className="inline-flex items-center justify-center gap-2 bg-primary-container text-on-primary-container px-6 py-3 rounded-lg font-label-lg text-label-lg uppercase hover:bg-primary-fixed transition-colors shrink-0"
         >
-          <span className="material-symbols-outlined text-[20px]">domain_add</span>
-          Register New Vendor
+          <span className="material-symbols-outlined text-[20px]">add</span>
+          Vendor
         </button>
       </header>
 
-      <div className="space-y-stack-md">
-        <div className="flex flex-col md:flex-row gap-4 mb-4 items-center justify-between bg-surface p-4 rounded-xl border border-surface-container-high shadow-ambient-lvl-1">
-          <div className="flex-1 w-full md:max-w-sm relative">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+      <div className="space-y-6">
+        <div className="flex flex-col md:flex-row gap-6 bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/40">
+          <div className="flex-1 md:max-w-sm relative">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px] pointer-events-none">
+              search
+            </span>
             <input 
-              className="w-full pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant/30 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary/50" 
-              placeholder="Search vendors..." 
               type="text" 
+              placeholder="Search vendors..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 bg-surface-container-lowest border border-outline-variant rounded font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all"
             />
           </div>
-          <div className="flex gap-3 w-full md:w-auto">
-            <select 
-              className="flex-1 md:w-32 bg-surface-container-low border border-outline-variant/30 rounded-lg px-3 py-2 text-sm text-on-surface-variant focus:outline-none"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <option>All Status</option>
-              <option>Active</option>
-              <option>Inactive</option>
-            </select>
-            
-            <select 
-              className="flex-1 md:w-40 bg-surface-container-low border border-outline-variant/30 rounded-lg px-3 py-2 text-sm text-on-surface-variant focus:outline-none"
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-            >
-              <option value="join-desc">Sort: Newest</option>
-              <option value="join-asc">Sort: Oldest</option>
-              <option value="name-asc">Sort: Name A-Z</option>
-              <option value="name-desc">Sort: Name Z-A</option>
-            </select>
+
+          <div className="flex flex-wrap gap-4">
+            <div className="relative">
+              <select 
+                className="appearance-none bg-surface-container-lowest border border-outline-variant rounded pl-3 pr-9 py-2.5 font-body-md text-body-md text-on-surface-variant focus:outline-none focus:border-primary-container"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="All Status">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+              <span className="material-symbols-outlined pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">
+                expand_more
+              </span>
+            </div>
+
+            <div className="relative">
+              <select 
+                className="appearance-none bg-surface-container-lowest border border-outline-variant rounded pl-3 pr-9 py-2.5 font-body-md text-body-md text-on-surface-variant focus:outline-none focus:border-primary-container"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <option value="join-desc">Sort by Join Date (Newest)</option>
+                <option value="join-asc">Sort by Join Date (Oldest)</option>
+                <option value="name-asc">Sort by Name (A-Z)</option>
+                <option value="name-desc">Sort by Name (Z-A)</option>
+              </select>
+              <span className="material-symbols-outlined pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">
+                expand_more
+              </span>
+            </div>
           </div>
         </div>
         
-        <div className="bg-surface rounded-xl shadow-ambient-lvl-1 overflow-hidden border border-surface-container-high">
+        <div className="bg-surface-container-lowest rounded-xl border border-outline-variant/40 overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-[700px]">
               <thead>
