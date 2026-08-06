@@ -17,9 +17,9 @@ import { useAuthStore } from '@/lib/stores/auth.store';
 
 const formatCurrency = (amountStr: string | number, type: string) => {
   const amount = typeof amountStr === 'string' ? parseFloat(amountStr) : amountStr;
-  const formatted = new Intl.NumberFormat('en-US', {
+  const formatted = new Intl.NumberFormat('id-ID', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'IDR',
   }).format(Math.abs(amount));
   return type === 'expense' ? `-${formatted}` : `+${formatted}`;
 };
@@ -489,7 +489,7 @@ export default function TransactionsPage() {
                 <th className="py-3 px-4 font-semibold">Date</th>
                 <th className="py-3 px-4 font-semibold w-[25%]">Description</th>
                 <th className="py-3 px-4 font-semibold">Category</th>
-                <th className="py-3 px-4 font-semibold">Division</th>
+                <th className="py-3 px-4 font-semibold">Types</th>
                 <th className="py-3 px-4 font-semibold">Vendor</th>
                 <th className="py-3 px-4 font-semibold text-right">Amount</th>
                 <th className="py-3 px-4 font-semibold w-16 text-right">Actions</th>
@@ -515,7 +515,7 @@ export default function TransactionsPage() {
                     <td className="py-3 px-4 text-on-surface-variant">{dateStr}</td>
                     <td className="py-3 px-4 font-medium truncate max-w-xs">{tx.description}</td>
                     <td className="py-3 px-4">{tx.category}</td>
-                    <td className="py-3 px-4">Global</td>
+                    <td className="py-3 px-4 capitalize">{tx.type}</td>
                     <td className="py-3 px-4">
                       {tx.vendor_name ? (
                         <button 
