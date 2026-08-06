@@ -138,6 +138,14 @@ function jsonPatch(payload: unknown, accessToken: string): RequestInit {
   };
 }
 
+function jsonPut(payload: unknown, accessToken: string): RequestInit {
+  return {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...authHeaders(accessToken) },
+    body: JSON.stringify(payload),
+  };
+}
+
 // The only endpoints in the app gated by isAdmin — mirrors sentinel-backend's
 // requireAdmin middleware on the /users router.
 export function listUsersApi(accessToken: string) {
@@ -160,4 +168,67 @@ export function resetPasswordApi(userId: number, accessToken: string) {
 
 export function setUserStatusApi(userId: number, isActive: boolean, accessToken: string) {
   return request<{ user: AdminUser }>(`/users/${userId}/status`, jsonPatch({ isActive }, accessToken));
+}
+
+export interface Transaction {
+  id: number;
+  transaction_date: string;
+  amount: string;
+  type: string;
+  category: string;
+  description: string;
+  vendor_id: number | null;
+  vendor_name: string | null;
+  input_by_user_id: number;
+  user_fullname: string | null;
+}
+
+export interface Vendor {
+  id: number;
+  vendor_name: string;
+  bank_account: string;
+  join_date: string;
+  status: string;
+}
+
+export function listTransactionsApi(
+  accessToken: string,
+  params?: { page?: number; limit?: number; type?: string; category?: string; search?: string }
+) {
+  let url = '/transactions?';
+  if (params) {
+    const searchParams = new URLSearchParams();
+    if (params.page) searchParams.set('page', params.page.toString());
+    if (params.limit) searchParams.set('limit', params.limit.toString());
+    if (params.type && params.type !== 'All') searchParams.set('type', params.type.toLowerCase());
+    if (params.category && params.category !== 'All') searchParams.set('category', params.category);
+    if (params.search) searchParams.set('search', params.search);
+    url += searchParams.toString();
+  }
+  return request<{ transactions: Transaction[], pagination: any }>(url, authGet(accessToken));
+}
+
+export function updateTransactionApi(id: number, payload: Partial<Transaction>, accessToken: string) {
+  return request<{ transaction: Transaction }>(`/transactions/${id}`, jsonPut(payload, accessToken));
+}
+
+export function createTransactionApi(payload: { transaction_date: string; amount: number; type: string; category: string; description: string; vendor_id?: number | null; input_by_user_id: number }, accessToken: string) {
+  return request<{ transaction: Transaction }>('/transactions', jsonPost(payload, accessToken));
+}
+
+export function getTransactionCategoriesApi(type: string | undefined, accessToken: string) {
+  const url = type ? `/transactions/categories?type=${type}` : '/transactions/categories';
+  return request<{ income?: string[], expense?: string[] }>(url, authGet(accessToken));
+}
+
+export function listVendorsApi(accessToken: string) {
+  return request<{ vendors: Vendor[] }>('/vendors', authGet(accessToken));
+}
+
+export function createVendorApi(payload: { vendor_name: string; bank_account: string; status?: string }, accessToken: string) {
+  return request<{ vendor: Vendor }>('/vendors', jsonPost(payload, accessToken));
+}
+
+export function updateVendorApi(id: number, payload: { vendor_name?: string; bank_account?: string; status?: string }, accessToken: string) {
+  return request<{ vendor: Vendor }>(`/vendors/${id}`, jsonPut(payload, accessToken));
 }
