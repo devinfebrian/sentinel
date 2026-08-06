@@ -28,11 +28,11 @@ export default function InputField({
   disabled = false,
 }: InputFieldProps) {
   return (
-    <div className="space-y-1 group text-left">
+    <div className="space-y-1.5 group text-left">
       {label && (
         <label
           htmlFor={id}
-          className={`block font-label-sm text-label-sm uppercase transition-colors ${
+          className={`block font-label-lg text-label-lg uppercase transition-colors ${
             error ? 'text-error font-bold' : 'text-on-surface group-focus-within:text-primary'
           }`}
         >
@@ -58,7 +58,7 @@ export default function InputField({
           placeholder={placeholder}
           required={required}
           disabled={disabled}
-          className={`w-full py-3 bg-surface-container-lowest border rounded transition-all font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none ${
+          className={`w-full py-3.5 bg-surface-container-lowest border rounded transition-all font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none ${
             error
               ? 'border-error focus:border-error focus:ring-2 focus:ring-error/20'
               : 'border-outline-variant focus:border-primary-container focus:ring-2 focus:ring-primary-container/20'
@@ -67,8 +67,8 @@ export default function InputField({
       </div>
 
       {error ? (
-        <p className="font-label-sm text-xs text-error mt-1 flex items-center gap-1 animate-fade-in">
-          <span className="material-symbols-outlined text-[14px]">error</span>
+        <p className="font-label-sm text-label-sm text-error mt-1 flex items-center gap-1 animate-fade-in">
+          <span className="material-symbols-outlined text-[16px]">error</span>
           <span>{error}</span>
         </p>
       ) : helperText ? (

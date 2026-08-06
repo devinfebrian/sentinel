@@ -19,7 +19,7 @@ export default function AuthFooterLink({
 }: AuthFooterLinkProps) {
   return (
     <div className="mt-lg text-center">
-      <p className="font-label-lg text-label-lg text-on-surface-variant">
+      <p className="font-body-md text-body-md text-on-surface-variant mt-3">
         {text}{' '}
         <a
           href={href}

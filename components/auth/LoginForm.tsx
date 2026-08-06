@@ -91,9 +91,8 @@ export default function LoginForm() {
 
       <InputField
         id="email"
-        label="Business Email"
+        label="Email"
         type="email"
-        placeholder="name@company.com"
         value={email}
         onChange={(e) => {
           setEmail(e.target.value);
@@ -134,10 +133,6 @@ export default function LoginForm() {
           />
         </>
       )}
-
-      <p className="pt-2 text-center font-label-sm text-label-sm text-outline">
-        Accounts are created by your Finance Lead. Contact them if you cannot sign in.
-      </p>
     </form>
   );
 }

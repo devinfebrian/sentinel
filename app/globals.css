@@ -206,3 +206,10 @@ body {
 .animate-fade-in {
   animation: fadeInScale 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+/* The custom PasswordInput toggle is the only reveal control we want;
+   hide the browser's built-in one so they don't stack. */
+input[type='password']::-ms-reveal,
+input[type='password']::-ms-clear {
+  display: none;
+}
