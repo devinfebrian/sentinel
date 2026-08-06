@@ -266,13 +266,16 @@ export default function TransactionsPage() {
   
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('All');
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [vendorFilter, setVendorFilter] = useState('All');
   const [sortBy, setSortBy] = useState('date-desc');
-  
+
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   
@@ -309,27 +312,38 @@ export default function TransactionsPage() {
     if (!accessToken) return;
     setIsLoading(true);
     listTransactionsApi(accessToken, {
+      page: currentPage,
+      limit: itemsPerPage,
       type: typeFilter,
       category: categoryFilter,
-      limit: 100 // revert back to 100 to prevent potential backend max limit errors
+      search: debouncedSearch || undefined
     })
       .then((res) => {
         if (res.success) {
           setTransactions(res.data.transactions);
+          setTotalItems(res.data.pagination?.total ?? res.data.transactions.length);
+          setTotalPages(res.data.pagination?.totalPages ?? 1);
         }
       })
       .catch(console.error)
       .finally(() => setIsLoading(false));
   };
 
-  // Debounce search
+  // Debounce search input before it drives a server request
   useEffect(() => {
-    setCurrentPage(1); // Reset page on filter change
-    const delay = setTimeout(() => {
-      fetchTransactions();
-    }, 300);
+    const delay = setTimeout(() => setDebouncedSearch(searchQuery), 300);
     return () => clearTimeout(delay);
-  }, [searchQuery, typeFilter, categoryFilter, accessToken]);
+  }, [searchQuery]);
+
+  // Any filter change invalidates the current page
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch, typeFilter, categoryFilter]);
+
+  // Server is the source of truth for what's on the page — page/limit/type/category/search are all sent, not re-derived client-side
+  useEffect(() => {
+    fetchTransactions();
+  }, [currentPage, itemsPerPage, debouncedSearch, typeFilter, categoryFilter, accessToken]);
 
   const handleEditClick = (tx: Transaction) => {
     setTxToEdit(tx);
@@ -341,21 +355,11 @@ export default function TransactionsPage() {
     setIsAddOpen(true);
   };
 
+  // Type/category/search/pagination are already applied server-side (see fetchTransactions).
+  // Vendor filter and sort have no backend query support yet, so they only refine
+  // what's on the current server-fetched page rather than the full result set.
   const filteredTransactions = transactions.filter(tx => {
     if (vendorFilter !== 'All' && tx.vendor_id?.toString() !== vendorFilter) return false;
-    
-    if (searchQuery) {
-      const term = searchQuery.toLowerCase();
-      const dateStr = new Date(tx.transaction_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toLowerCase();
-      const matchesSearch = 
-        (tx.description || '').toLowerCase().includes(term) ||
-        (tx.category || '').toLowerCase().includes(term) ||
-        (tx.amount || '').toString().includes(term) ||
-        (tx.vendor_name || '').toLowerCase().includes(term) ||
-        (dateStr || '').includes(term);
-      if (!matchesSearch) return false;
-    }
-    
     return true;
   }).sort((a, b) => {
     if (sortBy === 'date-desc') return new Date(b.transaction_date).getTime() - new Date(a.transaction_date).getTime();
@@ -365,13 +369,7 @@ export default function TransactionsPage() {
     return 0;
   });
 
-  // Calculate Pagination
-  const totalItems = filteredTransactions.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const paginatedTransactions = filteredTransactions.slice(
-(currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const paginatedTransactions = filteredTransactions;
 
   return (
     <div className="space-y-8 animate-fade-in">
