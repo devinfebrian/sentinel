@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import LoginForm from '@/components/auth/LoginForm';
 import AuthFooterLink from '@/components/auth/AuthFooterLink';
 import LoadingScreen from '@/components/common/LoadingScreen';
+import { AnimatedGridPattern } from '@/components/ui/animated-grid-pattern';
 import { useAuthStore } from '@/lib/stores/auth.store';
 
 export default function LoginPage() {
@@ -41,20 +42,19 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-margin-mobile md:p-margin-desktop bg-background overflow-hidden relative font-body-md text-body-md">
-      <main className="relative z-10 w-full max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-gutter min-h-[calc(100vh-128px)] bg-surface-container-lowest rounded-xl border border-surface-variant overflow-hidden shadow-sm">
+      <main className="relative z-10 w-full mx-8 grid grid-cols-1 lg:grid-cols-2 gap-gutter min-h-[calc(100vh-96px)] bg-surface-container-lowest rounded-xl border border-surface-variant overflow-hidden shadow-sm">
         {/* Brand panel */}
-        <div className="hidden lg:flex flex-col justify-between p-margin-desktop bg-surface relative overflow-hidden">
-          <div
-            className="absolute inset-0 opacity-20 pointer-events-none"
-            style={{
-              backgroundImage:
-                'radial-gradient(circle at 2px 2px, var(--color-outline-variant) 1px, transparent 0)',
-              backgroundSize: '32px 32px',
-            }}
+        <div className="hidden lg:flex flex-col p-margin-desktop bg-surface relative overflow-hidden">
+          <AnimatedGridPattern
+            numSquares={60}
+            maxOpacity={0.3}
+            duration={3}
+            repeatDelay={1}
+            className="inset-x-[-20%] inset-y-[-20%] h-[140%] w-[140%] skew-y-12"
           />
           <div className="absolute -top-32 -left-32 w-96 h-96 bg-primary-container rounded-full mix-blend-multiply filter blur-3xl opacity-20" />
 
-          <div className="relative z-10 flex items-center gap-3 mb-8">
+          <div className="relative z-10 flex items-center gap-3">
             <span
               className="material-symbols-outlined text-primary-container bg-on-surface p-2 rounded-lg"
               style={{ fontVariationSettings: "'FILL' 1" }}
@@ -64,18 +64,6 @@ export default function LoginPage() {
             <span className="font-headline-lg text-headline-lg text-on-surface font-bold">
               Sentinel
             </span>
-          </div>
-
-          <div className="relative z-10 mt-auto">
-            <h1 className="font-headline-lg text-headline-lg text-on-surface mb-6 tracking-tight">
-              Executive
-              <br />
-              Precision.
-            </h1>
-            <p className="font-body-lg text-body-lg text-on-surface-variant max-w-md">
-              Autonomous financial auditing for your finance team, with every finding traceable
-              back to the transaction it came from.
-            </p>
           </div>
         </div>
 
@@ -95,7 +83,7 @@ export default function LoginPage() {
             </div>
 
             <div className="text-center mb-6">
-              <h2 className="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-2">
+              <h2 className="font-headline-md text-headline-md text-on-surface mb-2">
                 Welcome back
               </h2>
               <p className="font-body-md text-body-md text-on-surface-variant">

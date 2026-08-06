@@ -137,7 +137,7 @@ export default function GoogleButton({ role, onClick, onGoogleTokenSuccess, labe
       <button
         type="button"
         onClick={handleCustomClick}
-        className="w-full flex items-center justify-center gap-3 bg-surface-container-lowest border border-outline-variant text-on-surface py-3 rounded font-label-sm text-label-sm hover:bg-surface-container active:scale-[0.99] transition-all relative z-0 cursor-pointer"
+        className="w-full flex items-center justify-center gap-3 bg-surface-container-lowest border border-outline-variant text-on-surface py-3.5 rounded font-label-lg text-label-lg hover:bg-surface-container active:scale-[0.99] transition-all relative z-0 cursor-pointer"
       >
         <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
           <path

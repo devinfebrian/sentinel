@@ -47,12 +47,12 @@ export default function AlertNotice({
   return (
     <div
       role={variant === 'error' ? 'alert' : undefined}
-      className={`flex items-start gap-3 p-3 rounded-lg border text-left transition-all ${currentStyle.bg} ${currentStyle.border}`}
+      className={`flex items-center gap-3 p-3.5 rounded-lg border text-left transition-all ${currentStyle.bg} ${currentStyle.border}`}
     >
-      <span className={`material-symbols-outlined text-[20px] shrink-0 mt-0.5 ${currentStyle.icon}`}>
+      <span className={`material-symbols-outlined text-[20px] shrink-0 ${currentStyle.icon}`}>
         {icon}
       </span>
-      <p className={`font-label-lg text-label-lg leading-relaxed ${currentStyle.text}`}>
+      <p className={`font-body-md text-body-md leading-relaxed ${currentStyle.text}`}>
         {message || children}
       </p>
     </div>

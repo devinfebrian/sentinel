@@ -116,3 +116,48 @@ export function changePasswordApi(
 export function setPasswordApi(payload: { newPassword: string }, accessToken: string) {
   return request<{ user: User }>('/auth/set-password', jsonPost(payload, accessToken));
 }
+
+/** What the /users endpoints return: a safe User plus a status the backend derives, not the client. */
+export interface AdminUser extends User {
+  status: 'Active' | 'Inactive' | 'Pending';
+}
+
+function authHeaders(accessToken: string): HeadersInit {
+  return { Authorization: `Bearer ${accessToken}` };
+}
+
+function authGet(accessToken: string): RequestInit {
+  return { method: 'GET', headers: authHeaders(accessToken) };
+}
+
+function jsonPatch(payload: unknown, accessToken: string): RequestInit {
+  return {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...authHeaders(accessToken) },
+    body: JSON.stringify(payload),
+  };
+}
+
+// The only endpoints in the app gated by isAdmin — mirrors sentinel-backend's
+// requireAdmin middleware on the /users router.
+export function listUsersApi(accessToken: string) {
+  return request<{ users: AdminUser[] }>('/users', authGet(accessToken));
+}
+
+export function createUserApi(payload: { email: string; fullname: string }, accessToken: string) {
+  return request<{ user: AdminUser; tempPassword: string; notice: string }>(
+    '/users',
+    jsonPost(payload, accessToken)
+  );
+}
+
+export function resetPasswordApi(userId: number, accessToken: string) {
+  return request<{ user: AdminUser; tempPassword: string; notice: string }>(
+    `/users/${userId}/reset-password`,
+    { method: 'POST', headers: authHeaders(accessToken) }
+  );
+}
+
+export function setUserStatusApi(userId: number, isActive: boolean, accessToken: string) {
+  return request<{ user: AdminUser }>(`/users/${userId}/status`, jsonPatch({ isActive }, accessToken));
+}
