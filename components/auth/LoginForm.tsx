@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import InputField from '@/components/common/InputField';
 import PasswordInput from '@/components/common/PasswordInput';
 import PrimaryButton from '@/components/common/PrimaryButton';
@@ -87,7 +88,7 @@ export default function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5 animate-fade-in" noValidate>
-      {serverError && <AlertNotice variant="error" icon="error" message={serverError} />}
+      {serverError && <AlertNotice variant="error" icon={ExclamationCircleIcon} message={serverError} />}
 
       <InputField
         id="email"

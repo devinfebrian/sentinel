@@ -15,6 +15,13 @@ import {
   type AdminUser,
 } from '@/lib/services/api';
 import { useAuthStore } from '@/lib/stores/auth.store';
+import {
+  ExclamationCircleIcon,
+  MagnifyingGlassIcon,
+  UserPlusIcon,
+} from '@heroicons/react/24/outline';
+import { FilterSelect, FILTER_INPUT_CLASSES } from '@/components/common/FilterControls';
+import RippleButton, { PRIMARY_ACTION_CLASSES } from '@/components/common/RippleButton';
 
 type LoadStatus = 'loading' | 'ready' | 'error';
 type RoleFilter = 'all' | 'admin' | 'staff';
@@ -27,35 +34,7 @@ interface Reveal {
   notice: string;
 }
 
-interface FilterSelectProps<T extends string> {
-  value: T;
-  onChange: (value: T) => void;
-  options: { value: T; label: string }[];
-}
-
-// Native selects render their own arrow flush against the border in most
-// browsers; appearance-none plus a manually-placed chevron gives it real
-// breathing room instead.
-function FilterSelect<T extends string>({ value, onChange, options }: FilterSelectProps<T>) {
-  return (
-    <div className="relative">
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value as T)}
-        className="appearance-none bg-surface-container-lowest border border-outline-variant rounded pl-3 pr-9 py-2.5 font-body-md text-body-md text-on-surface-variant focus:outline-none focus:border-primary-container"
-      >
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
-      <span className="material-symbols-outlined pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">
-        expand_more
-      </span>
-    </div>
-  );
-}
+const FILTER_WIDTH = 'flex-1 md:w-36 md:flex-none';
 
 export default function AdministrationPage() {
   const router = useRouter();
@@ -109,7 +88,7 @@ export default function AdministrationPage() {
           return;
         }
         setLoadError(
-          err instanceof ApiError ? err.message : 'Unable to load members. Please try again.'
+          err instanceof ApiError ? err.message : 'Unable to load members. Please try again.',
         );
         setStatus('error');
       }
@@ -160,7 +139,7 @@ export default function AdministrationPage() {
       });
     } catch (err) {
       setBannerError(
-        err instanceof ApiError ? err.message : 'Unable to reset this password. Please try again.'
+        err instanceof ApiError ? err.message : 'Unable to reset this password. Please try again.',
       );
     } finally {
       setMutatingId(null);
@@ -177,7 +156,7 @@ export default function AdministrationPage() {
       setUsers((prev) => prev.map((u) => (u.id === user.id ? res.data.user : u)));
     } catch (err) {
       setBannerError(
-        err instanceof ApiError ? err.message : 'Unable to update this member. Please try again.'
+        err instanceof ApiError ? err.message : 'Unable to update this member. Please try again.',
       );
     } finally {
       setMutatingId(null);
@@ -188,119 +167,125 @@ export default function AdministrationPage() {
   if (!currentUser || !currentUser.isAdmin) return null;
 
   return (
-    <div className="space-y-8">
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+    <div className="space-y-stack-lg">
+      <header className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <div>
           <h1 className="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">
             User Management
           </h1>
           <p className="font-body-md text-body-md text-on-surface-variant mt-2">
-            Manage Finance Lead and Finance Staff accounts.
+            Manage team members, roles, and system access
           </p>
         </div>
 
-        <button
+        <RippleButton
           type="button"
           onClick={() => setRegisterOpen(true)}
-          className="inline-flex items-center justify-center gap-2 bg-primary-container text-on-primary-container px-6 py-3 rounded-lg font-label-lg text-label-lg uppercase hover:bg-primary-fixed transition-colors shrink-0"
+          className={`${PRIMARY_ACTION_CLASSES} w-full md:w-auto`}
         >
-          <span className="material-symbols-outlined text-[20px]">person_add</span>
+          <UserPlusIcon aria-hidden="true" className="h-5 w-5" />
           Register New Member
-        </button>
+        </RippleButton>
       </header>
 
       {bannerError && (
-        <AlertNotice variant="error" icon="error" message={bannerError} />
+        <AlertNotice variant="error" icon={ExclamationCircleIcon} message={bannerError} />
       )}
 
-      <div className="flex flex-col md:flex-row gap-6 bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/40">
-        <div className="flex-1 md:max-w-sm relative">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px] pointer-events-none">
-            search
-          </span>
-          <input
-            id="user-search"
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search members..."
-            className="w-full pl-10 pr-4 py-2.5 bg-surface-container-lowest border border-outline-variant rounded font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all"
-          />
-        </div>
-
-        <div className="flex flex-wrap gap-4">
-          <FilterSelect
-            value={roleFilter}
-            onChange={setRoleFilter}
-            options={[
-              { value: 'all', label: 'All Roles' },
-              { value: 'admin', label: 'Finance Lead' },
-              { value: 'staff', label: 'Finance Staff' },
-            ]}
-          />
-
-          <FilterSelect
-            value={statusFilter}
-            onChange={setStatusFilter}
-            options={[
-              { value: 'all', label: 'All Status' },
-              { value: 'Active', label: 'Active' },
-              { value: 'Pending', label: 'Pending' },
-              { value: 'Inactive', label: 'Inactive' },
-            ]}
-          />
-
-          <FilterSelect
-            value={sortBy}
-            onChange={setSortBy}
-            options={[
-              { value: 'name', label: 'Sort: Name A-Z' },
-              { value: 'recent', label: 'Sort: Recently active' },
-            ]}
-          />
-        </div>
-      </div>
-
-      <div className="bg-surface-container-lowest rounded-xl border border-outline-variant/40">
-        {status === 'loading' && (
-          <p className="font-body-md text-body-md text-on-surface-variant text-center py-12">
-            Loading members...
-          </p>
-        )}
-
-        {status === 'error' && (
-          <div className="p-6 space-y-4">
-            <AlertNotice
-              variant="error"
-              icon="error"
-              message={loadError ?? 'Something went wrong.'}
+      <div className="space-y-stack-md">
+        <div className="flex flex-col items-center justify-between gap-4 rounded-xl border border-surface-container-high bg-surface p-4 card-shadow md:flex-row">
+          <div className="relative w-full flex-1 md:max-w-sm">
+            <MagnifyingGlassIcon
+              aria-hidden="true"
+              className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-on-surface-variant"
             />
-            <button
-              type="button"
-              onClick={() => setReloadKey((k) => k + 1)}
-              className="font-label-lg text-label-lg text-primary hover:underline"
-            >
-              Try again
-            </button>
+            <input
+              id="user-search"
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search users..."
+              className={`${FILTER_INPUT_CLASSES} pl-10 pr-4`}
+            />
           </div>
-        )}
 
-        {status === 'ready' && (
-          <>
-            <UserTable
-              users={filteredUsers}
-              currentUserId={currentUser.id}
-              mutatingId={mutatingId}
-              onResetPassword={handleResetPassword}
-              onStatusChange={handleStatusChange}
-            />
-            <div className="px-6 py-4 border-t border-outline-variant/40">
-              <span className="font-label-sm text-label-sm text-on-surface-variant">
-                Showing {filteredUsers.length} of {users.length} members
-              </span>
+          <div className="flex w-full gap-3 md:w-auto">
+            <FilterSelect
+              label="Filter by role"
+              value={roleFilter}
+              onChange={setRoleFilter}
+              className={FILTER_WIDTH}
+            >
+              <option value="all">All Roles</option>
+              <option value="admin">Finance Lead</option>
+              <option value="staff">Finance Staff</option>
+            </FilterSelect>
+
+            <FilterSelect
+              label="Filter by status"
+              value={statusFilter}
+              onChange={setStatusFilter}
+              className={FILTER_WIDTH}
+            >
+              <option value="all">All Status</option>
+              <option value="Active">Active</option>
+              <option value="Pending">Pending</option>
+              <option value="Inactive">Inactive</option>
+            </FilterSelect>
+
+            <FilterSelect
+              label="Sort members"
+              value={sortBy}
+              onChange={setSortBy}
+              className={FILTER_WIDTH}
+            >
+              <option value="name">Sort: Name A-Z</option>
+              <option value="recent">Sort: Recent</option>
+            </FilterSelect>
+          </div>
+        </div>
+
+        <div className="overflow-hidden rounded-xl border border-surface-container-high bg-surface card-shadow">
+          {status === 'loading' && (
+            <p className="py-12 text-center font-body-md text-body-md text-on-surface-variant">
+              Loading members...
+            </p>
+          )}
+
+          {status === 'error' && (
+            <div className="space-y-4 p-6">
+              <AlertNotice
+                variant="error"
+                icon={ExclamationCircleIcon}
+                message={loadError ?? 'Something went wrong.'}
+              />
+              <button
+                type="button"
+                onClick={() => setReloadKey((k) => k + 1)}
+                className="font-label-lg text-label-lg text-primary hover:underline"
+              >
+                Try again
+              </button>
             </div>
-          </>
-        )}
+          )}
+
+          {status === 'ready' && (
+            <>
+              <UserTable
+                users={filteredUsers}
+                currentUserId={currentUser.id}
+                mutatingId={mutatingId}
+                onResetPassword={handleResetPassword}
+                onStatusChange={handleStatusChange}
+              />
+              <div className="flex items-center justify-between border-t border-surface-container-high bg-surface-bright px-4 py-3">
+                <span className="font-label-sm text-label-sm text-on-surface-variant">
+                  Showing {filteredUsers.length} of {users.length} users
+                </span>
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       <RegisterMemberModal
@@ -309,7 +294,7 @@ export default function AdministrationPage() {
         onRegistered={handleRegistered}
       />
 
-      <Modal open={reveal !== null} onClose={() => setReveal(null)} title="Password Reset" size="sm">
+      <Modal open={reveal !== null} onClose={() => setReveal(null)} size="sm" bare>
         {reveal && (
           <TempPasswordPanel
             email={reveal.email}

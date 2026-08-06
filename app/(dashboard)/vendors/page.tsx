@@ -3,7 +3,18 @@
 import React, { useState, useEffect } from 'react';
 import { listVendorsApi, createVendorApi, updateVendorApi, type Vendor } from '@/lib/services/api';
 import { useAuthStore } from '@/lib/stores/auth.store';
+import { formatDate } from '@/lib/format/datetime';
+import { FilterSelect, FILTER_INPUT_CLASSES } from '@/components/common/FilterControls';
 import Pagination from '@/components/common/Pagination';
+import Modal from '@/components/common/Modal';
+import RippleButton, { PRIMARY_ACTION_CLASSES } from '@/components/common/RippleButton';
+import {
+  CheckCircleIcon,
+  MagnifyingGlassIcon,
+  NoSymbolIcon,
+  PencilSquareIcon,
+  PlusIcon,
+} from '@heroicons/react/24/outline';
 
 function VendorDialog({
   isOpen,
@@ -32,8 +43,6 @@ function VendorDialog({
     }
     setError('');
   }, [vendorToEdit, isOpen]);
-
-  if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,18 +79,32 @@ function VendorDialog({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
-      <div className="absolute inset-0 bg-inverse-surface/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="bg-surface-container-lowest rounded-xl shadow-ambient-lvl-2 border border-outline-variant/30 w-full max-w-md relative z-10 flex flex-col overflow-hidden">
-        <div className="px-6 py-4 border-b border-surface-variant flex justify-between items-center bg-surface">
-          <h3 className="font-headline-md text-[20px] font-bold text-on-surface">
-            {vendorToEdit ? 'Edit Vendor' : 'Register New Vendor'}
-          </h3>
-          <button className="text-on-surface-variant hover:bg-surface-container p-1 rounded transition-colors" onClick={onClose}>
-            <span className="material-symbols-outlined text-[20px]">close</span>
+    <Modal
+      open={isOpen}
+      onClose={onClose}
+      title={vendorToEdit ? 'Edit Vendor' : 'Register New Vendor'}
+      size="md"
+      footer={
+        <>
+          <button
+            type="button"
+            className="h-10 rounded-lg px-4 font-label-sm text-label-sm text-on-surface-variant transition-colors hover:bg-surface-container"
+            onClick={onClose}
+          >
+            Cancel
           </button>
-        </div>
-        <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4 bg-background">
+          <button
+            type="submit"
+            form="vendor-form"
+            disabled={isSubmitting}
+            className="flex h-10 items-center gap-2 rounded-lg bg-primary-container px-5 font-label-sm text-label-sm text-on-primary-container transition-colors hover:bg-primary-fixed disabled:opacity-50"
+          >
+            {isSubmitting ? 'Saving...' : vendorToEdit ? 'Save Changes' : 'Register Vendor'}
+          </button>
+        </>
+      }
+    >
+      <form id="vendor-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
           {error && <div className="text-error font-body-sm bg-error-container/20 p-3 rounded-lg">{error}</div>}
           
           <div className="flex flex-col gap-2">
@@ -104,26 +127,8 @@ function VendorDialog({
               onChange={(e) => setBankAccount(e.target.value)}
             />
           </div>
-          
-          <div className="pt-4 flex justify-end gap-3 mt-2">
-            <button
-              type="button"
-              className="px-5 py-2 rounded-lg text-on-surface-variant font-label-sm text-label-sm font-semibold hover:bg-surface-container transition-colors"
-              onClick={onClose}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="px-5 py-2 rounded-lg bg-primary-container text-on-primary-container font-label-sm text-label-sm font-semibold hover:bg-primary-fixed transition-colors shadow-ambient-lvl-1 flex items-center gap-2 disabled:opacity-50"
-            >
-              {isSubmitting ? 'Saving...' : (vendorToEdit ? 'Save Changes' : 'Register Vendor')}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+      </form>
+    </Modal>
   );
 }
 
@@ -189,7 +194,7 @@ export default function VendorsPage() {
 
   const filteredVendors = vendors.filter((vendor) => {
     const term = searchQuery.toLowerCase();
-    const joinDateStr = new Date(vendor.join_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toLowerCase();
+    const joinDateStr = formatDate(vendor.join_date).toLowerCase();
     
     const matchesSearch = 
       vendor.vendor_name.toLowerCase().includes(term) || 
@@ -216,7 +221,10 @@ export default function VendorsPage() {
   );
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    // No animate-fade-in here: it animates `transform`, which turns this div
+    // into a backdrop root and leaves the modal's backdrop-blur with nothing
+    // behind it to sample.
+    <div className="space-y-stack-lg">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">
@@ -227,66 +235,57 @@ export default function VendorsPage() {
           </p>
         </div>
 
-        <button 
+        <RippleButton
           type="button"
           onClick={handleAddNewClick}
-          className="inline-flex items-center justify-center gap-2 bg-primary-container text-on-primary-container px-6 py-3 rounded-lg font-label-lg text-label-lg uppercase hover:bg-primary-fixed transition-colors shrink-0"
+          className={`${PRIMARY_ACTION_CLASSES} w-full md:w-auto`}
         >
-          <span className="material-symbols-outlined text-[20px]">add</span>
-          Vendor
-        </button>
+          <PlusIcon aria-hidden="true" className="h-5 w-5" />
+          Add Vendor
+        </RippleButton>
       </header>
 
-      <div className="space-y-6">
-        <div className="flex flex-col md:flex-row gap-6 bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/40">
-          <div className="flex-1 md:max-w-sm relative">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px] pointer-events-none">
-              search
-            </span>
-            <input 
-              type="text" 
+      <div className="space-y-stack-md">
+        <div className="flex flex-col items-center justify-between gap-4 rounded-xl border border-surface-container-high bg-surface p-4 card-shadow md:flex-row">
+          <div className="relative w-full flex-1 md:max-w-sm">
+            <MagnifyingGlassIcon aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-on-surface-variant" />
+            <input
+              type="text"
               placeholder="Search vendors..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-surface-container-lowest border border-outline-variant rounded font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/20 transition-all"
+              aria-label="Search vendors"
+              className={`${FILTER_INPUT_CLASSES} pl-10 pr-4`}
             />
           </div>
 
-          <div className="flex flex-wrap gap-4">
-            <div className="relative">
-              <select 
-                className="appearance-none bg-surface-container-lowest border border-outline-variant rounded pl-3 pr-9 py-2.5 font-body-md text-body-md text-on-surface-variant focus:outline-none focus:border-primary-container"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-              >
-                <option value="All Status">All Status</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-              </select>
-              <span className="material-symbols-outlined pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">
-                expand_more
-              </span>
-            </div>
+          <div className="flex w-full gap-3 md:w-auto">
+            <FilterSelect
+              label="Filter by status"
+              value={statusFilter}
+              onChange={setStatusFilter}
+              className="flex-1 md:w-36 md:flex-none"
+            >
+              <option value="All Status">All Status</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </FilterSelect>
 
-            <div className="relative">
-              <select 
-                className="appearance-none bg-surface-container-lowest border border-outline-variant rounded pl-3 pr-9 py-2.5 font-body-md text-body-md text-on-surface-variant focus:outline-none focus:border-primary-container"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-              >
-                <option value="join-desc">Sort by Join Date (Newest)</option>
-                <option value="join-asc">Sort by Join Date (Oldest)</option>
-                <option value="name-asc">Sort by Name (A-Z)</option>
-                <option value="name-desc">Sort by Name (Z-A)</option>
-              </select>
-              <span className="material-symbols-outlined pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">
-                expand_more
-              </span>
-            </div>
+            <FilterSelect
+              label="Sort vendors"
+              value={sortBy}
+              onChange={setSortBy}
+              className="flex-1 md:w-48 md:flex-none"
+            >
+              <option value="join-desc">Sort by Join Date (Newest)</option>
+              <option value="join-asc">Sort by Join Date (Oldest)</option>
+              <option value="name-asc">Sort by Name (A-Z)</option>
+              <option value="name-desc">Sort by Name (Z-A)</option>
+            </FilterSelect>
           </div>
         </div>
         
-        <div className="bg-surface-container-lowest rounded-xl border border-outline-variant/40 overflow-hidden shadow-sm">
+        <div className="overflow-hidden rounded-xl border border-surface-container-high bg-surface card-shadow">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-[700px]">
               <thead>
@@ -317,7 +316,7 @@ export default function VendorsPage() {
                   if (colorIndex === 2) color = 'bg-surface-container text-on-surface-variant/50';
                   if (!isActive) color = 'bg-surface-container text-on-surface-variant/50';
 
-                  const joinDateStr = new Date(vendor.join_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                  const joinDateStr = formatDate(vendor.join_date);
 
                   return (
                     <tr key={vendor.id} className={`hover:bg-surface-container-low transition-colors group ${!isActive ? 'bg-surface-bright/50' : ''}`}>
@@ -340,7 +339,7 @@ export default function VendorsPage() {
                       </td>
                       <td className="py-4 px-4">
                         <div className={`flex items-center gap-2 ${!isActive ? 'opacity-60' : ''}`}>
-                          <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-[#8bc34a]' : 'bg-outline-variant'}`} />
+                          <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-success' : 'bg-outline-variant'}`} />
                           <span className="text-sm capitalize">{vendor.status}</span>
                         </div>
                       </td>
@@ -354,7 +353,7 @@ export default function VendorsPage() {
                             title="Edit Details"
                             onClick={() => handleEditClick(vendor)}
                           >
-                            <span className="material-symbols-outlined text-[18px]">edit</span>
+                            <PencilSquareIcon aria-hidden="true" className="h-[18px] w-[18px]" />
                           </button>
                           {isActive ? (
                             <button 
@@ -362,15 +361,15 @@ export default function VendorsPage() {
                               className="p-1.5 text-on-surface-variant hover:text-error transition-colors rounded-md hover:bg-error-container/50" 
                               title="Deactivate"
                             >
-                              <span className="material-symbols-outlined text-[18px]">block</span>
+                              <NoSymbolIcon aria-hidden="true" className="h-[18px] w-[18px]" />
                             </button>
                           ) : (
                             <button 
                               onClick={() => handleToggleStatus(vendor)}
-                              className="p-1.5 text-on-surface-variant hover:text-[#8bc34a] transition-colors rounded-md hover:bg-[#8bc34a]/10" 
+                              className="p-1.5 text-on-surface-variant hover:text-success transition-colors rounded-md hover:bg-success/10" 
                               title="Activate"
                             >
-                              <span className="material-symbols-outlined text-[18px]">check_circle</span>
+                              <CheckCircleIcon aria-hidden="true" className="h-[18px] w-[18px]" />
                             </button>
                           )}
                         </div>

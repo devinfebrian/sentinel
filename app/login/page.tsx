@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { ShieldCheckIcon } from '@heroicons/react/24/solid';
 import LoginForm from '@/components/auth/LoginForm';
 import AuthFooterLink from '@/components/auth/AuthFooterLink';
 import LoadingScreen from '@/components/common/LoadingScreen';
@@ -55,12 +56,9 @@ export default function LoginPage() {
           <div className="absolute -top-32 -left-32 w-96 h-96 bg-primary-container rounded-full mix-blend-multiply filter blur-3xl opacity-20" />
 
           <div className="relative z-10 flex items-center gap-3">
-            <span
-              className="material-symbols-outlined text-primary-container bg-on-surface p-2 rounded-lg"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              security
-            </span>
+            <span className="bg-on-surface p-2 rounded-lg">
+                <ShieldCheckIcon aria-hidden="true" className="h-6 w-6 text-primary-container" />
+              </span>
             <span className="font-headline-lg text-headline-lg text-on-surface font-bold">
               Sentinel
             </span>
@@ -71,12 +69,9 @@ export default function LoginPage() {
         <div className="flex flex-col justify-center items-center p-margin-mobile md:p-margin-desktop bg-surface-container-lowest">
           <div className="w-full max-w-sm mx-auto">
             <div className="lg:hidden flex items-center justify-center gap-3 mb-8">
-              <span
-                className="material-symbols-outlined text-primary-container bg-on-surface p-2 rounded-lg"
-                style={{ fontVariationSettings: "'FILL' 1" }}
-              >
-                security
-              </span>
+              <span className="bg-on-surface p-2 rounded-lg">
+                  <ShieldCheckIcon aria-hidden="true" className="h-6 w-6 text-primary-container" />
+                </span>
               <span className="font-headline-lg text-headline-lg text-on-surface font-bold">
                 Sentinel
               </span>

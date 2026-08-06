@@ -11,37 +11,37 @@
   --color-on-primary-fixed-variant: #414c00;
   --color-inverse-primary: #becf63;
 
-  --color-secondary: #5a605d;
-  --color-secondary-container: #dce1dd;
+  --color-secondary: #536350;
+  --color-secondary-container: #d6e8d0;
   --color-on-secondary: #ffffff;
-  --color-on-secondary-container: #5e6461;
-  --color-secondary-fixed: #dfe4e0;
-  --color-secondary-fixed-dim: #c2c8c4;
-  --color-on-secondary-fixed: #171d1b;
-  --color-on-secondary-fixed-variant: #424845;
+  --color-on-secondary-container: #586956;
+  --color-secondary-fixed: #d6e8d0;
+  --color-secondary-fixed-dim: #bacbb5;
+  --color-on-secondary-fixed: #111f11;
+  --color-on-secondary-fixed-variant: #3b4b3a;
 
-  --color-tertiary: #536350;
-  --color-tertiary-container: #e9fbe3;
+  --color-tertiary: #585f68;
+  --color-tertiary-container: #f0f6ff;
   --color-on-tertiary: #ffffff;
-  --color-on-tertiary-container: #647461;
-  --color-tertiary-fixed: #d6e8d0;
-  --color-tertiary-fixed-dim: #bacbb5;
-  --color-on-tertiary-fixed: #111f11;
-  --color-on-tertiary-fixed-variant: #3b4b3a;
+  --color-on-tertiary-container: #697179;
+  --color-tertiary-fixed: #dce3ed;
+  --color-tertiary-fixed-dim: #c0c7d1;
+  --color-on-tertiary-fixed: #151c23;
+  --color-on-tertiary-fixed-variant: #40474f;
 
-  --color-background: #f7f9ff;
-  --color-on-background: #151c23;
-  --color-surface: #f7f9ff;
-  --color-on-surface: #151c23;
-  --color-surface-variant: #dce3ed;
+  --color-background: #f6fbf6;
+  --color-on-background: #171d1b;
+  --color-surface: #f6fbf6;
+  --color-on-surface: #171d1b;
+  --color-surface-variant: #dfe4e0;
   --color-on-surface-variant: #464838;
   --color-surface-container-lowest: #ffffff;
-  --color-surface-container-low: #edf4fe;
-  --color-surface-container: #e7eef9;
-  --color-surface-container-high: #e2e9f3;
-  --color-surface-container-highest: #dce3ed;
-  --color-surface-dim: #d4dbe5;
-  --color-surface-bright: #f7f9ff;
+  --color-surface-container-low: #f0f5f1;
+  --color-surface-container: #eaefeb;
+  --color-surface-container-high: #e4e9e5;
+  --color-surface-container-highest: #dfe4e0;
+  --color-surface-dim: #d6dbd7;
+  --color-surface-bright: #f6fbf6;
   --color-surface-tint: #576400;
 
   --color-outline: #777867;
@@ -51,23 +51,47 @@
   --color-on-error: #ffffff;
   --color-on-error-container: #93000a;
 
-  --color-inverse-surface: #2a3139;
-  --color-inverse-on-surface: #eaf1fb;
+  --color-inverse-surface: #2c322f;
+  --color-inverse-on-surface: #edf2ee;
 
-  --font-sans: var(--font-urbanist), system-ui, sans-serif;
+  /* "Healthy/active" and "awaiting action" sit outside the Material role set,
+     so they get their own tokens instead of raw hex or Tailwind palette values. */
+  --color-success: #8bc34a;
+  --color-warning: #d99a2b;
+
+  --spacing-unit: 8px;
+  --spacing-stack-sm: 12px;
+  --spacing-stack-md: 24px;
+  --spacing-stack-lg: 48px;
+  --spacing-gutter: 24px;
+  --spacing-container-padding: 32px;
+
+  /* The sidebar is `fixed`, so its width and the main content's left offset are
+     set in two different components. Keeping the numbers here means the two can
+     never drift apart. */
+  --sidebar-w-rail: 64px;
+  --sidebar-w-full: 256px;
+
+  /* Urbanist carries display/headline type; Inter carries everything read at
+     small sizes — body copy, labels, and table cells. */
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-inter: var(--font-inter), sans-serif;
   --font-urbanist: var(--font-urbanist), sans-serif;
 }
 
 :root {
-  font-family: var(--font-urbanist), system-ui, -apple-system, sans-serif;
+  /* Body type is the default; headings opt into Urbanist via .font-headline-*. */
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
   color-scheme: light;
 }
 
 body {
   margin: 0;
   padding: 0;
-  background-color: #f7f9ff;
-  color: #151c23;
+  /* Slightly dimmer than --color-surface so the app shell reads as panels
+     floating on a canvas rather than one flat sheet. */
+  background-color: #e9eeea;
+  color: #171d1b;
 }
 
 /* Custom Spacing Utility Classes to avoid overriding Tailwind max-w-sm / max-w-md */
@@ -94,7 +118,17 @@ body {
 .pt-lg { padding-top: 48px; }
 .pt-xl { padding-top: 80px; }
 
+/* The type scale lives in the components layer so Tailwind's utilities beat it.
+   Unlayered, each class's own font-weight would win over an author's
+   `font-bold`/`font-semibold` on the same element and silently discard it. */
+@layer components {
 .font-display {
+  font-family: var(--font-urbanist), sans-serif;
+  font-weight: 700;
+}
+
+/* Reference role: the large figure on a KPI tile. */
+.font-kpi-value {
   font-family: var(--font-urbanist), sans-serif;
   font-weight: 700;
 }
@@ -137,7 +171,7 @@ body {
 }
 
 .font-body-lg {
-  font-family: var(--font-urbanist), sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-weight: 400;
 }
 
@@ -147,7 +181,7 @@ body {
 }
 
 .font-label-lg {
-  font-family: var(--font-urbanist), sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-weight: 600;
 }
 
@@ -157,7 +191,7 @@ body {
 }
 
 .font-label-sm {
-  font-family: var(--font-urbanist), sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-weight: 600;
 }
 
@@ -168,7 +202,7 @@ body {
 }
 
 .font-body-md {
-  font-family: var(--font-urbanist), sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-weight: 400;
 }
 
@@ -177,19 +211,79 @@ body {
   line-height: 1.5rem;
 }
 
-.tonal-layer-1 {
-  background-color: #e7eef9;
+.font-headline-sm {
+  font-family: var(--font-urbanist), sans-serif;
+  font-weight: 600;
 }
 
-.material-symbols-outlined {
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-  vertical-align: middle;
-  display: inline-block;
-  user-select: none;
+.text-headline-sm {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
 }
 
-.material-symbols-outlined.filled {
-  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+.font-body-sm {
+  font-family: var(--font-inter), sans-serif;
+  font-weight: 400;
+}
+
+.text-body-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+/* Tabular rows are denser than body copy so more rows fit without scrolling.
+   tabular-nums keeps digits on a fixed advance width, so dates and amounts line
+   up down the column instead of drifting row to row. */
+.font-table-data {
+  font-family: var(--font-inter), sans-serif;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.text-table-data {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+}
+
+/* Used by the sidebar and the dashboard <main>, but never defined until now. */
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Elevation scale, neutral rather than tinted — the old values carried a blue
+   rgba left over from the pre-reference palette. lvl-1 sits just above
+   card-shadow; lvl-2 is for things floating over the page (drawer, toast). */
+.shadow-ambient-lvl-1 {
+  box-shadow:
+    0px 1px 3px rgba(0, 0, 0, 0.05),
+    0px 4px 14px rgba(0, 0, 0, 0.04);
+}
+
+.shadow-ambient-lvl-2 {
+  box-shadow:
+    0px 2px 6px rgba(0, 0, 0, 0.06),
+    0px 12px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Panel elevation. Cards sit on the dimmed body canvas, so the shadow is a
+   soft ambient one rather than a directional drop. */
+.card-shadow {
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.interactive-shadow:hover {
+  box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* Lime left edge marking a panel as AI/system-authored. */
+.ai-glow {
+  box-shadow: inset 2px 0 0 0 #edff8c;
 }
 
 .sidebar-shell-transition {
@@ -214,8 +308,25 @@ body {
   }
 }
 
+/* Careful where this goes: it animates `transform`, which makes the element a
+   backdrop root. Any backdrop-blur nested under it then has nothing behind it
+   to sample, so never put it on an ancestor of a modal overlay. */
 .animate-fade-in {
   animation: fadeInScale 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes rippling {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.animate-rippling {
+  animation: rippling 600ms ease-out forwards;
 }
 
 /* The custom PasswordInput toggle is the only reveal control we want;
@@ -223,6 +334,21 @@ body {
 input[type='password']::-ms-reveal,
 input[type='password']::-ms-clear {
   display: none;
+}
+
+/* Tailwind's appearance-none does not reach these shadow-DOM parts. Left alone,
+   the spinner and the datalist arrow are laid out inside the field and steal
+   horizontal space, which clips a two-digit value in the narrow "Rows per page"
+   input. Both controls are redundant here — the value is typed or picked from
+   the datalist popup, which still opens on focus. */
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type='number']::-webkit-calendar-picker-indicator {
+  display: none !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

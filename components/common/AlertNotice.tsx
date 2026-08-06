@@ -1,14 +1,16 @@
 import React from 'react';
+import { InformationCircleIcon } from '@heroicons/react/24/outline';
+import type { IconComponent } from '@/lib/types/icon';
 
 export interface AlertNoticeProps {
-  icon?: string;
+  icon?: IconComponent;
   message?: string;
   variant?: 'tertiary' | 'secondary' | 'info' | 'error';
   children?: React.ReactNode;
 }
 
 export default function AlertNotice({
-  icon = 'info',
+  icon: Icon = InformationCircleIcon,
   message,
   variant = 'tertiary',
   children,
@@ -49,9 +51,7 @@ export default function AlertNotice({
       role={variant === 'error' ? 'alert' : undefined}
       className={`flex items-center gap-3 p-3.5 rounded-lg border text-left transition-all ${currentStyle.bg} ${currentStyle.border}`}
     >
-      <span className={`material-symbols-outlined text-[20px] shrink-0 ${currentStyle.icon}`}>
-        {icon}
-      </span>
+      <Icon aria-hidden="true" className={`h-5 w-5 shrink-0 ${currentStyle.icon}`} />
       <p className={`font-body-md text-body-md leading-relaxed ${currentStyle.text}`}>
         {message || children}
       </p>

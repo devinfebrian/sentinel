@@ -1,6 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
+import {
+  ArrowRightIcon,
+  CheckCircleIcon,
+  DocumentArrowUpIcon,
+  SparklesIcon,
+} from '@heroicons/react/24/outline';
+import Modal from '@/components/common/Modal';
 
 interface ImportDialogProps {
   isOpen: boolean;
@@ -9,8 +16,6 @@ interface ImportDialogProps {
 
 export default function ImportDialog({ isOpen, onClose }: ImportDialogProps) {
   const [showToast, setShowToast] = useState(false);
-
-  if (!isOpen && !showToast) return null;
 
   const handleSimulate = () => {
     onClose();
@@ -22,89 +27,106 @@ export default function ImportDialog({ isOpen, onClose }: ImportDialogProps) {
 
   return (
     <>
-      {/* Import Excel Multi-Step Dialog */}
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Dialog Overlay */}
-          <div
-            className="absolute inset-0 bg-inverse-surface/60 backdrop-blur-sm"
-            onClick={onClose}
-          />
-          {/* Dialog Box */}
-          <div className="bg-surface-container-lowest rounded-xl shadow-ambient-lvl-2 border border-outline-variant/30 w-full max-w-2xl relative z-10 flex flex-col overflow-hidden animate-fade-in">
-            {/* Header */}
-            <div className="px-6 py-4 border-b border-surface-variant flex justify-between items-center bg-surface">
-              <h3 className="font-headline-md text-[20px] font-bold text-on-surface">Import Ledger Data</h3>
-              <button
-                className="text-on-surface-variant hover:bg-surface-container p-1 rounded transition-colors"
-                onClick={onClose}
-              >
-                <span className="material-symbols-outlined text-[20px]">close</span>
-              </button>
+      <Modal
+        open={isOpen}
+        onClose={onClose}
+        title="Import Ledger Data"
+        size="xl"
+        bare
+        footer={
+          <>
+            <button
+              type="button"
+              className="h-10 rounded-lg px-4 font-label-sm text-label-sm text-on-surface-variant transition-colors hover:bg-surface-container"
+              onClick={onClose}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="flex h-10 items-center gap-2 rounded-lg bg-primary-container px-5 font-label-sm text-label-sm text-on-primary-container transition-colors hover:bg-primary-fixed"
+              onClick={handleSimulate}
+            >
+              Simulate Upload
+              <ArrowRightIcon aria-hidden="true" className="h-4 w-4" />
+            </button>
+          </>
+        }
+      >
+        {/* Stepper. `bare` drops the modal's body padding so this strip can span
+            the full width like the header above it. */}
+        <div className="flex items-center gap-2 border-b border-surface-container-high bg-surface-container-low px-6 py-3 font-label-sm text-[11px] font-semibold">
+          <span className="flex items-center gap-1 text-on-surface">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary-container text-on-primary-container">
+              1
+            </span>
+            Upload
+          </span>
+          <div className="h-px w-8 bg-outline-variant/50" />
+          <span className="flex items-center gap-1 text-on-surface-variant">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-surface-variant text-on-surface-variant">
+              2
+            </span>
+            Map Columns
+          </span>
+          <div className="h-px w-8 bg-outline-variant/50" />
+          <span className="flex items-center gap-1 text-on-surface-variant">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-surface-variant text-on-surface-variant">
+              3
+            </span>
+            Validate
+          </span>
+        </div>
+
+        <div className="flex min-h-[300px] flex-col items-center justify-center bg-background p-8">
+          <div className="group flex w-full max-w-md cursor-pointer flex-col items-center rounded-xl border-2 border-dashed border-outline-variant/50 bg-surface p-8 text-center transition-colors hover:border-primary">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-surface-container transition-colors group-hover:bg-primary-container">
+              <DocumentArrowUpIcon
+                aria-hidden="true"
+                className="h-6 w-6 text-tertiary group-hover:text-on-primary-container"
+              />
             </div>
-            {/* Stepper Indicator */}
-            <div className="px-6 py-3 bg-surface-container-low border-b border-surface-variant flex gap-2 items-center font-label-sm text-[11px] font-semibold">
-              <span className="text-on-surface flex items-center gap-1">
-                <span className="w-5 h-5 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center">1</span>
-                Upload
-              </span>
-              <div className="w-8 h-px bg-outline-variant/50" />
-              <span className="text-on-surface-variant flex items-center gap-1">
-                <span className="w-5 h-5 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center">2</span>
-                Map Columns
-              </span>
-              <div className="w-8 h-px bg-outline-variant/50" />
-              <span className="text-on-surface-variant flex items-center gap-1">
-                <span className="w-5 h-5 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center">3</span>
-                Validate
-              </span>
-            </div>
-            {/* Content Area (Step 1: Upload Active) */}
-            <div className="p-8 flex flex-col items-center justify-center bg-background min-h-[300px]">
-              <div className="w-full max-w-md border-2 border-dashed border-outline-variant/50 rounded-xl bg-surface-container-lowest p-8 flex flex-col items-center text-center hover:border-primary transition-colors cursor-pointer group">
-                <div className="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center mb-4 group-hover:bg-primary-container transition-colors">
-                  <span className="material-symbols-outlined text-[32px] text-tertiary group-hover:text-on-primary-container">upload_file</span>
-                </div>
-                <h4 className="font-headline-md text-[16px] font-semibold text-on-surface mb-1">Drag and drop your Excel file</h4>
-                <p className="font-body-md text-[13px] text-on-surface-variant mb-4">Supported formats: .xlsx, .csv (Max 50MB)</p>
-                <button className="px-4 py-2 bg-surface border border-outline-variant/50 rounded-lg text-on-surface font-label-sm text-label-sm font-semibold hover:bg-surface-container transition-colors shadow-ambient-lvl-1">
-                  Browse Files
-                </button>
-              </div>
-              <div className="w-full max-w-md mt-6 ai-glow bg-surface-container-lowest rounded-lg p-3 flex items-start gap-3 border border-outline-variant/30">
-                <span className="material-symbols-outlined text-primary text-[20px] mt-0.5">auto_awesome</span>
-                <div>
-                  <p className="font-label-sm text-label-sm font-semibold text-on-surface mb-0.5">AI Auto-Mapping enabled</p>
-                  <p className="font-body-md text-[12px] text-on-surface-variant">Our models will automatically detect and map headers based on historical ledger structures.</p>
-                </div>
-              </div>
-            </div>
-            {/* Footer Actions */}
-            <div className="px-6 py-4 border-t border-surface-variant bg-surface flex justify-end gap-3">
-              <button
-                className="px-5 py-2 rounded-lg text-on-surface-variant font-label-sm text-label-sm font-semibold hover:bg-surface-container transition-colors"
-                onClick={onClose}
-              >
-                Cancel
-              </button>
-              <button
-                className="px-5 py-2 rounded-lg bg-primary-container text-on-primary-container font-label-sm text-label-sm font-semibold hover:bg-primary-fixed transition-colors shadow-ambient-lvl-1 flex items-center gap-2"
-                onClick={handleSimulate}
-              >
-                Simulate Upload <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
-              </button>
+            <h4 className="mb-1 font-headline-sm text-headline-sm text-on-surface">
+              Drag and drop your Excel file
+            </h4>
+            <p className="mb-4 font-body-sm text-body-sm text-on-surface-variant">
+              Supported formats: .xlsx, .csv (Max 50MB)
+            </p>
+            <button
+              type="button"
+              className="h-10 rounded-lg border border-outline-variant/50 bg-surface px-4 font-label-sm text-label-sm text-on-surface transition-colors hover:bg-surface-container card-shadow"
+            >
+              Browse Files
+            </button>
+          </div>
+
+          <div className="mt-6 flex w-full max-w-md items-start gap-3 rounded-lg border border-surface-container-high bg-surface p-3 ai-glow">
+            <SparklesIcon aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+            <div>
+              <p className="mb-0.5 font-label-sm text-label-sm text-on-surface">
+                AI Auto-Mapping enabled
+              </p>
+              <p className="font-body-sm text-body-sm text-on-surface-variant">
+                Our models will automatically detect and map headers based on historical ledger
+                structures.
+              </p>
             </div>
           </div>
         </div>
-      )}
+      </Modal>
 
-      {/* Success Toast */}
+      {/* Sits outside the dialog on purpose: it appears after the modal closes. */}
       {showToast && (
-        <div className="fixed bottom-6 right-6 bg-inverse-surface text-inverse-on-surface px-4 py-3 rounded-lg shadow-ambient-lvl-2 font-body-md text-sm flex items-center gap-3 z-50 animate-fade-in">
-          <span className="material-symbols-outlined text-primary-container">check_circle</span>
+        <div
+          role="status"
+          className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-lg bg-inverse-surface px-4 py-3 font-body-sm text-body-sm text-inverse-on-surface shadow-ambient-lvl-2 animate-fade-in"
+        >
+          <CheckCircleIcon aria-hidden="true" className="h-6 w-6 shrink-0 text-primary-container" />
           <div>
             <p className="font-semibold">Import Started</p>
-            <p className="text-xs text-outline-variant">Processing 1,240 rows. AI mapping in progress.</p>
+            <p className="text-xs text-outline-variant">
+              Processing 1,240 rows. AI mapping in progress.
+            </p>
           </div>
         </div>
       )}

@@ -1,4 +1,4 @@
-import type { AuthTokens, User } from '@/lib/stores/auth.store';
+import { clearSessionOutsideReact, type AuthTokens, type User } from '@/lib/stores/auth.store';
 
 // Same-origin. next.config.ts rewrites /api/v1/* to the backend, so the
 // browser never talks to another origin and CORS never applies.
@@ -29,6 +29,15 @@ interface ApiEnvelope<T> {
   errors?: FieldError[];
 }
 
+/** Whether this call presented a token, i.e. whether a 401 means "expired". */
+function isAuthenticatedRequest(options: RequestInit): boolean {
+  const headers = options.headers;
+  if (!headers) return false;
+  if (headers instanceof Headers) return headers.has('Authorization');
+  if (Array.isArray(headers)) return headers.some(([key]) => key.toLowerCase() === 'authorization');
+  return Object.keys(headers).some((key) => key.toLowerCase() === 'authorization');
+}
+
 /**
  * Every response is masked to a clean message. An HTML error page, an empty
  * body, or a parse failure all surface as a generic error rather than raw
@@ -50,6 +59,15 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<ApiE
     } catch {
       body = null;
     }
+  }
+
+  // A 401 on a call that carried a token means the session died mid-use. Drop
+  // it so AuthGate redirects to /login, rather than leaving every page to paint
+  // the backend's "Session expired" text into an error banner and stay put.
+  // Login and refresh send no Authorization header, so a 401 there is a genuine
+  // bad-credentials error and still surfaces to the form as normal.
+  if (response.status === 401 && isAuthenticatedRequest(options)) {
+    clearSessionOutsideReact();
   }
 
   if (!response.ok) {

@@ -1,4 +1,5 @@
 import React from 'react';
+import { ShieldCheckIcon } from '@heroicons/react/24/solid';
 
 export interface BrandingHeaderProps {
   title?: string;
@@ -11,8 +12,8 @@ export default function BrandingHeader({
 }: BrandingHeaderProps) {
   return (
     <div className="flex flex-col items-center mb-8 text-center">
-      <span className="material-symbols-outlined text-primary-container bg-on-surface p-3 rounded-lg mb-4" style={{ fontVariationSettings: "'FILL' 1" }}>
-        security
+      <span className="bg-on-surface p-3 rounded-lg mb-4">
+        <ShieldCheckIcon aria-hidden="true" className="h-6 w-6 text-primary-container" />
       </span>
       <h1 className="font-headline-lg text-headline-lg md:text-headline-lg text-on-surface font-bold tracking-tight">
         {title}

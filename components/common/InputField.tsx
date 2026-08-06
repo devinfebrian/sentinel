@@ -1,4 +1,6 @@
 import React from 'react';
+import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
+import type { IconComponent } from '@/lib/types/icon';
 
 export interface InputFieldProps {
   id: string;
@@ -7,7 +9,7 @@ export interface InputFieldProps {
   placeholder?: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  icon?: string;
+  icon?: IconComponent;
   required?: boolean;
   helperText?: string;
   error?: string | null;
@@ -21,7 +23,7 @@ export default function InputField({
   placeholder,
   value,
   onChange,
-  icon,
+  icon: Icon,
   required = false,
   helperText,
   error,
@@ -32,22 +34,21 @@ export default function InputField({
       {label && (
         <label
           htmlFor={id}
-          className={`block font-label-lg text-label-lg uppercase transition-colors ${
-            error ? 'text-error font-bold' : 'text-on-surface group-focus-within:text-primary'
+          className={`block font-label-sm text-label-sm transition-colors ${
+            error ? 'text-error font-bold' : 'text-on-surface'
           }`}
         >
           {label}
         </label>
       )}
       <div className="relative flex items-center">
-        {icon && (
-          <span
-            className={`material-symbols-outlined absolute left-3 text-[20px] pointer-events-none transition-colors ${
+        {Icon && (
+          <Icon
+            aria-hidden="true"
+            className={`absolute left-3 h-5 w-5 pointer-events-none transition-colors ${
               error ? 'text-error' : 'text-outline group-focus-within:text-primary'
             }`}
-          >
-            {icon}
-          </span>
+          />
         )}
         <input
           id={id}
@@ -58,17 +59,17 @@ export default function InputField({
           placeholder={placeholder}
           required={required}
           disabled={disabled}
-          className={`w-full py-3.5 bg-surface-container-lowest border rounded transition-all font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none ${
+          className={`h-12 w-full rounded-lg border bg-surface-bright font-body-md text-body-md text-on-surface transition-colors placeholder:text-on-surface-variant/70 focus:outline-none ${
             error
-              ? 'border-error focus:border-error focus:ring-2 focus:ring-error/20'
-              : 'border-outline-variant focus:border-primary-container focus:ring-2 focus:ring-primary-container/20'
-          } ${icon ? 'pl-10 pr-4' : 'px-4'}`}
+              ? 'border-error focus:border-error focus:ring-1 focus:ring-error'
+              : 'border-outline-variant/50 focus:border-secondary focus:ring-1 focus:ring-secondary'
+          } ${Icon ? 'pl-10 pr-3' : 'px-3'}`}
         />
       </div>
 
       {error ? (
         <p className="font-label-sm text-label-sm text-error mt-1 flex items-center gap-1 animate-fade-in">
-          <span className="material-symbols-outlined text-[16px]">error</span>
+          <ExclamationCircleIcon aria-hidden="true" className="h-4 w-4 shrink-0" />
           <span>{error}</span>
         </p>
       ) : helperText ? (

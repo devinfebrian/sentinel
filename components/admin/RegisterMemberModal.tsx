@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
+import { ExclamationCircleIcon, UserPlusIcon } from '@heroicons/react/24/outline';
 import Modal from '@/components/common/Modal';
 import InputField from '@/components/common/InputField';
-import PrimaryButton from '@/components/common/PrimaryButton';
 import AlertNotice from '@/components/common/AlertNotice';
 import TempPasswordPanel from '@/components/admin/TempPasswordPanel';
 import { registerMemberSchema } from '@/lib/validations/user.schema';
@@ -87,69 +87,80 @@ export default function RegisterMemberModal({
     }
   };
 
-  return (
-    <Modal
-      open={open}
-      onClose={handleClose}
-      title={result ? 'Member Registered' : 'Register New Member'}
-      size="sm"
-    >
-      {result ? (
+  // The reveal step owns the whole panel (centred icon, no header), so the
+  // chrome around it differs from the form step.
+  if (result) {
+    return (
+      <Modal open={open} onClose={handleClose} size="sm" bare>
         <TempPasswordPanel
           email={result.user.email}
           tempPassword={result.tempPassword}
           notice={result.notice}
           onDone={handleClose}
         />
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-          {serverError && <AlertNotice variant="error" icon="error" message={serverError} />}
+      </Modal>
+    );
+  }
 
-          <InputField
-            id="register-fullname"
-            label="Full Name"
-            value={form.fullname}
-            onChange={(e) => {
-              setForm((prev) => ({ ...prev, fullname: e.target.value }));
-              if (errors.fullname) setErrors((prev) => ({ ...prev, fullname: null }));
-            }}
-            error={errors.fullname}
+  return (
+    <Modal
+      open={open}
+      onClose={handleClose}
+      title="Register New Member"
+      footer={
+        <>
+          <button
+            type="button"
+            onClick={handleClose}
             disabled={submitting}
-          />
-
-          <InputField
-            id="register-email"
-            label="Email"
-            type="email"
-            value={form.email}
-            onChange={(e) => {
-              setForm((prev) => ({ ...prev, email: e.target.value }));
-              if (errors.email) setErrors((prev) => ({ ...prev, email: null }));
-            }}
-            error={errors.email}
+            className="h-10 rounded-lg px-4 font-label-sm text-label-sm text-on-surface-variant transition-colors hover:bg-surface-container disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            form="register-member-form"
             disabled={submitting}
-          />
+            className="flex h-10 items-center gap-2 rounded-lg bg-primary-container px-5 font-label-sm text-label-sm text-on-primary-container transition-colors hover:bg-primary-fixed disabled:opacity-50"
+          >
+            <UserPlusIcon aria-hidden="true" className="h-[18px] w-[18px]" />
+            {submitting ? 'Generating...' : 'Generate Credentials'}
+          </button>
+        </>
+      }
+    >
+      <form id="register-member-form" onSubmit={handleSubmit} className="space-y-4" noValidate>
+        {serverError && (
+          <AlertNotice variant="error" icon={ExclamationCircleIcon} message={serverError} />
+        )}
 
-          <div className="pt-2 space-y-3">
-            <PrimaryButton
-              type="submit"
-              loading={submitting}
-              loadingText="Registering"
-              icon="person_add"
-            >
-              Register
-            </PrimaryButton>
-            <button
-              type="button"
-              onClick={handleClose}
-              disabled={submitting}
-              className="w-full text-center py-2 font-label-lg text-label-lg text-on-surface-variant hover:text-on-surface transition-colors disabled:opacity-50"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      )}
+        <InputField
+          id="register-fullname"
+          label="Full Name"
+          placeholder="e.g. Alex Chen"
+          value={form.fullname}
+          onChange={(e) => {
+            setForm((prev) => ({ ...prev, fullname: e.target.value }));
+            if (errors.fullname) setErrors((prev) => ({ ...prev, fullname: null }));
+          }}
+          error={errors.fullname}
+          disabled={submitting}
+        />
+
+        <InputField
+          id="register-email"
+          label="Email Address"
+          type="email"
+          placeholder="alex.c@sentinel.ai"
+          value={form.email}
+          onChange={(e) => {
+            setForm((prev) => ({ ...prev, email: e.target.value }));
+            if (errors.email) setErrors((prev) => ({ ...prev, email: null }));
+          }}
+          error={errors.email}
+          disabled={submitting}
+        />
+      </form>
     </Modal>
   );
 }

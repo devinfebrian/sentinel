@@ -1,6 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
+import {
+  ExclamationCircleIcon,
+  EyeIcon,
+  EyeSlashIcon,
+  LockClosedIcon,
+} from '@heroicons/react/24/outline';
+import type { IconComponent } from '@/lib/types/icon';
 
 export interface PasswordInputProps {
   id: string;
@@ -8,7 +15,7 @@ export interface PasswordInputProps {
   placeholder?: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  icon?: string;
+  icon?: IconComponent;
   required?: boolean;
   helperText?: string;
   error?: string | null;
@@ -21,7 +28,7 @@ export default function PasswordInput({
   placeholder = '••••••••',
   value,
   onChange,
-  icon = 'lock',
+  icon: Icon = LockClosedIcon,
   required = false,
   helperText,
   error,
@@ -42,14 +49,13 @@ export default function PasswordInput({
         </label>
       )}
       <div className="relative flex items-center">
-        {icon && (
-          <span
-            className={`material-symbols-outlined absolute left-3 text-[20px] pointer-events-none transition-colors ${
+        {Icon && (
+          <Icon
+            aria-hidden="true"
+            className={`absolute left-3 h-5 w-5 pointer-events-none transition-colors ${
               error ? 'text-error' : 'text-outline group-focus-within:text-primary'
             }`}
-          >
-            {icon}
-          </span>
+          />
         )}
         <input
           id={id}
@@ -67,7 +73,7 @@ export default function PasswordInput({
             error
               ? 'border-error focus:border-error focus:ring-2 focus:ring-error/20'
               : 'border-outline-variant focus:border-primary-container focus:ring-2 focus:ring-primary-container/20'
-          } ${icon ? 'pl-10 pr-10' : 'pl-4 pr-10'}`}
+          } ${Icon ? 'pl-10 pr-10' : 'pl-4 pr-10'}`}
         />
         <button
           type="button"
@@ -76,15 +82,17 @@ export default function PasswordInput({
           className="absolute right-3 text-outline hover:text-on-surface focus:outline-none transition-colors p-1 disabled:opacity-50"
           aria-label={showPassword ? 'Hide password' : 'Show password'}
         >
-          <span className="material-symbols-outlined text-[20px]">
-            {showPassword ? 'visibility_off' : 'visibility'}
-          </span>
+          {showPassword ? (
+            <EyeSlashIcon aria-hidden="true" className="h-5 w-5" />
+          ) : (
+            <EyeIcon aria-hidden="true" className="h-5 w-5" />
+          )}
         </button>
       </div>
 
       {error ? (
         <p className="font-label-sm text-label-sm text-error mt-1 flex items-center gap-1 animate-fade-in">
-          <span className="material-symbols-outlined text-[16px]">error</span>
+          <ExclamationCircleIcon aria-hidden="true" className="h-4 w-4 shrink-0" />
           <span>{error}</span>
         </p>
       ) : helperText ? (

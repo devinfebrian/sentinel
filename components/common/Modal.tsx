@@ -1,22 +1,36 @@
 'use client';
 
 import React, { useEffect } from 'react';
+import { XMarkIcon } from '@heroicons/react/24/outline';
 
 export interface ModalProps {
   open: boolean;
   onClose: () => void;
   title?: string;
   children: React.ReactNode;
-  size?: 'sm' | 'md' | 'lg';
+  /** Actions pinned to a tinted bar at the bottom, outside the scrolling body. */
+  footer?: React.ReactNode;
+  /** Drops the body padding so the content can own the whole panel. */
+  bare?: boolean;
+  size?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
 const SIZE_CLASSES: Record<NonNullable<ModalProps['size']>, string> = {
   sm: 'max-w-sm',
   md: 'max-w-md',
   lg: 'max-w-lg',
+  xl: 'max-w-2xl',
 };
 
-export default function Modal({ open, onClose, title, children, size = 'md' }: ModalProps) {
+export default function Modal({
+  open,
+  onClose,
+  title,
+  children,
+  footer,
+  bare = false,
+  size = 'md',
+}: ModalProps) {
   useEffect(() => {
     if (!open) return;
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -30,7 +44,7 @@ export default function Modal({ open, onClose, title, children, size = 'md' }: M
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-inverse-surface/40 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-inverse-surface/40 backdrop-blur-sm p-4"
       onClick={onClose}
     >
       <div
@@ -38,10 +52,10 @@ export default function Modal({ open, onClose, title, children, size = 'md' }: M
         aria-modal="true"
         aria-labelledby={title ? 'modal-title' : undefined}
         onClick={(e) => e.stopPropagation()}
-        className={`w-full ${SIZE_CLASSES[size]} bg-surface-container-lowest rounded-xl border border-outline-variant/40 shadow-sm max-h-[90vh] overflow-y-auto`}
+        className={`w-full ${SIZE_CLASSES[size]} max-h-[90vh] overflow-hidden rounded-xl border border-outline-variant/30 bg-surface card-shadow`}
       >
         {title && (
-          <div className="flex items-center justify-between px-6 py-5 border-b border-outline-variant/40">
+          <div className="flex items-center justify-between border-b border-surface-container-high px-6 py-5">
             <h2 id="modal-title" className="font-headline-md text-headline-md text-on-surface">
               {title}
             </h2>
@@ -49,13 +63,18 @@ export default function Modal({ open, onClose, title, children, size = 'md' }: M
               type="button"
               onClick={onClose}
               aria-label="Close"
-              className="text-on-surface-variant hover:text-on-surface transition-colors p-1 rounded-full hover:bg-surface-container-high"
+              className="p-1 text-on-surface-variant transition-colors hover:text-on-surface"
             >
-              <span className="material-symbols-outlined">close</span>
+              <XMarkIcon aria-hidden="true" className="h-6 w-6" />
             </button>
           </div>
         )}
-        <div className="p-6">{children}</div>
+        <div className={`max-h-[70vh] overflow-y-auto ${bare ? '' : 'p-6'}`}>{children}</div>
+        {footer && (
+          <div className="flex justify-end gap-3 border-t border-surface-container-high bg-surface-container-low px-6 py-4">
+            {footer}
+          </div>
+        )}
       </div>
     </div>
   );

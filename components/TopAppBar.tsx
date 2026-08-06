@@ -2,13 +2,32 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import {
+  ArrowLeftStartOnRectangleIcon,
+  BellIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  ClockIcon,
+  Cog6ToothIcon,
+} from '@heroicons/react/24/outline';
 import { useAuthStore } from '@/lib/stores/auth.store';
+import { useNow } from '@/lib/hooks/use-now';
+import { formatClock, formatDayDate } from '@/lib/format/datetime';
+
+const getInitials = (fullname: string) =>
+  fullname
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join('');
 
 export default function TopAppBar() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const clearSession = useAuthStore((s) => s.clearSession);
   const [menuOpen, setMenuOpen] = useState(false);
+  const now = useNow();
 
   const handleLogout = () => {
     clearSession();
@@ -19,63 +38,59 @@ export default function TopAppBar() {
   const roleLabel = user?.isAdmin ? 'Finance Lead' : 'Finance Staff';
 
   return (
-    <header className="sticky top-0 z-40 flex h-16 min-w-0 w-full items-center gap-4 border-b border-outline-variant bg-surface-container-lowest px-4 md:px-6 lg:px-8">
-      <div className="min-w-0 flex-1">
-        <p className="truncate font-headline-md text-lg font-semibold text-on-surface sm:text-xl">
-          Ledger Actions
+    <header className="sticky top-0 z-40 flex min-w-0 w-full items-center justify-between gap-4 border-b border-outline-variant/30 bg-surface/80 px-4 py-4 backdrop-blur-md md:px-container-padding">
+      <div className="flex min-w-0 items-center gap-2 rounded-full border border-outline-variant/30 bg-surface-container-low px-4 py-2">
+        <ClockIcon aria-hidden="true" className="h-5 w-5 shrink-0 text-on-surface-variant" />
+        {/* aria-live is deliberately off: a clock announcing itself every
+            second would flood a screen reader. */}
+        <p className="flex items-baseline gap-2 whitespace-nowrap text-table-data">
+          <span className="font-semibold tabular-nums text-on-surface">
+            {now ? formatClock(now) : '--:--:--'}
+          </span>
+          <span className="text-on-surface-variant">WIB</span>
+          <span className="hidden text-on-surface-variant/70 sm:inline">
+            {now ? formatDayDate(now) : ''}
+          </span>
         </p>
       </div>
 
-      <div className="hidden min-w-0 flex-1 justify-center sm:flex">
-        <div className="relative w-full max-w-[420px]">
-          <span
-            aria-hidden="true"
-            className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant"
-          >
-            search
-          </span>
-          <input
-            type="search"
-            readOnly
-            aria-label="Search transactions and entities"
-            placeholder="Search transactions, entities..."
-            className="h-10 w-full rounded-lg border border-outline-variant bg-surface-container-low pl-10 pr-4 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-          />
-        </div>
-      </div>
-
-      <div className="ml-auto flex shrink-0 items-center gap-1 text-on-surface-variant">
+      <div className="flex shrink-0 items-center gap-4">
         <button
           type="button"
           disabled
           aria-label="Notifications"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-surface-container-high disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-container text-on-surface-variant transition-colors hover:bg-surface-container-high disabled:cursor-not-allowed disabled:opacity-50"
         >
-          <span className="material-symbols-outlined">notifications</span>
+          <BellIcon aria-hidden="true" className="h-6 w-6" />
         </button>
         <button
           type="button"
           disabled
           aria-label="Settings"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-surface-container-high disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-container text-on-surface-variant transition-colors hover:bg-surface-container-high disabled:cursor-not-allowed disabled:opacity-50"
         >
-          <span className="material-symbols-outlined">settings</span>
+          <Cog6ToothIcon aria-hidden="true" className="h-6 w-6" />
         </button>
+
         <div className="relative">
           <button
             type="button"
             onClick={() => setMenuOpen((open) => !open)}
             aria-expanded={menuOpen}
             aria-haspopup="menu"
-            className="p-2 rounded-full hover:bg-surface-container-high transition-colors flex items-center gap-2"
+            className="flex items-center gap-2 rounded-full p-1 transition-colors hover:bg-surface-container"
           >
-            <span className="material-symbols-outlined">account_circle</span>
-            <span className="hidden sm:inline font-label-sm text-label-sm text-on-surface">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary-container font-label-sm text-label-sm font-semibold text-on-secondary-container">
+              {user ? getInitials(user.fullname) : '?'}
+            </span>
+            <span className="hidden font-label-sm text-label-sm text-on-surface sm:inline">
               {user?.fullname ?? user?.email ?? 'Account'}
             </span>
-            <span className="material-symbols-outlined text-[18px]">
-              {menuOpen ? 'expand_less' : 'expand_more'}
-            </span>
+            {menuOpen ? (
+              <ChevronUpIcon aria-hidden="true" className="h-[18px] w-[18px]" />
+            ) : (
+              <ChevronDownIcon aria-hidden="true" className="h-[18px] w-[18px]" />
+            )}
           </button>
 
           {/* Click-driven, not hover-driven: a hover-only menu is unreachable
@@ -89,16 +104,16 @@ export default function TopAppBar() {
               />
               <div
                 role="menu"
-                className="absolute right-0 top-full mt-2 flex flex-col bg-surface-container-lowest border border-outline-variant rounded-lg shadow-lg overflow-hidden z-50 min-w-[220px]"
+                className="absolute right-0 top-full z-50 mt-2 flex min-w-[220px] flex-col overflow-hidden rounded-xl border border-outline-variant/30 bg-surface card-shadow"
               >
-                <div className="px-4 py-3 border-b border-outline-variant">
+                <div className="border-b border-surface-container-high px-4 py-3">
                   <p className="font-label-sm font-bold text-on-surface">
                     {user?.fullname ?? 'Account'}
                   </p>
-                  <p className="font-label-sm text-label-sm text-on-surface-variant mt-1">
+                  <p className="mt-1 font-label-sm text-label-sm text-on-surface-variant">
                     {user?.email}
                   </p>
-                  <p className="font-label-sm text-label-sm text-outline mt-1 uppercase">
+                  <p className="mt-1 font-label-sm text-label-sm uppercase text-outline">
                     {roleLabel}
                   </p>
                 </div>
@@ -106,9 +121,12 @@ export default function TopAppBar() {
                   type="button"
                   role="menuitem"
                   onClick={handleLogout}
-                  className="px-4 py-3 text-left text-error hover:bg-error/10 font-label-sm font-bold flex items-center gap-2 transition-colors"
+                  className="flex items-center gap-2 px-4 py-3 text-left font-label-sm font-bold text-error transition-colors hover:bg-error-container/50"
                 >
-                  <span className="material-symbols-outlined text-[18px]">logout</span>
+                  <ArrowLeftStartOnRectangleIcon
+                    aria-hidden="true"
+                    className="h-[18px] w-[18px]"
+                  />
                   Logout
                 </button>
               </div>

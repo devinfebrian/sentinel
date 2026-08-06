@@ -1,12 +1,20 @@
 import type { Metadata } from "next";
-import { Urbanist } from "next/font/google";
+import { Inter, Urbanist } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 
+// Two families by design: Urbanist is a geometric display face that carries the
+// headings, Inter handles body/label/table text where it stays legible small.
 const urbanist = Urbanist({
   variable: "--font-urbanist",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
+});
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 const googleAuthEnabled = process.env.NEXT_PUBLIC_ENABLE_GOOGLE_AUTH === "true";
@@ -22,12 +30,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${urbanist.variable} h-full antialiased`}>
+    <html lang="en" className={`${urbanist.variable} ${inter.variable} h-full antialiased`}>
       <head>
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        />
         {/* Only loaded when Google sign-in is actually switched on. */}
         {googleAuthEnabled && (
           <Script

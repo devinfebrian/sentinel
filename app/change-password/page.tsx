@@ -2,6 +2,13 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import {
+  ExclamationCircleIcon,
+  InformationCircleIcon,
+  LockClosedIcon,
+  LockOpenIcon,
+  ShieldCheckIcon,
+} from '@heroicons/react/24/outline';
 import BrandingHeader from '@/components/auth/BrandingHeader';
 import AuthFooterLink from '@/components/auth/AuthFooterLink';
 import PasswordInput from '@/components/common/PasswordInput';
@@ -126,7 +133,7 @@ export default function ChangePasswordPage() {
               {mode === 'set' ? 'Set your password' : 'Change password'}
             </h2>
             <AlertNotice
-              icon="info"
+              icon={InformationCircleIcon}
               variant="tertiary"
               message={
                 mode === 'set'
@@ -138,7 +145,7 @@ export default function ChangePasswordPage() {
 
           {serverError && (
             <div className="mb-5">
-              <AlertNotice variant="error" icon="error" message={serverError} />
+              <AlertNotice variant="error" icon={ExclamationCircleIcon} message={serverError} />
             </div>
           )}
 
@@ -154,7 +161,7 @@ export default function ChangePasswordPage() {
                   if (errors.currentPassword)
                     setErrors((prev) => ({ ...prev, currentPassword: null }));
                 }}
-                icon="lock_open"
+                icon={LockOpenIcon}
                 error={errors.currentPassword}
                 disabled={loading}
               />
@@ -170,7 +177,7 @@ export default function ChangePasswordPage() {
                   setNewPassword(e.target.value);
                   if (errors.newPassword) setErrors((prev) => ({ ...prev, newPassword: null }));
                 }}
-                icon="lock"
+                icon={LockClosedIcon}
                 error={errors.newPassword}
                 disabled={loading}
               />
@@ -205,7 +212,7 @@ export default function ChangePasswordPage() {
                 if (errors.confirmPassword)
                   setErrors((prev) => ({ ...prev, confirmPassword: null }));
               }}
-              icon="verified_user"
+              icon={ShieldCheckIcon}
               error={errors.confirmPassword}
               disabled={loading}
             />

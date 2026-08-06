@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
+import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
 
 /**
  * Next 16.2 signature: `unstable_retry`, not the older `reset`.
@@ -19,7 +20,7 @@ export default function Error({
   return (
     <div className="min-h-screen flex items-center justify-center p-margin-mobile bg-background">
       <div className="w-full max-w-md bg-surface-container-lowest rounded-xl border border-outline-variant p-8 text-center">
-        <span className="material-symbols-outlined text-error text-4xl">error</span>
+        <ExclamationCircleIcon aria-hidden="true" className="mx-auto h-9 w-9 text-error" />
         <h1 className="font-headline-md text-headline-md text-on-surface mt-4">
           Something went wrong
         </h1>

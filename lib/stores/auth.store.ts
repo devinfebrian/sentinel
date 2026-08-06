@@ -88,3 +88,9 @@ export const useAuthStore = create<AuthState>()(
 
 /** Reads the token outside React, for the API layer. */
 export const getAccessToken = () => useAuthStore.getState().accessToken;
+
+/**
+ * Drops the session outside React, for the API layer's 401 handling. AuthGate
+ * subscribes to the store, so clearing it here is what triggers the redirect.
+ */
+export const clearSessionOutsideReact = () => useAuthStore.getState().clearSession();

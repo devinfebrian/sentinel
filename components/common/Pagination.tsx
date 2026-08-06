@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 interface PaginationProps {
   currentPage: number;
@@ -60,7 +61,7 @@ export default function Pagination({
   }
 
   return (
-    <div className="bg-surface-container-low px-4 py-3 border-t border-surface-variant flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div className="flex flex-col items-center justify-between gap-4 border-t border-surface-container-high bg-surface-bright px-4 py-3 sm:flex-row">
       {/* Rows per page & Total items */}
       <div className="flex items-center gap-4 text-sm text-on-surface-variant font-label-sm">
         <span>Showing {Math.min((currentPage - 1) * itemsPerPage + 1, totalItems)} - {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems}</span>
@@ -71,7 +72,8 @@ export default function Pagination({
             <input
               type="number"
               min="1"
-              className="w-16 h-8 px-2 bg-surface border border-outline-variant/30 rounded focus:outline-none focus:border-primary text-center appearance-none"
+              aria-label="Rows per page"
+              className="h-8 w-20 appearance-none rounded border border-outline-variant/30 bg-surface px-2 text-center tabular-nums focus:border-primary focus:outline-none"
               value={limitInput}
               onChange={(e) => setLimitInput(e.target.value)}
               onKeyDown={handleLimitSubmit}
@@ -98,7 +100,8 @@ export default function Pagination({
             min="1"
             max={totalPages}
             placeholder={currentPage.toString()}
-            className="w-12 h-8 px-2 bg-surface border border-outline-variant/30 rounded focus:outline-none focus:border-primary text-center appearance-none text-sm"
+            aria-label="Go to page"
+            className="h-8 w-16 appearance-none rounded border border-outline-variant/30 bg-surface px-2 text-center text-sm tabular-nums focus:border-primary focus:outline-none"
             value={jumpPage}
             onChange={(e) => setJumpPage(e.target.value)}
             onKeyDown={handleJumpSubmit}
@@ -111,7 +114,7 @@ export default function Pagination({
             disabled={currentPage <= 1}
             onClick={() => onPageChange(currentPage - 1)}
           >
-            <span className="material-symbols-outlined text-[18px]">chevron_left</span>
+            <ChevronLeftIcon aria-hidden="true" className="h-[18px] w-[18px]" />
           </button>
           
           {pages.map(p => (
@@ -133,7 +136,7 @@ export default function Pagination({
             disabled={currentPage >= totalPages || totalPages === 0}
             onClick={() => onPageChange(currentPage + 1)}
           >
-            <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+            <ChevronRightIcon aria-hidden="true" className="h-[18px] w-[18px]" />
           </button>
         </div>
       </div>

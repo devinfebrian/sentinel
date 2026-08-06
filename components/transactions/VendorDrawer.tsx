@@ -1,6 +1,12 @@
 'use client';
 
 import React from 'react';
+import {
+  ArrowRightIcon,
+  ArrowTrendingUpIcon,
+  ShieldCheckIcon,
+  XMarkIcon,
+} from '@heroicons/react/24/outline';
 
 interface VendorDrawerProps {
   isOpen: boolean;
@@ -38,7 +44,7 @@ export default function VendorDrawer({ isOpen, onClose, vendorName }: VendorDraw
             className="text-on-surface-variant hover:text-on-surface bg-surface-container hover:bg-surface-container-high rounded-full w-8 h-8 flex items-center justify-center transition-colors"
             onClick={onClose}
           >
-            <span className="material-symbols-outlined text-[20px]">close</span>
+            <XMarkIcon aria-hidden="true" className="h-5 w-5" />
           </button>
         </div>
         {/* Drawer Content Scrollable */}
@@ -46,7 +52,7 @@ export default function VendorDrawer({ isOpen, onClose, vendorName }: VendorDraw
           {/* Risk Assessment Card (Kinetic Style) */}
           <div className="bg-surface-container-lowest rounded-xl p-5 shadow-ambient-lvl-1 border border-outline-variant/30 ai-glow relative overflow-hidden">
             <div className="absolute right-0 top-0 opacity-5 pointer-events-none">
-              <span className="material-symbols-outlined text-[120px]">shield_person</span>
+              <ShieldCheckIcon aria-hidden="true" className="h-6 w-6 text-[120px]" />
             </div>
             <div className="flex justify-between items-start mb-4 relative z-10">
               <div>
@@ -61,7 +67,7 @@ export default function VendorDrawer({ isOpen, onClose, vendorName }: VendorDraw
               Vendor transaction patterns remain highly consistent with historical data. No anomalies detected in the last 12 months. Contract terms align with industry standards for Cloud Infrastructure.
             </p>
             <button className="text-primary font-label-sm text-label-sm hover:underline flex items-center gap-1 relative z-10">
-              View Full Audit Trail <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+              View Full Audit Trail <ArrowRightIcon aria-hidden="true" className="h-6 w-6 text-[14px]" />
             </button>
           </div>
           {/* Quick Stats Bento */}
@@ -69,7 +75,7 @@ export default function VendorDrawer({ isOpen, onClose, vendorName }: VendorDraw
             <div className="bg-surface-container-lowest p-4 rounded-xl shadow-ambient-lvl-1 border border-outline-variant/30">
               <p className="font-label-sm text-label-sm text-on-surface-variant mb-1">YTD Spend</p>
               <p className="font-headline-md text-headline-md font-semibold text-on-surface">$148,500</p>
-              <p className="text-[11px] text-secondary mt-1 flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">trending_up</span> 12% vs LY</p>
+              <p className="text-[11px] text-secondary mt-1 flex items-center gap-1"><ArrowTrendingUpIcon aria-hidden="true" className="h-6 w-6 text-[12px]" /> 12% vs LY</p>
             </div>
             <div className="bg-surface-container-lowest p-4 rounded-xl shadow-ambient-lvl-1 border border-outline-variant/30">
               <p className="font-label-sm text-label-sm text-on-surface-variant mb-1">Avg Transaction</p>

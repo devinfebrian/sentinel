@@ -1,4 +1,6 @@
 import React from 'react';
+import { ArrowPathIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
+import type { IconComponent } from '@/lib/types/icon';
 
 export interface PrimaryButtonProps {
   children: React.ReactNode;
@@ -7,7 +9,8 @@ export interface PrimaryButtonProps {
   disabled?: boolean;
   loading?: boolean;
   loadingText?: string;
-  icon?: string;
+  /** `null` renders no trailing icon at all. */
+  icon?: IconComponent | null;
   className?: string;
 }
 
@@ -18,7 +21,7 @@ export default function PrimaryButton({
   disabled = false,
   loading = false,
   loadingText,
-  icon = 'arrow_forward',
+  icon: Icon = ArrowRightIcon,
   className = '',
 }: PrimaryButtonProps) {
   // Keeps the pending state inside the button instead of behind a blur
@@ -35,11 +38,9 @@ export default function PrimaryButton({
     >
       <span>{loading && loadingText ? loadingText : children}</span>
       {loading ? (
-        <span className="material-symbols-outlined text-[18px] animate-spin">
-          progress_activity
-        </span>
+        <ArrowPathIcon aria-hidden="true" className="h-[18px] w-[18px] animate-spin" />
       ) : (
-        icon && <span className="material-symbols-outlined text-[18px]">{icon}</span>
+        Icon && <Icon aria-hidden="true" className="h-[18px] w-[18px]" />
       )}
     </button>
   );
