@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Metadata } from 'next';
 import { SparklesIcon } from '@heroicons/react/24/outline';
-import ComingSoon from '@/components/common/ComingSoon';
+import { AskSentinel } from '@/components/dashboard/AskSentinel';
 
 export const metadata: Metadata = {
   title: 'Ask Sentinel - Sentinel',
@@ -9,10 +9,8 @@ export const metadata: Metadata = {
 
 export default function AskPage() {
   return (
-    <ComingSoon
-      icon={SparklesIcon}
-      title="Ask Sentinel"
-      description="Ask questions about your transactions and vendors in plain language, and get answers traced back to the records."
-    />
+    <div className="flex flex-col h-[calc(100vh-100px)] w-full">
+      <AskSentinel />
+    </div>
   );
 }
