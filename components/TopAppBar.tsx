@@ -77,7 +77,7 @@ export default function TopAppBar() {
         </button>
 
         <AnimatedThemeToggler 
-          className="!flex h-10 w-10 !p-0 items-center justify-center rounded-full bg-surface-container text-on-surface-variant transition-colors hover:bg-surface-container-high" 
+          className="!flex h-10 w-10 !p-0 items-center justify-center rounded-full bg-surface-container text-on-surface-variant transition-colors hover:bg-primary-container hover:text-on-primary-container active:bg-primary-container active:text-on-primary-container" 
           variant="circle"
           theme={resolvedTheme === "dark" ? "dark" : "light"}
           onThemeChange={setTheme}

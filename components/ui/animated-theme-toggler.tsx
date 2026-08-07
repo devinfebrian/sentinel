@@ -155,9 +155,13 @@ export const AnimatedThemeToggler = ({
   const shape = variant ?? "circle"
   const isControlled = theme !== undefined
   const [internalIsDark, setInternalIsDark] = useState(false)
-  const isDark = isControlled ? theme === "dark" : internalIsDark
+  const [optimisticIsDark, setOptimisticIsDark] = useState<boolean | null>(null)
+  
+  const isDark = optimisticIsDark !== null ? optimisticIsDark : (isControlled ? theme === "dark" : internalIsDark)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const isTransitioningRef = useRef(false)
+  const lastClickTimeRef = useRef(0)
+  const [isTransitioning, setIsTransitioning] = useState(false)
 
   useEffect(() => {
     if (isControlled) return
@@ -178,6 +182,12 @@ export const AnimatedThemeToggler = ({
   }, [isControlled])
 
   const toggleTheme = useCallback(() => {
+    const now = Date.now()
+    // HARD GUARD: completely block any clicks faster than the animation duration + small buffer
+    if (now - lastClickTimeRef.current < duration + 400) {
+      return
+    }
+    
     const button = buttonRef.current
     if (
       !button ||
@@ -185,6 +195,8 @@ export const AnimatedThemeToggler = ({
       document.documentElement.dataset.magicuiThemeVt === "active"
     )
       return
+
+    lastClickTimeRef.current = now
 
     const viewportWidth = window.innerWidth
     const viewportHeight = window.innerHeight
@@ -207,15 +219,29 @@ export const AnimatedThemeToggler = ({
 
     const applyTheme = () => {
       const isCurrentlyDark = document.documentElement.classList.contains("dark")
-      const newTheme = !isCurrentlyDark
+      const nextTheme = !isCurrentlyDark
       
-      document.documentElement.classList.toggle("dark", newTheme)
-      return newTheme
+      document.documentElement.classList.toggle("dark", nextTheme)
+      setOptimisticIsDark(nextTheme) // Instantly update icon for the view transition snapshot
+      return nextTheme
     }
+
+    let newTheme = false;
 
     // @ts-expect-error View Transitions API is not yet standard in all browsers
     if (typeof document.startViewTransition !== "function") {
-      applyTheme()
+      flushSync(() => {
+        newTheme = applyTheme()
+      })
+      if (isControlled) {
+        onThemeChange?.(newTheme ? "dark" : "light")
+      } else {
+        setInternalIsDark(newTheme)
+        localStorage.setItem("theme", newTheme ? "dark" : "light")
+      }
+      setOptimisticIsDark(null)
+      isTransitioningRef.current = false
+      setIsTransitioning(false)
       return
     }
 
@@ -230,37 +256,40 @@ export const AnimatedThemeToggler = ({
 
     const root = document.documentElement
     root.dataset.magicuiThemeVt = "active"
-    root.style.setProperty(
-      "--magicui-theme-toggle-vt-duration",
-      `${duration}ms`
-    )
+    root.style.setProperty("--magicui-theme-toggle-vt-duration", `${duration}ms`)
     root.style.setProperty("--magicui-theme-vt-clip-from", clipPath[0])
+    
     const cleanup = () => {
-      isTransitioningRef.current = false
+      // ONLY NOW do we let next-themes know about the change.
+      // This prevents next-themes from doing async DOM mutations during the View Transition,
+      // which is the #1 cause of STATUS_BREAKPOINT crashes in Chromium.
+      if (isControlled) {
+        onThemeChange?.(newTheme ? "dark" : "light")
+      } else {
+        setInternalIsDark(newTheme)
+        localStorage.setItem("theme", newTheme ? "dark" : "light")
+      }
+      setOptimisticIsDark(null)
+
       delete root.dataset.magicuiThemeVt
       root.style.removeProperty("--magicui-theme-toggle-vt-duration")
       root.style.removeProperty("--magicui-theme-vt-clip-from")
+      
+      isTransitioningRef.current = false
+      setIsTransitioning(false)
     }
 
-    isTransitioningRef.current = true
     // @ts-expect-error View Transitions API is not yet standard in all browsers
     const transition = document.startViewTransition(() => {
-      const newTheme = applyTheme()
-      // Let next-themes and React state catch up AFTER the browser captures the transition DOM state
-      setTimeout(() => {
-        if (isControlled) {
-          onThemeChange?.(newTheme ? "dark" : "light")
-        } else {
-          setInternalIsDark(newTheme)
-          localStorage.setItem("theme", newTheme ? "dark" : "light")
-        }
-      }, 0)
+      flushSync(() => {
+        newTheme = applyTheme()
+      })
     })
-    if (typeof transition?.finished?.finally === "function") {
-      transition.finished.finally(cleanup).catch(() => {})
-    } else {
-      cleanup()
-    }
+    
+    // STRICT LOCK: We force the cleanup to wait exactly duration + 200ms.
+    // This absolutely guarantees that next-themes will not mutate the DOM
+    // until long after the view transition pseudo-elements are dead.
+    setTimeout(cleanup, duration + 200)
 
     const ready = transition?.ready
     if (ready && typeof ready.then === "function") {
@@ -273,7 +302,6 @@ export const AnimatedThemeToggler = ({
             {
               duration,
               easing: shape === "star" ? "linear" : "ease-in-out",
-              fill: "forwards",
               pseudoElement: "::view-transition-new(root)",
             }
           )
@@ -287,7 +315,8 @@ export const AnimatedThemeToggler = ({
       type="button"
       ref={buttonRef}
       onClick={toggleTheme}
-      className={cn("p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors", className)}
+      disabled={isTransitioning || props.disabled}
+      className={cn("transition-colors disabled:pointer-events-none disabled:opacity-50", className)}
       {...props}
     >
       {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
