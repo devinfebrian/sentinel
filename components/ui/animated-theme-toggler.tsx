@@ -228,7 +228,6 @@ export const AnimatedThemeToggler = ({
 
     let newTheme = false;
 
-    // @ts-expect-error View Transitions API is not yet standard in all browsers
     if (typeof document.startViewTransition !== "function") {
       flushSync(() => {
         newTheme = applyTheme()
@@ -279,7 +278,6 @@ export const AnimatedThemeToggler = ({
       setIsTransitioning(false)
     }
 
-    // @ts-expect-error View Transitions API is not yet standard in all browsers
     const transition = document.startViewTransition(() => {
       flushSync(() => {
         newTheme = applyTheme()
