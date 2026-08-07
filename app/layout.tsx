@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#ffffff",
+  themeColor: "#141414",
 };
 
 export default function RootLayout({
@@ -49,7 +49,9 @@ export default function RootLayout({
           which also keeps Server Components free of a React context they
           could not read anyway. */}
       <body className="min-h-full flex flex-col bg-background font-sans antialiased text-on-surface">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        {/* Experimental branch: forces the new palette on load so it's visible
+            without toggling. Revert to defaultTheme="system" before merging. */}
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           {children}
         </ThemeProvider>
       </body>

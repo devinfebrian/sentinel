@@ -133,63 +133,70 @@
   color-scheme: light;
 }
 
+/* Experimental palette (see AGENTS note in this branch): sky blue / mint /
+   pink on a near-black canvas, requested as --text #fff, --background
+   #141414, --primary #7cc5fe, --secondary #8ce3c6, --accent #f8b9d9 (mapped
+   to tertiary). Containers and on-* pairs are derived from those four so the
+   rest of the token set (error/success/warning, surface tiers, outlines)
+   stays internally consistent rather than just swapping the three hues in.
+*/
 .dark {
-  --primary: #c3d661;
-  --primary-fixed: #daec7b;
-  --primary-fixed-dim: #becf63;
-  --primary-container: #414c00;
-  --on-primary: #2d3400;
-  --on-primary-container: #daec7b;
-  --on-primary-fixed: #191e00;
-  --on-primary-fixed-variant: #414c00;
-  --inverse-primary: #576400;
+  --primary: #7cc5fe;
+  --primary-fixed: #cfe8ff;
+  --primary-fixed-dim: #7cc5fe;
+  --primary-container: #1c3a52;
+  --on-primary: #05263f;
+  --on-primary-container: #cfe8ff;
+  --on-primary-fixed: #001b34;
+  --on-primary-fixed-variant: #17415e;
+  --inverse-primary: #0f6ba8;
 
-  --secondary: #bacbb5;
-  --secondary-container: #3b4b3a;
-  --on-secondary: #263424;
-  --on-secondary-container: #d6e8d0;
-  --secondary-fixed: #d6e8d0;
-  --secondary-fixed-dim: #bacbb5;
-  --on-secondary-fixed: #111f11;
-  --on-secondary-fixed-variant: #3b4b3a;
+  --secondary: #8ce3c6;
+  --secondary-container: #1c4436;
+  --on-secondary: #06301f;
+  --on-secondary-container: #c8f5e3;
+  --secondary-fixed: #c8f5e3;
+  --secondary-fixed-dim: #8ce3c6;
+  --on-secondary-fixed: #002016;
+  --on-secondary-fixed-variant: #1c4436;
 
-  --tertiary: #c0c7d1;
-  --tertiary-container: #40474f;
-  --on-tertiary: #2a3139;
-  --on-tertiary-container: #dce3ed;
-  --tertiary-fixed: #dce3ed;
-  --tertiary-fixed-dim: #c0c7d1;
-  --on-tertiary-fixed: #151c23;
-  --on-tertiary-fixed-variant: #40474f;
+  --tertiary: #f8b9d9;
+  --tertiary-container: #5c1f3d;
+  --on-tertiary: #4a1030;
+  --on-tertiary-container: #ffd9ea;
+  --tertiary-fixed: #ffd9ea;
+  --tertiary-fixed-dim: #f8b9d9;
+  --on-tertiary-fixed: #390020;
+  --on-tertiary-fixed-variant: #5c1f3d;
 
-  --background: #0f1513;
-  --on-background: #dfe4e0;
-  --surface: #0f1513;
-  --on-surface: #dfe4e0;
-  --surface-variant: #464838;
-  --on-surface-variant: #c7c8b3;
-  --surface-container-lowest: #0a0f0d;
-  --surface-container-low: #171d1b;
-  --surface-container: #1b211f;
-  --surface-container-high: #262b29;
-  --surface-container-highest: #303634;
-  --surface-dim: #0f1513;
-  --surface-bright: #353b39;
-  --surface-tint: #c3d661;
+  --background: #141414;
+  --on-background: #ffffff;
+  --surface: #141414;
+  --on-surface: #ffffff;
+  --surface-variant: #2a2a2a;
+  --on-surface-variant: #c9c9c9;
+  --surface-container-lowest: #0a0a0a;
+  --surface-container-low: #1c1c1c;
+  --surface-container: #202020;
+  --surface-container-high: #2b2b2b;
+  --surface-container-highest: #363636;
+  --surface-dim: #141414;
+  --surface-bright: #3a3a3a;
+  --surface-tint: #7cc5fe;
 
-  --outline: #919280;
-  --outline-variant: #464838;
-  --error: #ffb4ab;
-  --error-container: #93000a;
-  --on-error: #690005;
-  --on-error-container: #ffdad6;
+  --outline: #8a8a8a;
+  --outline-variant: #3d3d3d;
+  --error: #ff8a80;
+  --error-container: #5c1a15;
+  --on-error: #3b0a06;
+  --on-error-container: #ffdad4;
 
-  --inverse-surface: #dfe4e0;
-  --inverse-on-surface: #2c322f;
+  --inverse-surface: #ffffff;
+  --inverse-on-surface: #141414;
 
-  --success: #a0db5a;
-  --warning: #f5b033;
-  
+  --success: #8ce3c6;
+  --warning: #ffcf6b;
+
   color-scheme: dark;
 }
 
