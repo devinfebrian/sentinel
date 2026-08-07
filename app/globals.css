@@ -72,102 +72,102 @@
   --font-urbanist: var(--font-urbanist), sans-serif;
 }
 
+/* Experimental palette, step 1: full neutral/monochrome, no hue anywhere —
+   not even in primary/secondary/tertiary. Plan is to layer the sky/mint/pink
+   accents back in gradually once the neutral base reads right on its own, in
+   both themes. error/success/warning are deliberately desaturated too for
+   this pass; they'll likely be the first candidates to get color back since
+   status without color is a real usability cost worth flagging on review.
+*/
 :root {
-  --primary: #576400;
-  --primary-fixed: #daec7b;
-  --primary-fixed-dim: #becf63;
-  --primary-container: #edff8c;
+  --primary: #171717;
+  --primary-fixed: #e5e5e5;
+  --primary-fixed-dim: #a3a3a3;
+  --primary-container: #e5e5e5;
   --on-primary: #ffffff;
-  --on-primary-container: #687710;
-  --on-primary-fixed: #191e00;
-  --on-primary-fixed-variant: #414c00;
-  --inverse-primary: #becf63;
+  --on-primary-container: #171717;
+  --on-primary-fixed: #171717;
+  --on-primary-fixed-variant: #404040;
+  --inverse-primary: #e5e5e5;
 
-  --secondary: #536350;
-  --secondary-container: #d6e8d0;
+  --secondary: #525252;
+  --secondary-container: #e5e5e5;
   --on-secondary: #ffffff;
-  --on-secondary-container: #586956;
-  --secondary-fixed: #d6e8d0;
-  --secondary-fixed-dim: #bacbb5;
-  --on-secondary-fixed: #111f11;
-  --on-secondary-fixed-variant: #3b4b3a;
+  --on-secondary-container: #262626;
+  --secondary-fixed: #e5e5e5;
+  --secondary-fixed-dim: #a3a3a3;
+  --on-secondary-fixed: #171717;
+  --on-secondary-fixed-variant: #404040;
 
-  --tertiary: #585f68;
-  --tertiary-container: #f0f6ff;
+  --tertiary: #737373;
+  --tertiary-container: #f0f0f0;
   --on-tertiary: #ffffff;
-  --on-tertiary-container: #697179;
-  --tertiary-fixed: #dce3ed;
-  --tertiary-fixed-dim: #c0c7d1;
-  --on-tertiary-fixed: #151c23;
-  --on-tertiary-fixed-variant: #40474f;
+  --on-tertiary-container: #262626;
+  --tertiary-fixed: #f0f0f0;
+  --tertiary-fixed-dim: #a3a3a3;
+  --on-tertiary-fixed: #171717;
+  --on-tertiary-fixed-variant: #404040;
 
-  --background: #f6fbf6;
-  --on-background: #171d1b;
-  --surface: #f6fbf6;
-  --on-surface: #171d1b;
-  --surface-variant: #dfe4e0;
-  --on-surface-variant: #464838;
+  --background: #ffffff;
+  --on-background: #0a0a0a;
+  --surface: #ffffff;
+  --on-surface: #0a0a0a;
+  --surface-variant: #e5e5e5;
+  --on-surface-variant: #525252;
   --surface-container-lowest: #ffffff;
-  --surface-container-low: #f0f5f1;
-  --surface-container: #eaefeb;
-  --surface-container-high: #e4e9e5;
-  --surface-container-highest: #dfe4e0;
-  --surface-dim: #d6dbd7;
-  --surface-bright: #f6fbf6;
-  --surface-tint: #576400;
+  --surface-container-low: #fafafa;
+  --surface-container: #f5f5f5;
+  --surface-container-high: #e5e5e5;
+  --surface-container-highest: #d4d4d4;
+  --surface-dim: #d4d4d4;
+  --surface-bright: #ffffff;
+  --surface-tint: #171717;
 
-  --outline: #777867;
-  --outline-variant: #c7c8b3;
-  --error: #ba1a1a;
-  --error-container: #ffdad6;
+  --outline: #737373;
+  --outline-variant: #d4d4d4;
+  --error: #404040;
+  --error-container: #e5e5e5;
   --on-error: #ffffff;
-  --on-error-container: #93000a;
+  --on-error-container: #171717;
 
-  --inverse-surface: #2c322f;
-  --inverse-on-surface: #edf2ee;
+  --inverse-surface: #262626;
+  --inverse-on-surface: #fafafa;
 
-  --success: #8bc34a;
-  --warning: #d99a2b;
+  --success: #404040;
+  --warning: #737373;
 
   font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
   color-scheme: light;
 }
 
-/* Experimental palette (see AGENTS note in this branch): sky blue / mint /
-   pink on a near-black canvas, requested as --text #fff, --background
-   #141414, --primary #7cc5fe, --secondary #8ce3c6, --accent #f8b9d9 (mapped
-   to tertiary). Containers and on-* pairs are derived from those four so the
-   rest of the token set (error/success/warning, surface tiers, outlines)
-   stays internally consistent rather than just swapping the three hues in.
-*/
 .dark {
-  --primary: #7cc5fe;
-  --primary-fixed: #cfe8ff;
-  --primary-fixed-dim: #7cc5fe;
-  --primary-container: #1c3a52;
-  --on-primary: #05263f;
-  --on-primary-container: #cfe8ff;
-  --on-primary-fixed: #001b34;
-  --on-primary-fixed-variant: #17415e;
-  --inverse-primary: #0f6ba8;
+  --primary: #ffffff;
+  --primary-fixed: #e5e5e5;
+  --primary-fixed-dim: #a3a3a3;
+  --primary-container: #2b2b2b;
+  --on-primary: #141414;
+  --on-primary-container: #ffffff;
+  --on-primary-fixed: #141414;
+  --on-primary-fixed-variant: #404040;
+  --inverse-primary: #262626;
 
-  --secondary: #8ce3c6;
-  --secondary-container: #1c4436;
-  --on-secondary: #06301f;
-  --on-secondary-container: #c8f5e3;
-  --secondary-fixed: #c8f5e3;
-  --secondary-fixed-dim: #8ce3c6;
-  --on-secondary-fixed: #002016;
-  --on-secondary-fixed-variant: #1c4436;
+  --secondary: #c9c9c9;
+  --secondary-container: #2b2b2b;
+  --on-secondary: #141414;
+  --on-secondary-container: #e5e5e5;
+  --secondary-fixed: #e5e5e5;
+  --secondary-fixed-dim: #a3a3a3;
+  --on-secondary-fixed: #141414;
+  --on-secondary-fixed-variant: #404040;
 
-  --tertiary: #f8b9d9;
-  --tertiary-container: #5c1f3d;
-  --on-tertiary: #4a1030;
-  --on-tertiary-container: #ffd9ea;
-  --tertiary-fixed: #ffd9ea;
-  --tertiary-fixed-dim: #f8b9d9;
-  --on-tertiary-fixed: #390020;
-  --on-tertiary-fixed-variant: #5c1f3d;
+  --tertiary: #8a8a8a;
+  --tertiary-container: #262626;
+  --on-tertiary: #ffffff;
+  --on-tertiary-container: #d4d4d4;
+  --tertiary-fixed: #d4d4d4;
+  --tertiary-fixed-dim: #8a8a8a;
+  --on-tertiary-fixed: #141414;
+  --on-tertiary-fixed-variant: #404040;
 
   --background: #141414;
   --on-background: #ffffff;
@@ -182,20 +182,20 @@
   --surface-container-highest: #363636;
   --surface-dim: #141414;
   --surface-bright: #3a3a3a;
-  --surface-tint: #7cc5fe;
+  --surface-tint: #ffffff;
 
   --outline: #8a8a8a;
   --outline-variant: #3d3d3d;
-  --error: #ff8a80;
-  --error-container: #5c1a15;
-  --on-error: #3b0a06;
-  --on-error-container: #ffdad4;
+  --error: #e5e5e5;
+  --error-container: #2b2b2b;
+  --on-error: #141414;
+  --on-error-container: #ffffff;
 
   --inverse-surface: #ffffff;
   --inverse-on-surface: #141414;
 
-  --success: #8ce3c6;
-  --warning: #ffcf6b;
+  --success: #c9c9c9;
+  --warning: #8a8a8a;
 
   color-scheme: dark;
 }
@@ -400,9 +400,11 @@ body {
   box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.08);
 }
 
-/* Lime left edge marking a panel as AI/system-authored. */
+/* Left edge marking a panel as AI/system-authored. Neutral for the
+   monochrome experiment step — was a hardcoded lime hex tied to the old
+   palette; first candidate to get an accent color back later. */
 .ai-glow {
-  box-shadow: inset 2px 0 0 0 #edff8c;
+  box-shadow: inset 2px 0 0 0 var(--on-surface);
 }
 
 .sidebar-shell-transition {

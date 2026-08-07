@@ -140,7 +140,7 @@ export default function OverviewPage() {
           size={0.5}
           staticity={40}
           maxAlpha={0.28}
-          color="#7cc5fe"
+          color="#a3a3a3"
         />
 
         <div className="relative z-10 mx-auto max-w-2xl">
@@ -218,8 +218,8 @@ export default function OverviewPage() {
         <BlurFade inView delay={0.1} className="h-full lg:col-span-1">
           <GlareHover
             className="h-full w-full place-items-stretch rounded-xl"
-            color="#7cc5fe"
-            opacity={0.35}
+            color="#ffffff"
+            opacity={0.25}
             duration={700}
           >
             <section className="relative flex h-full flex-col overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-6 card-shadow">
