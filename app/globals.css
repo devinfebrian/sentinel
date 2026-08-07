@@ -1,63 +1,61 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #576400;
-  --color-primary-fixed: #daec7b;
-  --color-primary-fixed-dim: #becf63;
-  --color-primary-container: #edff8c;
-  --color-on-primary: #ffffff;
-  --color-on-primary-container: #687710;
-  --color-on-primary-fixed: #191e00;
-  --color-on-primary-fixed-variant: #414c00;
-  --color-inverse-primary: #becf63;
+  --color-primary: var(--primary);
+  --color-primary-fixed: var(--primary-fixed);
+  --color-primary-fixed-dim: var(--primary-fixed-dim);
+  --color-primary-container: var(--primary-container);
+  --color-on-primary: var(--on-primary);
+  --color-on-primary-container: var(--on-primary-container);
+  --color-on-primary-fixed: var(--on-primary-fixed);
+  --color-on-primary-fixed-variant: var(--on-primary-fixed-variant);
+  --color-inverse-primary: var(--inverse-primary);
 
-  --color-secondary: #536350;
-  --color-secondary-container: #d6e8d0;
-  --color-on-secondary: #ffffff;
-  --color-on-secondary-container: #586956;
-  --color-secondary-fixed: #d6e8d0;
-  --color-secondary-fixed-dim: #bacbb5;
-  --color-on-secondary-fixed: #111f11;
-  --color-on-secondary-fixed-variant: #3b4b3a;
+  --color-secondary: var(--secondary);
+  --color-secondary-container: var(--secondary-container);
+  --color-on-secondary: var(--on-secondary);
+  --color-on-secondary-container: var(--on-secondary-container);
+  --color-secondary-fixed: var(--secondary-fixed);
+  --color-secondary-fixed-dim: var(--secondary-fixed-dim);
+  --color-on-secondary-fixed: var(--on-secondary-fixed);
+  --color-on-secondary-fixed-variant: var(--on-secondary-fixed-variant);
 
-  --color-tertiary: #585f68;
-  --color-tertiary-container: #f0f6ff;
-  --color-on-tertiary: #ffffff;
-  --color-on-tertiary-container: #697179;
-  --color-tertiary-fixed: #dce3ed;
-  --color-tertiary-fixed-dim: #c0c7d1;
-  --color-on-tertiary-fixed: #151c23;
-  --color-on-tertiary-fixed-variant: #40474f;
+  --color-tertiary: var(--tertiary);
+  --color-tertiary-container: var(--tertiary-container);
+  --color-on-tertiary: var(--on-tertiary);
+  --color-on-tertiary-container: var(--on-tertiary-container);
+  --color-tertiary-fixed: var(--tertiary-fixed);
+  --color-tertiary-fixed-dim: var(--tertiary-fixed-dim);
+  --color-on-tertiary-fixed: var(--on-tertiary-fixed);
+  --color-on-tertiary-fixed-variant: var(--on-tertiary-fixed-variant);
 
-  --color-background: #f6fbf6;
-  --color-on-background: #171d1b;
-  --color-surface: #f6fbf6;
-  --color-on-surface: #171d1b;
-  --color-surface-variant: #dfe4e0;
-  --color-on-surface-variant: #464838;
-  --color-surface-container-lowest: #ffffff;
-  --color-surface-container-low: #f0f5f1;
-  --color-surface-container: #eaefeb;
-  --color-surface-container-high: #e4e9e5;
-  --color-surface-container-highest: #dfe4e0;
-  --color-surface-dim: #d6dbd7;
-  --color-surface-bright: #f6fbf6;
-  --color-surface-tint: #576400;
+  --color-background: var(--background);
+  --color-on-background: var(--on-background);
+  --color-surface: var(--surface);
+  --color-on-surface: var(--on-surface);
+  --color-surface-variant: var(--surface-variant);
+  --color-on-surface-variant: var(--on-surface-variant);
+  --color-surface-container-lowest: var(--surface-container-lowest);
+  --color-surface-container-low: var(--surface-container-low);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-surface-container-highest: var(--surface-container-highest);
+  --color-surface-dim: var(--surface-dim);
+  --color-surface-bright: var(--surface-bright);
+  --color-surface-tint: var(--surface-tint);
 
-  --color-outline: #777867;
-  --color-outline-variant: #c7c8b3;
-  --color-error: #ba1a1a;
-  --color-error-container: #ffdad6;
-  --color-on-error: #ffffff;
-  --color-on-error-container: #93000a;
+  --color-outline: var(--outline);
+  --color-outline-variant: var(--outline-variant);
+  --color-error: var(--error);
+  --color-error-container: var(--error-container);
+  --color-on-error: var(--on-error);
+  --color-on-error-container: var(--on-error-container);
 
-  --color-inverse-surface: #2c322f;
-  --color-inverse-on-surface: #edf2ee;
+  --color-inverse-surface: var(--inverse-surface);
+  --color-inverse-on-surface: var(--inverse-on-surface);
 
-  /* "Healthy/active" and "awaiting action" sit outside the Material role set,
-     so they get their own tokens instead of raw hex or Tailwind palette values. */
-  --color-success: #8bc34a;
-  --color-warning: #d99a2b;
+  --color-success: var(--success);
+  --color-warning: var(--warning);
 
   --spacing-unit: 8px;
   --spacing-stack-sm: 12px;
@@ -66,33 +64,147 @@
   --spacing-gutter: 24px;
   --spacing-container-padding: 32px;
 
-  /* The sidebar is `fixed`, so its width and the main content's left offset are
-     set in two different components. Keeping the numbers here means the two can
-     never drift apart. */
   --sidebar-w-rail: 64px;
   --sidebar-w-full: 256px;
 
-  /* Urbanist carries display/headline type; Inter carries everything read at
-     small sizes — body copy, labels, and table cells. */
   --font-sans: var(--font-inter), system-ui, sans-serif;
   --font-inter: var(--font-inter), sans-serif;
   --font-urbanist: var(--font-urbanist), sans-serif;
 }
 
 :root {
-  /* Body type is the default; headings opt into Urbanist via .font-headline-*. */
+  --primary: #576400;
+  --primary-fixed: #daec7b;
+  --primary-fixed-dim: #becf63;
+  --primary-container: #edff8c;
+  --on-primary: #ffffff;
+  --on-primary-container: #687710;
+  --on-primary-fixed: #191e00;
+  --on-primary-fixed-variant: #414c00;
+  --inverse-primary: #becf63;
+
+  --secondary: #536350;
+  --secondary-container: #d6e8d0;
+  --on-secondary: #ffffff;
+  --on-secondary-container: #586956;
+  --secondary-fixed: #d6e8d0;
+  --secondary-fixed-dim: #bacbb5;
+  --on-secondary-fixed: #111f11;
+  --on-secondary-fixed-variant: #3b4b3a;
+
+  --tertiary: #585f68;
+  --tertiary-container: #f0f6ff;
+  --on-tertiary: #ffffff;
+  --on-tertiary-container: #697179;
+  --tertiary-fixed: #dce3ed;
+  --tertiary-fixed-dim: #c0c7d1;
+  --on-tertiary-fixed: #151c23;
+  --on-tertiary-fixed-variant: #40474f;
+
+  --background: #f6fbf6;
+  --on-background: #171d1b;
+  --surface: #f6fbf6;
+  --on-surface: #171d1b;
+  --surface-variant: #dfe4e0;
+  --on-surface-variant: #464838;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f0f5f1;
+  --surface-container: #eaefeb;
+  --surface-container-high: #e4e9e5;
+  --surface-container-highest: #dfe4e0;
+  --surface-dim: #d6dbd7;
+  --surface-bright: #f6fbf6;
+  --surface-tint: #576400;
+
+  --outline: #777867;
+  --outline-variant: #c7c8b3;
+  --error: #ba1a1a;
+  --error-container: #ffdad6;
+  --on-error: #ffffff;
+  --on-error-container: #93000a;
+
+  --inverse-surface: #2c322f;
+  --inverse-on-surface: #edf2ee;
+
+  --success: #8bc34a;
+  --warning: #d99a2b;
+
   font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
   color-scheme: light;
+}
+
+.dark {
+  --primary: #c3d661;
+  --primary-fixed: #daec7b;
+  --primary-fixed-dim: #becf63;
+  --primary-container: #414c00;
+  --on-primary: #2d3400;
+  --on-primary-container: #daec7b;
+  --on-primary-fixed: #191e00;
+  --on-primary-fixed-variant: #414c00;
+  --inverse-primary: #576400;
+
+  --secondary: #bacbb5;
+  --secondary-container: #3b4b3a;
+  --on-secondary: #263424;
+  --on-secondary-container: #d6e8d0;
+  --secondary-fixed: #d6e8d0;
+  --secondary-fixed-dim: #bacbb5;
+  --on-secondary-fixed: #111f11;
+  --on-secondary-fixed-variant: #3b4b3a;
+
+  --tertiary: #c0c7d1;
+  --tertiary-container: #40474f;
+  --on-tertiary: #2a3139;
+  --on-tertiary-container: #dce3ed;
+  --tertiary-fixed: #dce3ed;
+  --tertiary-fixed-dim: #c0c7d1;
+  --on-tertiary-fixed: #151c23;
+  --on-tertiary-fixed-variant: #40474f;
+
+  --background: #0f1513;
+  --on-background: #dfe4e0;
+  --surface: #0f1513;
+  --on-surface: #dfe4e0;
+  --surface-variant: #464838;
+  --on-surface-variant: #c7c8b3;
+  --surface-container-lowest: #0a0f0d;
+  --surface-container-low: #171d1b;
+  --surface-container: #1b211f;
+  --surface-container-high: #262b29;
+  --surface-container-highest: #303634;
+  --surface-dim: #0f1513;
+  --surface-bright: #353b39;
+  --surface-tint: #c3d661;
+
+  --outline: #919280;
+  --outline-variant: #464838;
+  --error: #ffb4ab;
+  --error-container: #93000a;
+  --on-error: #690005;
+  --on-error-container: #ffdad6;
+
+  --inverse-surface: #dfe4e0;
+  --inverse-on-surface: #2c322f;
+
+  --success: #a0db5a;
+  --warning: #f5b033;
+  
+  color-scheme: dark;
 }
 
 body {
   margin: 0;
   padding: 0;
-  /* Slightly dimmer than --color-surface so the app shell reads as panels
-     floating on a canvas rather than one flat sheet. */
-  background-color: #e9eeea;
-  color: #171d1b;
+  background-color: var(--surface-container-low);
+  color: var(--on-surface);
 }
+
+::view-transition-old(root), ::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
 
 /* Custom Spacing Utility Classes to avoid overriding Tailwind max-w-sm / max-w-md */
 .space-y-xs > :not([hidden]) ~ :not([hidden]) { margin-top: 4px; }

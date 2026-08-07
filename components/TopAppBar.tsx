@@ -13,6 +13,8 @@ import {
 import { useAuthStore } from '@/lib/stores/auth.store';
 import { useNow } from '@/lib/hooks/use-now';
 import { formatClock, formatDayDate } from '@/lib/format/datetime';
+import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
+import { useTheme } from 'next-themes';
 
 const getInitials = (fullname: string) =>
   fullname
@@ -28,6 +30,7 @@ export default function TopAppBar() {
   const clearSession = useAuthStore((s) => s.clearSession);
   const [menuOpen, setMenuOpen] = useState(false);
   const now = useNow();
+  const { resolvedTheme, setTheme } = useTheme();
 
   const handleLogout = () => {
     clearSession();
@@ -63,6 +66,7 @@ export default function TopAppBar() {
         >
           <BellIcon aria-hidden="true" className="h-6 w-6" />
         </button>
+
         <button
           type="button"
           disabled
@@ -71,6 +75,13 @@ export default function TopAppBar() {
         >
           <Cog6ToothIcon aria-hidden="true" className="h-6 w-6" />
         </button>
+
+        <AnimatedThemeToggler 
+          className="!flex h-10 w-10 !p-0 items-center justify-center rounded-full bg-surface-container text-on-surface-variant transition-colors hover:bg-surface-container-high" 
+          variant="circle"
+          theme={resolvedTheme === "dark" ? "dark" : "light"}
+          onThemeChange={setTheme}
+        />
 
         <div className="relative">
           <button
