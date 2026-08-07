@@ -13,8 +13,23 @@ import { formatTimestamp } from '@/lib/format/datetime';
 import type { IconComponent } from '@/lib/types/icon';
 import { BlurFade } from '@/components/ui/blur-fade';
 import { GlareHover } from '@/components/ui/glare-hover';
-import { MagicCard } from '@/components/ui/magic-card';
 import { Particles } from '@/components/ui/particles';
+
+/** Flat saturated fill for the bento block, paired with the near-black ink
+ * that sits on top of it — the same block/ink pairing regardless of light
+ * or dark theme, since these blocks are meant to read as printed cards
+ * rather than as theme-aware surfaces. */
+type BlockFill = 'primary' | 'secondary' | 'tertiary' | 'inverse';
+
+const BLOCK_BG: Record<BlockFill, string> = {
+  primary: 'bg-primary',
+  secondary: 'bg-secondary',
+  tertiary: 'bg-tertiary',
+  inverse: 'bg-inverse-surface',
+};
+
+const BLOCK_INK = 'text-[#0a0a0a]';
+const BLOCK_CHIP = 'bg-black/10';
 
 interface ShowcaseCard {
   icon: IconComponent;
@@ -22,6 +37,7 @@ interface ShowcaseCard {
   description: string;
   href: string;
   cta: string;
+  fill: BlockFill;
   /** Route exists but is a placeholder until the AI service lands in Sprint 2. */
   soon?: boolean;
 }
@@ -33,6 +49,7 @@ const SHOWCASE: ShowcaseCard[] = [
     description: 'Record income and expenses, or import an existing ledger in bulk.',
     href: '/transactions',
     cta: 'Open transactions',
+    fill: 'primary',
   },
   {
     icon: BuildingStorefrontIcon,
@@ -40,6 +57,7 @@ const SHOWCASE: ShowcaseCard[] = [
     description: 'Keep the counterparties behind your spending named and current.',
     href: '/vendors',
     cta: 'Manage vendors',
+    fill: 'secondary',
   },
   {
     icon: ShieldExclamationIcon,
@@ -47,6 +65,7 @@ const SHOWCASE: ShowcaseCard[] = [
     description: 'Risk-scored results from the audit pipeline, with the evidence behind each.',
     href: '/findings',
     cta: 'Preview',
+    fill: 'inverse',
     soon: true,
   },
   {
@@ -55,6 +74,7 @@ const SHOWCASE: ShowcaseCard[] = [
     description: 'Ask about your transactions and vendors in plain language.',
     href: '/ask',
     cta: 'Preview',
+    fill: 'tertiary',
     soon: true,
   },
 ];
@@ -82,7 +102,9 @@ const QUICK_START = [
 
 function SoonPill() {
   return (
-    <span className="shrink-0 rounded-full bg-surface-container-high px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.04em] text-outline">
+    <span
+      className={`shrink-0 rounded-full ${BLOCK_CHIP} ${BLOCK_INK} px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.04em]`}
+    >
       Soon
     </span>
   );
@@ -148,34 +170,35 @@ export default function OverviewPage() {
         <div className="grid grid-cols-1 gap-gutter sm:grid-cols-2 lg:col-span-2">
           {SHOWCASE.map(({ icon: Icon, ...card }, index) => (
             <BlurFade key={card.href} delay={0.35 + index * 0.08} className="h-full">
-              <Link href={card.href} className="block h-full rounded-xl card-shadow">
-                <MagicCard className="h-full rounded-xl">
-                  <div className="group/card flex h-full flex-col p-5">
-                    <div className="flex items-start justify-between gap-2">
-                      <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary-container text-on-primary-container">
-                        <Icon aria-hidden="true" className="h-6 w-6" />
-                      </span>
-                      {card.soon && <SoonPill />}
-                    </div>
-
-                    <h2 className="mt-4 font-headline-sm text-headline-sm text-on-surface">
-                      {card.title}
-                    </h2>
-                    <p className="mt-2 flex-1 font-body-sm text-body-sm text-on-surface-variant">
-                      {card.description}
-                    </p>
-
-                    <span className="mt-4 inline-flex items-center gap-1 font-label-sm text-label-sm text-primary">
-                      {card.cta}
-                      <span
-                        aria-hidden="true"
-                        className="transition-transform duration-200 group-hover/card:translate-x-1"
-                      >
-                        &rarr;
-                      </span>
+              <Link
+                href={card.href}
+                className={`group/card block h-full rounded-2xl ${BLOCK_BG[card.fill]} p-5 shadow-[0_4px_0_0_rgba(0,0,0,0.35)] transition-transform duration-200 hover:-translate-y-1`}
+              >
+                <div className="flex h-full flex-col">
+                  <div className="flex items-start justify-between gap-2">
+                    <span className={`flex h-11 w-11 items-center justify-center rounded-xl ${BLOCK_CHIP} ${BLOCK_INK}`}>
+                      <Icon aria-hidden="true" className="h-6 w-6" />
                     </span>
+                    {card.soon && <SoonPill />}
                   </div>
-                </MagicCard>
+
+                  <h2 className={`mt-4 font-headline-sm text-headline-sm font-black ${BLOCK_INK}`}>
+                    {card.title}
+                  </h2>
+                  <p className={`mt-2 flex-1 font-body-sm text-body-sm ${BLOCK_INK} opacity-70`}>
+                    {card.description}
+                  </p>
+
+                  <span className={`mt-4 inline-flex items-center gap-1 font-label-sm text-label-sm font-bold underline ${BLOCK_INK}`}>
+                    {card.cta}
+                    <span
+                      aria-hidden="true"
+                      className="transition-transform duration-200 group-hover/card:translate-x-1"
+                    >
+                      &rarr;
+                    </span>
+                  </span>
+                </div>
               </Link>
             </BlurFade>
           ))}
