@@ -12,6 +12,7 @@ import { useAuthStore } from '@/lib/stores/auth.store';
 import { formatTimestamp } from '@/lib/format/datetime';
 import type { IconComponent } from '@/lib/types/icon';
 import { BlurFade } from '@/components/ui/blur-fade';
+import { GlareHover } from '@/components/ui/glare-hover';
 import { MagicCard } from '@/components/ui/magic-card';
 import { Particles } from '@/components/ui/particles';
 
@@ -143,75 +144,84 @@ export default function OverviewPage() {
         </div>
       </section>
 
-      <div className="grid grid-cols-1 gap-gutter sm:grid-cols-2 lg:grid-cols-4">
-        {SHOWCASE.map(({ icon: Icon, ...card }, index) => (
-          <BlurFade key={card.href} delay={0.35 + index * 0.08} className="h-full">
-            <Link href={card.href} className="block h-full rounded-xl card-shadow">
-              <MagicCard className="h-full rounded-xl">
-                <div className="group/card flex h-full flex-col p-5">
-                  <div className="flex items-start justify-between gap-2">
-                    <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary-container text-on-primary-container">
-                      <Icon aria-hidden="true" className="h-6 w-6" />
+      <div className="grid grid-cols-1 gap-gutter lg:grid-cols-3 lg:items-stretch">
+        <div className="grid grid-cols-1 gap-gutter sm:grid-cols-2 lg:col-span-2">
+          {SHOWCASE.map(({ icon: Icon, ...card }, index) => (
+            <BlurFade key={card.href} delay={0.35 + index * 0.08} className="h-full">
+              <Link href={card.href} className="block h-full rounded-xl card-shadow">
+                <MagicCard className="h-full rounded-xl">
+                  <div className="group/card flex h-full flex-col p-5">
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary-container text-on-primary-container">
+                        <Icon aria-hidden="true" className="h-6 w-6" />
+                      </span>
+                      {card.soon && <SoonPill />}
+                    </div>
+
+                    <h2 className="mt-4 font-headline-sm text-headline-sm text-on-surface">
+                      {card.title}
+                    </h2>
+                    <p className="mt-2 flex-1 font-body-sm text-body-sm text-on-surface-variant">
+                      {card.description}
+                    </p>
+
+                    <span className="mt-4 inline-flex items-center gap-1 font-label-sm text-label-sm text-primary">
+                      {card.cta}
+                      <span
+                        aria-hidden="true"
+                        className="transition-transform duration-200 group-hover/card:translate-x-1"
+                      >
+                        &rarr;
+                      </span>
                     </span>
-                    {card.soon && <SoonPill />}
                   </div>
+                </MagicCard>
+              </Link>
+            </BlurFade>
+          ))}
+        </div>
 
-                  <h2 className="mt-4 font-headline-sm text-headline-sm text-on-surface">
-                    {card.title}
-                  </h2>
-                  <p className="mt-2 flex-1 font-body-sm text-body-sm text-on-surface-variant">
-                    {card.description}
-                  </p>
+        <BlurFade inView delay={0.1} className="h-full lg:col-span-1">
+          <GlareHover
+            className="h-full w-full place-items-stretch rounded-xl"
+            color="#edff8c"
+            opacity={0.35}
+            duration={700}
+          >
+            <section className="relative flex h-full flex-col overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-6 card-shadow">
+              <h2 className="font-headline-md text-headline-md text-on-surface">Quick start</h2>
 
-                  <span className="mt-4 inline-flex items-center gap-1 font-label-sm text-label-sm text-primary">
-                    {card.cta}
+              <ol className="mt-stack-sm space-y-stack-sm">
+                {QUICK_START.map((step, index) => (
+                  <li key={step.href} className="flex gap-4">
                     <span
                       aria-hidden="true"
-                      className="transition-transform duration-200 group-hover/card:translate-x-1"
+                      className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-container font-label-sm text-label-sm text-on-primary-container"
                     >
-                      &rarr;
+                      {index + 1}
                     </span>
-                  </span>
-                </div>
-              </MagicCard>
-            </Link>
-          </BlurFade>
-        ))}
+                    <div className="min-w-0">
+                      <p className="font-body-md text-body-md font-semibold text-on-surface">
+                        {step.title}
+                      </p>
+                      <p className="mt-1 font-body-sm text-body-sm text-on-surface-variant">
+                        {step.body}
+                      </p>
+                      <Link
+                        href={step.href}
+                        className="mt-1.5 inline-flex items-center gap-1 font-label-sm text-label-sm text-primary hover:underline"
+                      >
+                        {step.linkText}
+                        <span aria-hidden="true">&rarr;</span>
+                      </Link>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          </GlareHover>
+        </BlurFade>
       </div>
-
-      <BlurFade inView delay={0.1}>
-        <section className="relative overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-6 card-shadow ai-glow">
-          <h2 className="font-headline-md text-headline-md text-on-surface">Quick start</h2>
-
-          <ol className="mt-stack-sm space-y-stack-sm">
-            {QUICK_START.map((step, index) => (
-              <li key={step.href} className="flex gap-4">
-                <span
-                  aria-hidden="true"
-                  className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-container font-label-sm text-label-sm text-on-primary-container"
-                >
-                  {index + 1}
-                </span>
-                <div className="min-w-0">
-                  <p className="font-body-md text-body-md font-semibold text-on-surface">
-                    {step.title}
-                  </p>
-                  <p className="mt-1 font-body-sm text-body-sm text-on-surface-variant">
-                    {step.body}
-                  </p>
-                  <Link
-                    href={step.href}
-                    className="mt-1.5 inline-flex items-center gap-1 font-label-sm text-label-sm text-primary hover:underline"
-                  >
-                    {step.linkText}
-                    <span aria-hidden="true">&rarr;</span>
-                  </Link>
-                </div>
-              </li>
-            ))}
-          </ol>
-        </section>
-      </BlurFade>
     </div>
   );
 }
