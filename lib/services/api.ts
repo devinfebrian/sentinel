@@ -250,3 +250,31 @@ export function createVendorApi(payload: { vendor_name: string; bank_account: st
 export function updateVendorApi(id: number, payload: { vendor_name?: string; bank_account?: string; status?: string }, accessToken: string) {
   return request<{ vendor: Vendor }>(`/vendors/${id}`, jsonPut(payload, accessToken));
 }
+
+export interface Finding {
+  id: number;
+  finding_date: string;
+  title: string;
+  category: string;
+  risk_score: number;
+  status: string;
+  transaction_id: number | null;
+  evidence: string | null;
+  recommendation: string | null;
+}
+
+export function listFindingsApi(
+  accessToken: string,
+  params?: { page?: number; limit?: number; status?: string; category?: string }
+) {
+  let url = '/findings?';
+  if (params) {
+    const searchParams = new URLSearchParams();
+    if (params.page) searchParams.set('page', params.page.toString());
+    if (params.limit) searchParams.set('limit', params.limit.toString());
+    if (params.status && params.status !== 'All') searchParams.set('status', params.status);
+    if (params.category && params.category !== 'All') searchParams.set('category', params.category);
+    url += searchParams.toString();
+  }
+  return request<{ findings: Finding[], pagination: any }>(url, authGet(accessToken));
+}
