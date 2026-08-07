@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Urbanist } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
+import { ThemeProvider } from "@/components/theme-provider";
 
 // Two families by design: Urbanist is a geometric display face that carries the
 // headings, Inter handles body/label/table text where it stays legible small.
@@ -24,13 +25,17 @@ export const metadata: Metadata = {
   description: "Internal enterprise financial intelligence platform",
 };
 
+export const viewport: Viewport = {
+  themeColor: "#ffffff",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${urbanist.variable} ${inter.variable} h-full antialiased`}>
+    <html lang="en" suppressHydrationWarning className={`${urbanist.variable} ${inter.variable} h-full antialiased`}>
       <head>
         {/* Only loaded when Google sign-in is actually switched on. */}
         {googleAuthEnabled && (
@@ -44,7 +49,9 @@ export default function RootLayout({
           which also keeps Server Components free of a React context they
           could not read anyway. */}
       <body className="min-h-full flex flex-col bg-background font-sans antialiased text-on-surface">
-        {children}
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );
