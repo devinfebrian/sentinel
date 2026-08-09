@@ -57,6 +57,35 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
 
+  /* Step 2 of the experiment: three identity accents, kept deliberately
+     separate from primary/secondary/tertiary (which the sidebar/topbar use
+     for their own neutral active/hover states) so reintroducing color here
+     doesn't bleed into chrome the sidebar review already signed off on. */
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-mint: var(--accent-mint);
+  --color-accent-pink: var(--accent-pink);
+
+  /* Fixed, vivid, theme-independent — for a solid card fill (Figma-reference
+     bento style), not text-on-neutral. accent-blue/mint/pink above are
+     tuned per-theme for text contrast; a solid block doesn't need that,
+     since pitch-black text on a pastel block reads fine in either theme. */
+  --color-block-blue: var(--block-blue);
+  --color-block-mint: var(--block-mint);
+  --color-block-pink: var(--block-pink);
+
+  /* Second gradient stop, a touch deeper than the base block color. */
+  --color-block-blue-to: var(--block-blue-to);
+  --color-block-mint-to: var(--block-mint-to);
+  --color-block-pink-to: var(--block-pink-to);
+
+  /* Fixed deep ink for the CTA link on a block — distinct from BLOCK_INK
+     (pitch black, used for title/body) so the action itself reads as its
+     own color rather than plain text. Not theme-dependent, same reasoning
+     as the block fill itself. */
+  --color-block-ink-blue: var(--block-ink-blue);
+  --color-block-ink-mint: var(--block-ink-mint);
+  --color-block-ink-pink: var(--block-ink-pink);
+
   --spacing-unit: 8px;
   --spacing-stack-sm: 12px;
   --spacing-stack-md: 24px;
@@ -136,6 +165,27 @@
   --success: #404040;
   --warning: #737373;
 
+  /* Same three hues as .dark, but shifted darker/more saturated — the soft
+     pastels read fine on near-black but wash out against white (icons in
+     particular were nearly invisible). Deepened for contrast on a light
+     surface, not changed in identity. */
+  --accent-blue: #0284c7;
+  --accent-mint: #059669;
+  --accent-pink: #db2777;
+
+  /* Not redeclared in .dark — same vivid pastel in both themes on purpose. */
+  --block-blue: #7cc5fe;
+  --block-mint: #8ce3c6;
+  --block-pink: #f8b9d9;
+
+  --block-blue-to: #4da8f5;
+  --block-mint-to: #5cd1a8;
+  --block-pink-to: #f38fc0;
+
+  --block-ink-blue: #0b4a75;
+  --block-ink-mint: #0b5c40;
+  --block-ink-pink: #7a1450;
+
   font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
   color-scheme: light;
 }
@@ -196,6 +246,10 @@
 
   --success: #c9c9c9;
   --warning: #8a8a8a;
+
+  --accent-blue: #7cc5fe;
+  --accent-mint: #8ce3c6;
+  --accent-pink: #f8b9d9;
 
   color-scheme: dark;
 }

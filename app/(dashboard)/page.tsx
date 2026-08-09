@@ -12,31 +12,18 @@ import { useAuthStore } from '@/lib/stores/auth.store';
 import { formatTimestamp } from '@/lib/format/datetime';
 import type { IconComponent } from '@/lib/types/icon';
 import { BlurFade } from '@/components/ui/blur-fade';
-import { GlareHover } from '@/components/ui/glare-hover';
 import { Particles } from '@/components/ui/particles';
-
-/** The UI stays monochrome (black/white surfaces and text); these three
- * accent hues never fill a background — they only ever mark identity on a
- * small element: an icon, a badge, a CTA, a highlight. */
-type Accent = 'primary' | 'secondary' | 'tertiary';
-
-const ACCENT_TEXT: Record<Accent, string> = {
-  primary: 'text-primary',
-  secondary: 'text-secondary',
-  tertiary: 'text-tertiary',
-};
-
-const ACCENT_CHIP_BG: Record<Accent, string> = {
-  primary: 'bg-primary/15',
-  secondary: 'bg-secondary/15',
-  tertiary: 'bg-tertiary/15',
-};
-
-const ACCENT_BORDER: Record<Accent, string> = {
-  primary: 'group-hover/card:border-primary/60',
-  secondary: 'group-hover/card:border-secondary/60',
-  tertiary: 'group-hover/card:border-tertiary/60',
-};
+import { Text3DFlip } from '@/components/ui/text-3d-flip';
+import { GetStartedPanel, type GetStartedStep } from '@/components/dashboard/GetStartedPanel';
+import {
+  ACCENT_BLOCK_CTA,
+  ACCENT_BLOCK_GRADIENT,
+  ACCENT_CHIP_BG,
+  ACCENT_TEXT,
+  BLOCK_INK,
+  BLOCK_WATERMARK,
+  type Accent,
+} from '@/lib/theme/accent';
 
 interface ShowcaseCard {
   icon: IconComponent;
@@ -56,7 +43,7 @@ const SHOWCASE: ShowcaseCard[] = [
     description: 'Record income and expenses, or import an existing ledger in bulk.',
     href: '/transactions',
     cta: 'Open transactions',
-    accent: 'primary',
+    accent: 'blue',
   },
   {
     icon: BuildingStorefrontIcon,
@@ -64,7 +51,7 @@ const SHOWCASE: ShowcaseCard[] = [
     description: 'Keep the counterparties behind your spending named and current.',
     href: '/vendors',
     cta: 'Manage vendors',
-    accent: 'secondary',
+    accent: 'mint',
   },
   {
     icon: ShieldExclamationIcon,
@@ -72,7 +59,7 @@ const SHOWCASE: ShowcaseCard[] = [
     description: 'Risk-scored results from the audit pipeline, with the evidence behind each.',
     href: '/findings',
     cta: 'Preview',
-    accent: 'tertiary',
+    accent: 'pink',
     soon: true,
   },
   {
@@ -81,36 +68,44 @@ const SHOWCASE: ShowcaseCard[] = [
     description: 'Ask about your transactions and vendors in plain language.',
     href: '/ask',
     cta: 'Preview',
-    accent: 'primary',
+    accent: 'blue',
     soon: true,
   },
 ];
 
-const QUICK_START = [
+const QUICK_START: GetStartedStep[] = [
   {
+    illustration: '/illust/Isometric Stickers - Paper Airplane.png',
     title: 'Add your vendors',
     body: 'Most expense categories need a named counterparty, so start here.',
     href: '/vendors',
     linkText: 'Go to vendors',
+    accent: 'mint',
   },
   {
+    illustration: '/illust/Isometric Stickers - Brainstorming.png',
     title: 'Record or import transactions',
     body: 'Enter them one at a time, or import a spreadsheet of existing rows.',
     href: '/transactions',
     linkText: 'Go to transactions',
+    accent: 'blue',
   },
   {
+    illustration: '/illust/Isometric Stickers - Target.png',
     title: 'Run an audit',
     body: 'Sentinel reviews the ledger and reports what looks wrong. Arriving in Sprint 2.',
     href: '/findings',
     linkText: 'Preview findings',
+    accent: 'pink',
   },
 ];
 
-function SoonPill({ accent }: { accent: Accent }) {
+/** Only ever sits on a solid accent block now, so it's pitch black on a
+ * black tint rather than accent-on-accent, which would vanish. */
+function SoonPill() {
   return (
     <span
-      className={`shrink-0 rounded-full ${ACCENT_CHIP_BG[accent]} ${ACCENT_TEXT[accent]} px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.04em]`}
+      className={`shrink-0 rounded-full bg-black/10 ${BLOCK_INK} px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.04em]`}
     >
       Soon
     </span>
@@ -153,7 +148,14 @@ export default function OverviewPage() {
 
           <BlurFade delay={0.1}>
             <h1 className="mt-5 font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">
-              Let&rsquo;s get started, {firstName}
+              Let&rsquo;s get started,{' '}
+              <Text3DFlip
+                texts={[firstName, roleLabel]}
+                highlights={{
+                  0: { textClassName: ACCENT_TEXT.blue, bgClassName: ACCENT_CHIP_BG.blue },
+                  1: { textClassName: ACCENT_TEXT.pink, bgClassName: ACCENT_CHIP_BG.pink },
+                }}
+              />
             </h1>
           </BlurFade>
 
@@ -173,88 +175,51 @@ export default function OverviewPage() {
         </div>
       </section>
 
-      <div className="grid grid-cols-1 gap-gutter lg:grid-cols-3 lg:items-stretch">
-        <div className="grid grid-cols-1 gap-gutter sm:grid-cols-2 lg:col-span-2">
-          {SHOWCASE.map(({ icon: Icon, ...card }, index) => (
-            <BlurFade key={card.href} delay={0.35 + index * 0.08} className="h-full">
-              <Link
-                href={card.href}
-                className={`group/card block h-full rounded-2xl border border-outline-variant/30 bg-surface-container-low p-5 transition-colors duration-200 ${ACCENT_BORDER[card.accent]}`}
-              >
-                <div className="flex h-full flex-col">
-                  <div className="flex items-start justify-between gap-2">
-                    <span
-                      className={`flex h-11 w-11 items-center justify-center rounded-xl ${ACCENT_CHIP_BG[card.accent]} ${ACCENT_TEXT[card.accent]}`}
-                    >
-                      <Icon aria-hidden="true" className="h-6 w-6" />
-                    </span>
-                    {card.soon && <SoonPill accent={card.accent} />}
+      <BlurFade inView delay={0.3}>
+        <GetStartedPanel steps={QUICK_START} />
+      </BlurFade>
+
+      <div className="grid grid-cols-1 gap-gutter sm:grid-cols-2 lg:grid-cols-4">
+        {SHOWCASE.map(({ icon: Icon, ...card }, index) => (
+          <BlurFade key={card.href} delay={0.35 + index * 0.08} className="h-full">
+            <Link
+              href={card.href}
+              className={`group/card relative block h-full overflow-hidden rounded-2xl p-5 transition-transform duration-200 hover:-translate-y-1 ${ACCENT_BLOCK_GRADIENT[card.accent]}`}
+            >
+              <Icon
+                aria-hidden="true"
+                className={`pointer-events-none absolute -bottom-6 -right-6 h-32 w-32 transition-transform duration-300 group-hover/card:scale-110 group-hover/card:rotate-6 ${BLOCK_WATERMARK}`}
+              />
+
+              <div className="relative z-10 flex h-full flex-col">
+                {card.soon && (
+                  <div className="flex justify-end">
+                    <SoonPill />
                   </div>
+                )}
 
-                  <h2 className="mt-4 font-headline-sm text-headline-sm text-on-surface">
-                    {card.title}
-                  </h2>
-                  <p className="mt-2 flex-1 font-body-sm text-body-sm text-on-surface-variant">
-                    {card.description}
-                  </p>
+                <h2 className={`font-headline-sm text-headline-sm font-black ${BLOCK_INK} ${card.soon ? 'mt-2' : 'mt-0'}`}>
+                  {card.title}
+                </h2>
+                <p className={`mt-2 flex-1 font-body-sm text-body-sm ${BLOCK_INK} opacity-70`}>
+                  {card.description}
+                </p>
 
+                <span
+                  className={`mt-4 inline-flex items-center gap-1 font-label-sm text-label-sm font-bold underline ${ACCENT_BLOCK_CTA[card.accent]}`}
+                >
+                  {card.cta}
                   <span
-                    className={`mt-4 inline-flex items-center gap-1 font-label-sm text-label-sm font-semibold ${ACCENT_TEXT[card.accent]}`}
+                    aria-hidden="true"
+                    className="transition-transform duration-200 group-hover/card:translate-x-1"
                   >
-                    {card.cta}
-                    <span
-                      aria-hidden="true"
-                      className="transition-transform duration-200 group-hover/card:translate-x-1"
-                    >
-                      &rarr;
-                    </span>
+                    &rarr;
                   </span>
-                </div>
-              </Link>
-            </BlurFade>
-          ))}
-        </div>
-
-        <BlurFade inView delay={0.1} className="h-full lg:col-span-1">
-          <GlareHover
-            className="h-full w-full place-items-stretch rounded-xl"
-            color="#ffffff"
-            opacity={0.25}
-            duration={700}
-          >
-            <section className="relative flex h-full flex-col overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-6 card-shadow">
-              <h2 className="font-headline-md text-headline-md text-on-surface">Quick start</h2>
-
-              <ol className="mt-stack-sm space-y-stack-sm">
-                {QUICK_START.map((step, index) => (
-                  <li key={step.href} className="flex gap-4">
-                    <span
-                      aria-hidden="true"
-                      className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-container font-label-sm text-label-sm text-on-primary-container"
-                    >
-                      {index + 1}
-                    </span>
-                    <div className="min-w-0">
-                      <p className="font-body-md text-body-md font-semibold text-on-surface">
-                        {step.title}
-                      </p>
-                      <p className="mt-1 font-body-sm text-body-sm text-on-surface-variant">
-                        {step.body}
-                      </p>
-                      <Link
-                        href={step.href}
-                        className="mt-1.5 inline-flex items-center gap-1 font-label-sm text-label-sm text-primary hover:underline"
-                      >
-                        {step.linkText}
-                        <span aria-hidden="true">&rarr;</span>
-                      </Link>
-                    </div>
-                  </li>
-                ))}
-              </ol>
-            </section>
-          </GlareHover>
-        </BlurFade>
+                </span>
+              </div>
+            </Link>
+          </BlurFade>
+        ))}
       </div>
     </div>
   );

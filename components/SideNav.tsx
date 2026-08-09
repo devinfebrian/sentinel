@@ -15,6 +15,7 @@ import {
   UsersIcon,
 } from '@heroicons/react/24/outline';
 import type { IconComponent } from '@/lib/types/icon';
+import { ACCENT_TEXT, type Accent } from '@/lib/theme/accent';
 
 /**
  * Heroicons has no panel/sidebar glyph, so this is drawn to match their
@@ -51,6 +52,9 @@ interface NavItem {
   href: string;
   icon: IconComponent;
   label: string;
+  /** Fixed identity color for this item's icon, independent of active/hover
+   * state — the row background/indicator stays neutral either way. */
+  accent: Accent;
   adminOnly?: boolean;
   /** Route exists but is a placeholder until the AI service lands in Sprint 2. */
   soon?: boolean;
@@ -68,31 +72,37 @@ const NAV_GROUPS: NavGroup[] = [
     id: 'overview',
     label: null,
     items: [
-      { href: '/', icon: Squares2X2Icon, label: 'Overview' },
-      { href: '/dashboard', icon: ChartBarIcon, label: 'Dashboard' },
+      { href: '/', icon: Squares2X2Icon, label: 'Overview', accent: 'mint' },
+      { href: '/dashboard', icon: ChartBarIcon, label: 'Dashboard', accent: 'pink' },
     ],
   },
   {
     id: 'audit',
     label: 'Audit',
     items: [
-      { href: '/findings', icon: ShieldExclamationIcon, label: 'Findings', soon: true },
-      { href: '/ask', icon: SparklesIcon, label: 'Ask Sentinel', soon: true },
+      { href: '/findings', icon: ShieldExclamationIcon, label: 'Findings', accent: 'pink', soon: true },
+      { href: '/ask', icon: SparklesIcon, label: 'Ask Sentinel', accent: 'blue', soon: true },
     ],
   },
   {
     id: 'records',
     label: 'Records',
     items: [
-      { href: '/transactions', icon: DocumentTextIcon, label: 'Transactions' },
-      { href: '/vendors', icon: BuildingStorefrontIcon, label: 'Vendors' },
+      { href: '/transactions', icon: DocumentTextIcon, label: 'Transactions', accent: 'blue' },
+      { href: '/vendors', icon: BuildingStorefrontIcon, label: 'Vendors', accent: 'mint' },
     ],
   },
   {
     id: 'admin',
     label: 'Admin',
     items: [
-      { href: '/administration', icon: UsersIcon, label: 'User Management', adminOnly: true },
+      {
+        href: '/administration',
+        icon: UsersIcon,
+        label: 'User Management',
+        accent: 'mint',
+        adminOnly: true,
+      },
     ],
   },
 ];
@@ -204,7 +214,7 @@ export default function SideNav() {
                       : 'text-on-surface-variant hover:bg-secondary-container/50 hover:text-on-surface'
                   }`}
                 >
-                  <Icon aria-hidden="true" className="h-4 w-4 shrink-0" />
+                  <Icon aria-hidden="true" className={`h-4 w-4 shrink-0 ${ACCENT_TEXT[item.accent]}`} />
                   {/* Weight lives here rather than on the row: `.font-body-sm` sets
                       font-weight itself and is unlayered, so it would beat any
                       weight utility inherited from the parent. */}
