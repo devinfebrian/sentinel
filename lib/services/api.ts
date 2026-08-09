@@ -190,7 +190,8 @@ export function setUserStatusApi(userId: number, isActive: boolean, accessToken:
 
 export interface Transaction {
   id: number;
-  transaction_date: string;
+  /** Kapan mutasi tercatat. Satu-satunya waktu sebuah transaksi. */
+  created_at: string;
   amount: string;
   type: string;
   category: string;
@@ -230,7 +231,7 @@ export function updateTransactionApi(id: number, payload: Partial<Transaction>, 
   return request<{ transaction: Transaction }>(`/transactions/${id}`, jsonPut(payload, accessToken));
 }
 
-export function createTransactionApi(payload: { transaction_date: string; amount: number; type: string; category: string; description: string; vendor_id?: number | null; input_by_user_id: number }, accessToken: string) {
+export function createTransactionApi(payload: { amount: number; type: string; category: string; description: string; vendor_id?: number | null; input_by_user_id: number }, accessToken: string) {
   return request<{ transaction: Transaction }>('/transactions', jsonPost(payload, accessToken));
 }
 

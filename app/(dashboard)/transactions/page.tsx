@@ -69,7 +69,6 @@ function TransactionDialog({
   const accessToken = useAuthStore((s) => s.accessToken);
   const user = useAuthStore((s) => s.user);
 
-  const [date, setDate] = useState('');
   const [amount, setAmount] = useState('');
   const [type, setType] = useState('expense');
   const [category, setCategory] = useState('');
@@ -86,14 +85,12 @@ function TransactionDialog({
   useEffect(() => {
     if (!isOpen) return;
     if (txToEdit) {
-      setDate(new Date(txToEdit.transaction_date).toISOString().split('T')[0]);
       setAmount(txToEdit.amount);
       setType(txToEdit.type);
       setCategory(txToEdit.category);
       setDescription(txToEdit.description);
       setVendorId(txToEdit.vendor_id ? txToEdit.vendor_id.toString() : '');
     } else {
-      setDate('');
       setAmount('');
       setType('expense');
       setCategory('');
@@ -141,7 +138,6 @@ function TransactionDialog({
 
     try {
       const payload: any = {
-        transaction_date: new Date(date).toISOString(),
         amount: parseFloat(amount),
         type,
         category,
@@ -199,7 +195,9 @@ function TransactionDialog({
       <form id="tx-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
             {error && <div className="text-error font-body-sm bg-error-container/20 p-3 rounded-lg">{error}</div>}
             
-            <div className="grid grid-cols-2 gap-4">
+            {/* Tanggal tidak lagi diisi pengguna: transaksi berasal dari mutasi
+                bank, dan waktu pencatatannya (created_at) ditulis server. */}
+            <div className="grid grid-cols-1 gap-4">
               <div className="flex flex-col gap-2">
                 <label className="font-label-sm text-label-sm font-semibold text-on-surface">Type</label>
                 <select
@@ -210,16 +208,6 @@ function TransactionDialog({
                   <option value="expense">Expense</option>
                   <option value="income">Income</option>
                 </select>
-              </div>
-              <div className="flex flex-col gap-2">
-                <label className="font-label-sm text-label-sm font-semibold text-on-surface">Date</label>
-                <input
-                  type="date"
-                  required
-                  className="px-3 py-2 bg-surface-container-low border border-outline-variant/50 rounded-lg text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                />
               </div>
             </div>
 
@@ -384,8 +372,8 @@ export default function TransactionsPage() {
     if (vendorFilter !== 'All' && tx.vendor_id?.toString() !== vendorFilter) return false;
     return true;
   }).sort((a, b) => {
-    if (sortBy === 'date-desc') return new Date(b.transaction_date).getTime() - new Date(a.transaction_date).getTime();
-    if (sortBy === 'date-asc') return new Date(a.transaction_date).getTime() - new Date(b.transaction_date).getTime();
+    if (sortBy === 'date-desc') return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    if (sortBy === 'date-asc') return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
     if (sortBy === 'amount-desc') return parseFloat(b.amount) - parseFloat(a.amount);
     if (sortBy === 'amount-asc') return parseFloat(a.amount) - parseFloat(b.amount);
     return 0;
@@ -522,7 +510,7 @@ export default function TransactionsPage() {
                 </tr>
               )}
               {paginatedTransactions.map((tx, idx) => {
-                const dateStr = formatDate(tx.transaction_date);
+                const dateStr = formatDate(tx.created_at);
                 const absoluteIndex = (currentPage - 1) * itemsPerPage + idx + 1;
                 
                 return (
