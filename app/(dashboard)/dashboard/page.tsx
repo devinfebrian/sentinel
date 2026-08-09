@@ -233,7 +233,7 @@ export default function DashboardPage() {
   // Filter by period
   const filteredTransactions = transactions.filter(t => {
     if (period === 'All Time') return true;
-    const d = new Date(t.transaction_date);
+    const d = new Date(t.created_at);
     const month = d.toLocaleString('default', { month: 'short', year: 'numeric' });
     return month === period;
   });
@@ -253,14 +253,14 @@ export default function DashboardPage() {
 
   // Generate period options dynamically based on transactions
   const availablePeriods = Array.from(new Set(transactions.map(t => {
-    const d = new Date(t.transaction_date);
+    const d = new Date(t.created_at);
     return d.toLocaleString('default', { month: 'short', year: 'numeric' });
   })));
 
   // Chart Data: Cash Flow Trend (by month) - Uses UNFILTERED transactions to show trend over time
   const trendDataMap: Record<string, { income: number; expense: number; timestamp: number }> = {};
   transactions.forEach(t => {
-    const d = new Date(t.transaction_date);
+    const d = new Date(t.created_at);
     const month = d.toLocaleString('default', { month: 'short', year: '2-digit' });
     if (!trendDataMap[month]) {
       trendDataMap[month] = { 
