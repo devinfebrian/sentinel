@@ -35,6 +35,7 @@ export function AskSentinel() {
     if (!text.trim() || isTyping) return;
 
     const userMsg: Message = {
+      // eslint-disable-next-line react-hooks/purity
       id: Date.now().toString(),
       role: 'user',
       content: text.trim()

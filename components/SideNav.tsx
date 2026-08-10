@@ -100,7 +100,7 @@ const NAV_GROUPS: NavGroup[] = [
 export default function SideNav() {
   const pathname = usePathname();
   const isAdmin = useAuthStore((s) => s.user?.isAdmin ?? false);
-  const { isCollapsed, toggleSidebar } = useSidebarStore();
+  const { isCollapsed, toggleSidebar, isMobileOpen, setMobileOpen } = useSidebarStore();
 
   // Filter first, then drop groups the filter emptied — otherwise a non-admin
   // sees an "Admin" heading with nothing under it.
@@ -115,12 +115,24 @@ export default function SideNav() {
     }`;
 
   return (
-    <aside
-      id="dashboard-sidebar"
-      className={`hidden md:flex flex-col h-full py-4 ${
-        isCollapsed ? 'w-[var(--sidebar-w-rail)] px-2' : 'w-[var(--sidebar-w-full)] px-3'
-      } transition-[width,padding] sidebar-shell-transition fixed left-0 top-0 z-50 flex-shrink-0 border-r border-outline-variant/50 bg-surface-container-low`}
-    >
+    <>
+      {/* Mobile backdrop */}
+      {isMobileOpen && (
+        <div 
+          className="md:hidden fixed inset-0 z-40 bg-black/50"
+          onClick={() => setMobileOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+      
+      <aside
+        id="dashboard-sidebar"
+        className={`flex flex-col h-full py-4 transition-[width,padding,transform] duration-300 sidebar-shell-transition fixed left-0 top-0 z-50 flex-shrink-0 border-r border-outline-variant/50 bg-surface-container-low md:translate-x-0 ${
+          isMobileOpen ? 'translate-x-0' : '-translate-x-full'
+        } ${
+          isCollapsed ? 'w-[var(--sidebar-w-rail)] px-2' : 'w-[var(--sidebar-w-full)] px-3'
+        }`}
+      >
       {/* The toggle borrows the nav row's own geometry in each state — the same
           px-2.5 when open, the same centred 36px square on the rail — so its
           icon lands on the nav icons' axis by construction rather than by a
@@ -129,7 +141,7 @@ export default function SideNav() {
         <button
           type="button"
           onClick={toggleSidebar}
-          className={`flex shrink-0 items-center rounded-lg text-on-surface-variant transition-colors hover:bg-secondary-container/60 hover:text-on-surface ${
+          className={`hidden md:flex shrink-0 items-center rounded-lg text-on-surface-variant transition-colors hover:bg-secondary-container/60 hover:text-on-surface ${
             isCollapsed ? 'mx-auto h-9 w-9 justify-center' : 'h-[34px] w-fit px-2.5'
           }`}
           title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
@@ -181,6 +193,7 @@ export default function SideNav() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  onClick={() => setMobileOpen(false)}
                   aria-label={item.label}
                   aria-current={active ? 'page' : undefined}
                   className={`group/nav relative flex items-center rounded-lg transition-colors duration-200 ${
@@ -242,5 +255,6 @@ export default function SideNav() {
         ))}
       </nav>
     </aside>
+    </>
   );
 }
