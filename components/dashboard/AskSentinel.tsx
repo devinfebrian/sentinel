@@ -1,26 +1,49 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  SparklesIcon, 
+import {
+  SparklesIcon,
   PaperAirplaneIcon,
   MagnifyingGlassIcon,
   EllipsisVerticalIcon,
   PaperClipIcon,
-  CpuChipIcon
+  CpuChipIcon,
+  CalendarDaysIcon,
+  ExclamationTriangleIcon,
+  ArrowPathIcon,
 } from '@heroicons/react/24/outline';
+import { askSentinelApi } from '@/lib/services/ask';
 
 interface Message {
   id: string;
   role: 'user' | 'ai';
   content: string;
-  isTable?: boolean;
+  dataRange?: string;
+  unsourcedFigures?: string[];
 }
+
+// Minimal **bold** support — the answer text carries the model's emphasis.
+function renderAnswer(text: string) {
+  return text.split('**').map((part, i) =>
+    i % 2 === 1 ? (
+      <strong key={i}>{part}</strong>
+    ) : (
+      <React.Fragment key={i}>{part}</React.Fragment>
+    )
+  );
+}
+
+// Monotonic id source. Date.now() is impure per react-hooks/purity, and ids
+// only need to be unique within the list.
+let nextMessageId = 0;
+const createMessageId = () => `msg-${nextMessageId++}`;
 
 export function AskSentinel() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const lastQuestionRef = useRef<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -29,39 +52,57 @@ export function AskSentinel() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isTyping]);
+  }, [messages, isTyping, error]);
 
-  const handleSend = (text: string) => {
-    if (!text.trim() || isTyping) return;
-
-    const userMsg: Message = {
-      // eslint-disable-next-line react-hooks/purity
-      id: Date.now().toString(),
-      role: 'user',
-      content: text.trim()
-    };
-    
-    setMessages(prev => [...prev, userMsg]);
-    setInputValue('');
+  const runAsk = async (question: string) => {
+    setError(null);
     setIsTyping(true);
 
-    // Simulate AI response with a table like the screenshot
-    setTimeout(() => {
-      const aiMsg: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'ai',
-        content: "Certainly. Here is a summary of your Q3 software expenses compared to Q2. Overall spending increased by **12.4%**, primarily driven by new enterprise licenses.",
-        isTable: true
-      };
-      setMessages(prev => [...prev, aiMsg]);
+    try {
+      const res = await askSentinelApi(question);
+      setMessages(prev => [
+        ...prev,
+        {
+          id: createMessageId(),
+          role: 'ai',
+          content: res.answer,
+          dataRange: res.data_range,
+          unsourcedFigures: res.unsourced_figures ?? [],
+        },
+      ]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
+  };
+
+  const handleSend = (text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed || isTyping) return;
+
+    const userMsg: Message = {
+      id: createMessageId(),
+      role: 'user',
+      content: trimmed,
+    };
+
+    setMessages(prev => [...prev, userMsg]);
+    setInputValue('');
+    lastQuestionRef.current = trimmed;
+    runAsk(trimmed);
+  };
+
+  const handleRetry = () => {
+    if (lastQuestionRef.current && !isTyping) {
+      runAsk(lastQuestionRef.current);
+    }
   };
 
   const onSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     handleSend(inputValue);
-  }
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -71,45 +112,42 @@ export function AskSentinel() {
   };
 
   const renderMessageContent = (msg: Message) => {
-    if (!msg.isTable) {
-      return <span>{msg.content}</span>;
+    if (msg.role === 'user') {
+      return <span className="whitespace-pre-wrap">{msg.content}</span>;
     }
 
     return (
-      <div className="flex flex-col gap-4 w-full">
-        <p>Certainly. Here is a summary of your Q3 software expenses compared to Q2. Overall spending increased by <span className="font-bold">12.4%</span>, primarily driven by new enterprise licenses.</p>
-        <div className="overflow-hidden rounded-xl border border-surface-container-high w-full">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-surface">
-              <tr className="border-b border-surface-container-high">
-                <th className="px-4 py-3 font-semibold text-on-surface">Category</th>
-                <th className="px-4 py-3 font-semibold text-on-surface">Q2 Spend</th>
-                <th className="px-4 py-3 font-semibold text-on-surface">Q3 Spend</th>
-                <th className="px-4 py-3 font-semibold text-on-surface">Δ Change</th>
-              </tr>
-            </thead>
-            <tbody className="bg-surface">
-              <tr className="border-b border-surface-container-highest">
-                <td className="px-4 py-3 text-on-surface-variant">Cloud Infrastructure</td>
-                <td className="px-4 py-3 text-on-surface-variant">$45,200</td>
-                <td className="px-4 py-3 text-on-surface-variant">$48,100</td>
-                <td className="px-4 py-3 text-error">+6.4%</td>
-              </tr>
-              <tr className="border-b border-surface-container-highest">
-                <td className="px-4 py-3 text-on-surface-variant">CRM & Sales Tools</td>
-                <td className="px-4 py-3 text-on-surface-variant">$18,500</td>
-                <td className="px-4 py-3 text-on-surface-variant">$24,000</td>
-                <td className="px-4 py-3 text-error">+29.7%</td>
-              </tr>
-              <tr>
-                <td className="px-4 py-3 text-on-surface-variant">Design & Creative</td>
-                <td className="px-4 py-3 text-on-surface-variant">$6,400</td>
-                <td className="px-4 py-3 text-on-surface-variant">$6,200</td>
-                <td className="px-4 py-3 text-secondary">-3.1%</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+      <div className="flex flex-col gap-3 w-full">
+        <p className="whitespace-pre-wrap">{renderAnswer(msg.content)}</p>
+
+        {msg.dataRange && (
+          <div className="inline-flex items-center gap-1.5 self-start rounded-full bg-secondary-container/70 px-3 py-1 text-[11px] font-semibold text-on-secondary-container">
+            <CalendarDaysIcon aria-hidden="true" className="h-3.5 w-3.5" />
+            Data range: {msg.dataRange}
+          </div>
+        )}
+
+        {msg.unsourcedFigures && msg.unsourcedFigures.length > 0 && (
+          <div className="rounded-lg border border-error/30 bg-error-container/20 p-3">
+            <div className="flex items-center gap-1.5 mb-1">
+              <ExclamationTriangleIcon aria-hidden="true" className="h-4 w-4 shrink-0 text-error" />
+              <span className="font-label-sm text-label-sm font-bold text-error">
+                Some numbers could not be verified
+              </span>
+            </div>
+            <p className="font-body-sm text-body-sm text-on-surface-variant">
+              The following figures appear in the answer but did not come from the query results.
+              Treat them as unverified:
+            </p>
+            <ul className="mt-1.5 flex flex-col gap-0.5">
+              {msg.unsourcedFigures.map((figure, i) => (
+                <li key={i} className="font-body-sm text-body-sm text-error">
+                  &middot; {figure}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     );
   };
@@ -130,7 +168,7 @@ export function AskSentinel() {
           <button className="hover:text-on-surface transition-colors p-1"><EllipsisVerticalIcon className="w-5 h-5" /></button>
         </div>
       </div>
-      
+
       {/* Chat Area */}
       <div className="flex-1 overflow-y-auto pr-2 mb-4 custom-scrollbar flex flex-col relative">
         {messages.length === 0 ? (
@@ -152,11 +190,11 @@ export function AskSentinel() {
                     <CpuChipIcon className="w-4 h-4 text-on-surface" />
                   </div>
                 )}
-                
-                <div 
+
+                <div
                   className={`max-w-[85%] rounded-2xl px-5 py-4 font-body-sm ${
-                    msg.role === 'user' 
-                      ? 'bg-primary text-gray-900 rounded-br-none' 
+                    msg.role === 'user'
+                      ? 'bg-primary-fixed text-on-primary-fixed rounded-br-none'
                       : 'bg-surface border border-surface-container-high text-on-surface shadow-sm'
                   }`}
                 >
@@ -164,7 +202,7 @@ export function AskSentinel() {
                 </div>
               </div>
             ))}
-            
+
             {isTyping && (
               <div className="flex justify-start items-center">
                 <div className="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center shrink-0 mr-3">
@@ -177,6 +215,32 @@ export function AskSentinel() {
                 </div>
               </div>
             )}
+
+            {error && (
+              <div className="flex justify-start items-start">
+                <div className="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center shrink-0 mr-3 mt-1">
+                  <CpuChipIcon className="w-4 h-4 text-on-surface" />
+                </div>
+                <div className="max-w-[85%] rounded-2xl border border-error/30 bg-error-container/20 px-5 py-4 shadow-sm">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <ExclamationTriangleIcon aria-hidden="true" className="h-4 w-4 shrink-0 text-error" />
+                    <span className="font-label-sm text-label-sm font-bold text-error">
+                      Could not get an answer
+                    </span>
+                  </div>
+                  <p className="font-body-sm text-body-sm text-on-surface whitespace-pre-wrap">{error}</p>
+                  <button
+                    type="button"
+                    onClick={handleRetry}
+                    className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-surface-container-high bg-surface px-3 py-1.5 text-xs font-semibold text-on-surface transition-colors hover:bg-surface-container"
+                  >
+                    <ArrowPathIcon aria-hidden="true" className="h-3.5 w-3.5" />
+                    Try again
+                  </button>
+                </div>
+              </div>
+            )}
+
             <div ref={messagesEndRef} />
           </div>
         )}
@@ -187,7 +251,7 @@ export function AskSentinel() {
         {messages.length === 0 && (
           <div className="flex flex-wrap items-center gap-2 mb-3">
             {['Summarize expenses', 'Vendor risk analysis', 'Generate Q3 report'].map(suggestion => (
-              <button 
+              <button
                 key={suggestion}
                 onClick={() => handleSend(suggestion)}
                 className="px-4 py-1.5 rounded-full bg-surface-container-highest hover:bg-surface-container-high text-xs text-on-surface-variant transition-colors"
@@ -197,12 +261,12 @@ export function AskSentinel() {
             ))}
           </div>
         )}
-        
+
         <div className="relative flex items-center w-full bg-surface border border-surface-container-high rounded-2xl p-2 shadow-sm focus-within:border-primary transition-colors">
           <button className="p-2 text-on-surface-variant hover:text-on-surface transition-colors">
             <PaperClipIcon className="w-5 h-5" />
           </button>
-          
+
           <input
             type="text"
             value={inputValue}
@@ -211,7 +275,7 @@ export function AskSentinel() {
             placeholder="Ask anything about your finances..."
             className="flex-1 bg-transparent border-none px-3 font-body-sm text-on-surface focus:outline-none focus:ring-0"
           />
-          
+
           <button
             onClick={onSubmit}
             disabled={!inputValue.trim() || isTyping}
@@ -220,7 +284,7 @@ export function AskSentinel() {
             <PaperAirplaneIcon className="h-5 w-5" />
           </button>
         </div>
-        
+
         <div className="text-center mt-3 mb-1">
           <span className="text-[10px] text-on-surface-variant/70">
             AI can make mistakes. Verify important financial data.
