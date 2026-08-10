@@ -23,10 +23,13 @@ export default function Pagination({
   const [jumpPage, setJumpPage] = useState('');
   const [limitInput, setLimitInput] = useState(itemsPerPage.toString());
 
+  const [prevItemsPerPage, setPrevItemsPerPage] = useState(itemsPerPage);
+
   // Keep local states in sync with props if they change externally
-  useEffect(() => {
+  if (itemsPerPage !== prevItemsPerPage) {
+    setPrevItemsPerPage(itemsPerPage);
     setLimitInput(itemsPerPage.toString());
-  }, [itemsPerPage]);
+  }
 
   const handleLimitSubmit = (e: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>) => {
     if ('key' in e && e.key !== 'Enter') return;
@@ -50,7 +53,7 @@ export default function Pagination({
 
   // Generate up to 5 visible pages
   let startPage = Math.max(1, currentPage - 2);
-  let endPage = Math.min(totalPages, startPage + 4);
+  const endPage = Math.min(totalPages, startPage + 4);
   if (endPage - startPage < 4) {
     startPage = Math.max(1, endPage - 4);
   }
@@ -63,7 +66,7 @@ export default function Pagination({
   return (
     <div className="flex flex-col items-center justify-between gap-4 border-t border-surface-container-high bg-surface-bright px-4 py-3 sm:flex-row">
       {/* Rows per page & Total items */}
-      <div className="flex items-center gap-4 text-sm text-on-surface-variant font-label-sm">
+      <div className="flex flex-wrap justify-center items-center gap-4 text-sm text-on-surface-variant font-label-sm w-full sm:w-auto">
         <span>Showing {Math.min((currentPage - 1) * itemsPerPage + 1, totalItems)} - {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems}</span>
         
         <div className="flex items-center gap-2">
@@ -92,8 +95,8 @@ export default function Pagination({
       </div>
 
       {/* Pagination Controls */}
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2 mr-4">
+      <div className="flex flex-wrap justify-center items-center gap-3 w-full sm:w-auto">
+        <div className="flex items-center gap-2 sm:mr-4">
           <span className="text-sm text-on-surface-variant">Go to:</span>
           <input
             type="number"
