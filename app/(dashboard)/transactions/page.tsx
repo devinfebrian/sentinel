@@ -394,7 +394,7 @@ export default function TransactionsPage() {
             Transactions
           </h1>
           <p className="font-body-md text-body-md text-on-surface-variant mt-2">
-            Manage and review categorized ledger entries. AI models have pre-processed recent uploads.
+            Manage and review categorized transaction entries. AI models have pre-processed recent uploads.
           </p>
         </div>
 
@@ -494,13 +494,13 @@ export default function TransactionsPage() {
             <thead>
               <tr className="border-b border-surface-container-high bg-surface-container-highest/30 font-label-sm text-label-sm text-on-surface-variant">
                 <th className="w-12 px-4 py-3 text-center font-semibold">No.</th>
-                <th className="px-4 py-3 font-semibold">Date</th>
-                <th className="w-[25%] px-4 py-3 font-semibold">Description</th>
-                <th className="px-4 py-3 font-semibold">Category</th>
-                <th className="px-4 py-3 font-semibold">Type</th>
-                <th className="px-4 py-3 font-semibold">Vendor</th>
-                <th className="px-4 py-3 text-right font-semibold">Amount</th>
-                <th className="w-16 px-4 py-3 text-right font-semibold">Actions</th>
+                <th className="px-4 py-3 text-center font-semibold">Date</th>
+                <th className="w-[25%] px-4 py-3 text-center font-semibold">Description</th>
+                <th className="px-4 py-3 text-center font-semibold">Category</th>
+                <th className="px-4 py-3 text-center font-semibold">Type</th>
+                <th className="px-4 py-3 text-center font-semibold">Vendor</th>
+                <th className="px-4 py-3 text-center font-semibold">Amount</th>
+                <th className="w-16 px-4 py-3 text-center font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-surface-container-high font-table-data text-table-data text-on-surface">

@@ -30,7 +30,7 @@ export default function ImportDialog({ isOpen, onClose }: ImportDialogProps) {
       <Modal
         open={isOpen}
         onClose={onClose}
-        title="Import Ledger Data"
+        title="Import Transaction Data"
         size="xl"
         bare
         footer={
@@ -107,7 +107,7 @@ export default function ImportDialog({ isOpen, onClose }: ImportDialogProps) {
                 AI Auto-Mapping enabled
               </p>
               <p className="font-body-sm text-body-sm text-on-surface-variant">
-                Our models will automatically detect and map headers based on historical ledger
+                Our models will automatically detect and map headers based on historical transaction
                 structures.
               </p>
             </div>

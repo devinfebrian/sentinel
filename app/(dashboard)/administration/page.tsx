@@ -27,7 +27,7 @@ import Pagination from '@/components/common/Pagination';
 type LoadStatus = 'loading' | 'ready' | 'error';
 type RoleFilter = 'all' | 'admin' | 'staff';
 type StatusFilter = 'all' | AdminUser['status'];
-type SortBy = 'name' | 'recent';
+type SortBy = 'name-asc' | 'name-desc' | 'join-desc' | 'join-asc';
 
 interface Reveal {
   email: string;
@@ -51,7 +51,7 @@ export default function AdministrationPage() {
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<RoleFilter>('all');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
-  const [sortBy, setSortBy] = useState<SortBy>('name');
+  const [sortBy, setSortBy] = useState<SortBy>('name-asc');
 
   const [registerOpen, setRegisterOpen] = useState(false);
   const [reveal, setReveal] = useState<Reveal | null>(null);
@@ -117,10 +117,15 @@ export default function AdministrationPage() {
     });
 
     return [...filtered].sort((a, b) => {
-      if (sortBy === 'name') return a.fullname.localeCompare(b.fullname);
-      const aTime = a.lastLoginAt ? new Date(a.lastLoginAt).getTime() : 0;
-      const bTime = b.lastLoginAt ? new Date(b.lastLoginAt).getTime() : 0;
-      return bTime - aTime;
+      if (sortBy === 'name-asc') return a.fullname.localeCompare(b.fullname);
+      if (sortBy === 'name-desc') return b.fullname.localeCompare(a.fullname);
+      
+      const aTime = new Date(a.createdAt).getTime();
+      const bTime = new Date(b.createdAt).getTime();
+      
+      if (sortBy === 'join-desc') return bTime - aTime;
+      if (sortBy === 'join-asc') return aTime - bTime;
+      return 0;
     });
   }, [users, search, roleFilter, statusFilter, sortBy]);
 
@@ -255,13 +260,15 @@ export default function AdministrationPage() {
               label="Sort members"
               value={sortBy}
               onChange={(val) => {
-                setSortBy(val);
+                setSortBy(val as SortBy);
                 setCurrentPage(1);
               }}
               className={FILTER_WIDTH}
             >
-              <option value="name">Sort: Name A-Z</option>
-              <option value="recent">Sort: Recent</option>
+              <option value="name-asc">Sort by Name (A-Z)</option>
+              <option value="name-desc">Sort by Name (Z-A)</option>
+              <option value="join-desc">Sort by Join Date (Newest)</option>
+              <option value="join-asc">Sort by Join Date (Oldest)</option>
             </FilterSelect>
           </div>
         </div>
