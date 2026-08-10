@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '@/lib/stores/auth.store';
-import { listTransactionsApi, listFindingsApi, listVendorsApi, type Transaction, type Finding, type Vendor } from '@/lib/services/api';
+import { listTransactionsApi, listFindingsApi, listVendorsApi, type Transaction, type Finding, type Vendor, type RiskLevel } from '@/lib/services/api';
+import Badge, { type BadgeTone } from '@/components/common/Badge';
 import {
   ArrowDownIcon,
   ArrowUpIcon,
@@ -25,33 +26,22 @@ const formatCurrency = (amount: number) => {
   }).format(amount);
 };
 
-const getRiskLevel = (score: number) => {
-  if (score >= 80) return 'Critical';
-  if (score >= 60) return 'High';
-  if (score >= 40) return 'Medium';
-  return 'Low';
+// The band was re-derived from the score here, which meant this page could
+// disagree with the agent server about where the boundaries sit. `risk_level`
+// comes down on every finding already — read it instead of recomputing it.
+const RISK_LABELS: Record<RiskLevel, string> = {
+  critical: 'Critical',
+  high: 'High',
+  medium: 'Medium',
+  low: 'Low',
 };
 
-function TypeChip({ type }: { type: string }) {
-  const isHigh = type.toLowerCase() === 'high';
-  const isCritical = type.toLowerCase() === 'critical';
-  const isMedium = type.toLowerCase() === 'medium';
-  return (
-    <span
-      className={`inline-flex items-center rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-wide ${
-        isCritical
-          ? 'bg-error text-on-error'
-          : isHigh
-          ? 'bg-error-container text-on-error-container'
-          : isMedium
-          ? 'bg-secondary-container text-on-secondary-container'
-          : 'bg-surface-container-highest text-on-surface'
-      }`}
-    >
-      {type}
-    </span>
-  );
-}
+const RISK_TONES: Record<RiskLevel, BadgeTone> = {
+  critical: 'critical',
+  high: 'high',
+  medium: 'medium',
+  low: 'low',
+};
 
 // --- CHARTS (SVG/CSS based) ---
 
@@ -245,7 +235,7 @@ export default function DashboardPage() {
 
   const filteredFindings = findings.filter(f => {
     if (period === 'All Time') return true;
-    const d = new Date(f.finding_date);
+    const d = new Date(f.created_at);
     const month = d.toLocaleString('default', { month: 'short', year: 'numeric' });
     return month === period;
   });
@@ -316,10 +306,9 @@ export default function DashboardPage() {
   let lowRisk = 0;
 
   filteredFindings.forEach(f => {
-    const level = getRiskLevel(f.risk_score);
-    if (level === 'Critical') criticalRisk++;
-    else if (level === 'High') highRisk++;
-    else if (level === 'Medium') mediumRisk++;
+    if (f.risk_level === 'critical') criticalRisk++;
+    else if (f.risk_level === 'high') highRisk++;
+    else if (f.risk_level === 'medium') mediumRisk++;
     else lowRisk++;
   });
 
@@ -492,7 +481,6 @@ export default function DashboardPage() {
                 <tr className="border-b border-surface-container-high bg-surface-container-highest/30 font-label-sm text-label-sm text-on-surface-variant">
                   <th className="px-4 py-3 text-center font-semibold">Date</th>
                   <th className="px-4 py-3 text-center font-semibold">Finding</th>
-                  <th className="px-4 py-3 text-center font-semibold">Category</th>
                   <th className="px-4 py-3 text-center font-semibold">Risk Score</th>
                   <th className="px-4 py-3 text-center font-semibold">Risk Level</th>
                   <th className="px-4 py-3 text-center font-semibold">Status</th>
@@ -501,21 +489,26 @@ export default function DashboardPage() {
               <tbody className="divide-y divide-surface-container-high font-table-data text-table-data text-on-surface">
                 {recentFindings.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-on-surface-variant">
+                    <td colSpan={5} className="px-4 py-8 text-center text-on-surface-variant">
                       No findings reported.
                     </td>
                   </tr>
                 ) : (
                   recentFindings.map((finding) => (
                     <tr key={finding.id} className="transition-colors hover:bg-surface-container-low cursor-pointer">
-                      <td className="px-4 py-3 text-on-surface-variant">{formatDate(finding.finding_date)}</td>
-                      <td className="px-4 py-3 font-medium">{finding.title}</td>
-                      <td className="px-4 py-3 text-on-surface-variant">{finding.category}</td>
+                      <td className="px-4 py-3 text-on-surface-variant">{formatDate(finding.created_at)}</td>
+                      {/* Findings carry one narrative, not a title/category pair —
+                          the Category column was showing undefined for every row. */}
+                      <td className="max-w-md truncate px-4 py-3 font-medium">{finding.description}</td>
                       <td className="px-4 py-3 font-semibold text-on-surface">{finding.risk_score}</td>
                       <td className="px-4 py-3">
-                        <TypeChip type={getRiskLevel(finding.risk_score)} />
+                        <Badge tone={RISK_TONES[finding.risk_level]} dot>
+                          {RISK_LABELS[finding.risk_level]}
+                        </Badge>
                       </td>
-                      <td className="px-4 py-3 text-on-surface-variant">{finding.status}</td>
+                      <td className="px-4 py-3 text-on-surface-variant">
+                        {finding.resolution ? 'Resolved' : 'Open'}
+                      </td>
                     </tr>
                   ))
                 )}

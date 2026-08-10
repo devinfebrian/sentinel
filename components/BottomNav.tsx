@@ -43,7 +43,7 @@ export default function BottomNav() {
   ];
 
   const extraItems = [
-    { href: '/findings', icon: ShieldExclamationIcon, label: 'Findings', soon: true },
+    { href: '/findings', icon: ShieldExclamationIcon, label: 'Findings' },
     { href: '/ask', icon: SparklesIcon, label: 'Ask Sentinel', soon: true },
     ...(isAdmin ? [{ href: '/administration', icon: UsersIcon, label: 'User Mgt' }] : []),
   ];

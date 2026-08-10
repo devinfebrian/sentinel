@@ -265,30 +265,130 @@ export function askApi(question: string, accessToken: string) {
   return request<AskResponse>('/ask', jsonPost({ question }, accessToken));
 }
 
+export type RiskLevel = 'low' | 'medium' | 'high' | 'critical';
+export type Resolution = 'justified' | 'false_positive' | 'confirmed_fraud' | 'escalated';
+export type FindingStatusFilter = 'open' | 'resolved' | 'all';
+
+/** Why the score is what it is. One entry per rule that fired. */
+export interface Trigger {
+  code: string;
+  points: number;
+  owner: string;
+  amplifier_only: boolean;
+  /** Indonesian, written by the scoring engine — not by a model. */
+  narrative: string;
+  detail: Record<string, unknown>;
+}
+
+/**
+ * The half of a finding that outlives an LLM outage. Every number here was
+ * computed by Python, so it stays valid and auditable even when `analysis` is
+ * null. This is what an auditor traces.
+ */
+export interface Evidence {
+  triggers: Trigger[];
+  suppressed_triggers: { code: string; points: number; reason: string }[];
+  base_risk_score: number;
+  raw_score: number;
+  /** True when the raw total exceeded the 80-point base ceiling. */
+  capped: boolean;
+  agent_scores: { agent: string; score: number }[];
+  provenance: { scored_by: string; llm_model: string; llm_model_verifier: string };
+}
+
+/** How the agents reasoned. Null when the LLM half of the pipeline failed. */
+export interface Analysis {
+  investigation?: {
+    agent1_verdict?: string | null;
+    agent1_confidence?: string | null;
+    agent2_verdict?: string | null;
+    agent2_confidence?: string | null;
+    verdict_review?: { agent1?: string; agent2?: string; reason?: string };
+  };
+  /** Capped at ±20 by the scoring engine, and it must come with a reason. */
+  llm_semantic_adjustment: number;
+  adjustment_reason: string;
+  llm_review_failed: boolean;
+  semantic?: { source: string; insight: string }[];
+  context?: { source: string; insight: string }[];
+}
+
 export interface Finding {
   id: number;
-  finding_date: string;
-  title: string;
-  category: string;
+  transaction_id: number;
+  /** Every transaction this one finding covers, anchor included. */
+  related_transaction_ids: number[];
   risk_score: number;
-  status: string;
-  transaction_id: number | null;
-  evidence: string | null;
-  recommendation: string | null;
+  risk_level: RiskLevel;
+  /** Indonesian display text. The UI renders `risk_level` instead. */
+  risk_label: string;
+  /** Indonesian, one sentence per risk band. */
+  recommended_action: string;
+  /** Indonesian. The LLM narrative, or a fact-assembled fallback when it failed. */
+  description: string;
+  resolution: Resolution | null;
+  resolution_note: string | null;
+  resolved_by: number | null;
+  resolved_at: string | null;
+  created_at: string;
+  updated_at: string | null;
+  /** More transactions joined after the narrative was written: the numbers are current, the sentence is not. */
+  narrative_stale: boolean;
+}
+
+export interface FindingDetail extends Finding {
+  evidence: Evidence;
+  analysis: Analysis | null;
+}
+
+export interface FindingsSummary {
+  perlu_tindakan: number;
+  perlu_ditinjau: number;
+  aman: number;
+  gagal: number;
+  belum_diperiksa: number;
+  total_transaksi: number;
+  per_tingkat: Partial<Record<RiskLevel, number>>;
+  selesai: number;
+  total_temuan: number;
+  /** Null when no finding exists yet — which is not the same as zero percent cleared. */
+  clear_rate: number | null;
 }
 
 export function listFindingsApi(
   accessToken: string,
-  params?: { page?: number; limit?: number; status?: string; category?: string }
+  params?: { status?: FindingStatusFilter; risk_level?: RiskLevel; limit?: number }
 ) {
-  let url = '/findings?';
-  if (params) {
-    const searchParams = new URLSearchParams();
-    if (params.page) searchParams.set('page', params.page.toString());
-    if (params.limit) searchParams.set('limit', params.limit.toString());
-    if (params.status && params.status !== 'All') searchParams.set('status', params.status);
-    if (params.category && params.category !== 'All') searchParams.set('category', params.category);
-    url += searchParams.toString();
-  }
-  return request<{ findings: Finding[], pagination: any }>(url, authGet(accessToken));
+  const search = new URLSearchParams();
+  if (params?.status) search.set('status', params.status);
+  if (params?.risk_level) search.set('risk_level', params.risk_level);
+  if (params?.limit) search.set('limit', String(params.limit));
+
+  const qs = search.toString();
+  return request<{ findings: Finding[] }>(`/findings${qs ? `?${qs}` : ''}`, authGet(accessToken));
+}
+
+export function findingsSummaryApi(accessToken: string) {
+  return request<{ summary: FindingsSummary }>('/findings/summary', authGet(accessToken));
+}
+
+/** Same row as the list, plus `evidence` and `analysis`. */
+export function getFindingApi(id: number, accessToken: string, signal?: AbortSignal) {
+  return request<{ finding: FindingDetail }>(`/findings/${id}`, {
+    ...authGet(accessToken),
+    signal,
+  });
+}
+
+/**
+ * `resolved_by` is deliberately absent: the backend fills it from the verified
+ * token. For an audit trail, a self-reported "who signed this off" is worse
+ * than no record at all.
+ */
+export function resolveFindingApi(
+  id: number,
+  payload: { resolution: Resolution; note?: string },
+  accessToken: string
+) {
+  return request<{ finding: Finding }>(`/findings/${id}/resolve`, jsonPatch(payload, accessToken));
 }

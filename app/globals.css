@@ -245,6 +245,15 @@ body {
   font-weight: 700;
 }
 
+/* The size half of the pair above, which was missing — every other role here
+   comes as .font-X + .text-X used together, so a KPI figure had no size class
+   to reach for and each tile was picking an arbitrary one. */
+.text-kpi-value {
+  font-size: 2.25rem;
+  line-height: 2.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
 .text-display {
   font-size: 4.5rem;
   line-height: 5rem;
