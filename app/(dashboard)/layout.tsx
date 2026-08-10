@@ -3,6 +3,7 @@ import SideNav from '@/components/SideNav';
 import TopAppBar from '@/components/TopAppBar';
 import AuthGate from '@/components/auth/AuthGate';
 import DashboardLayoutWrapper from '@/components/DashboardLayoutWrapper';
+import BottomNav from '@/components/BottomNav';
 
 export default function DashboardLayout({
   children,
@@ -23,9 +24,10 @@ export default function DashboardLayout({
               leftover space into a margin, so the gap against the sidebar (and
               against the right edge) would change with the viewport and with
               the sidebar's collapsed state. Padding alone defines both gaps. */}
-          <main className="flex-1 overflow-y-auto hide-scrollbar w-full">
+          <main className="flex-1 overflow-y-auto hide-scrollbar w-full pb-16 md:pb-0">
             <div className="w-full p-4 md:p-container-padding">{children}</div>
           </main>
+          <BottomNav />
         </DashboardLayoutWrapper>
       </div>
     </AuthGate>

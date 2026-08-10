@@ -1,5 +1,7 @@
 'use client';
 
+/* eslint-disable react-hooks/set-state-in-effect */
+
 import React, { useState, useEffect } from 'react';
 import ImportDialog from '@/components/transactions/ImportDialog';
 import VendorDrawer from '@/components/transactions/VendorDrawer';
@@ -436,7 +438,7 @@ export default function TransactionsPage() {
               label="Filter by type"
               value={typeFilter}
               onChange={setTypeFilter}
-              className="flex-1 md:w-32 md:flex-none"
+              className="w-full sm:w-[48%] md:w-32 md:flex-none"
             >
               <option value="All">All Types</option>
               <option value="income">Income</option>
@@ -447,7 +449,7 @@ export default function TransactionsPage() {
               label="Filter by category"
               value={categoryFilter}
               onChange={setCategoryFilter}
-              className="flex-1 md:w-36 md:flex-none"
+              className="w-full sm:w-[48%] md:w-36 md:flex-none"
             >
               <option value="All">All Categories</option>
               {allCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
@@ -457,7 +459,7 @@ export default function TransactionsPage() {
               label="Filter by vendor"
               value={vendorFilter}
               onChange={setVendorFilter}
-              className="flex-1 md:w-36 md:flex-none"
+              className="w-full sm:w-[48%] md:w-36 md:flex-none"
             >
               <option value="All">All Vendors</option>
               {allVendors.map(v => <option key={v.id} value={v.id.toString()}>{v.vendor_name}</option>)}
@@ -467,7 +469,7 @@ export default function TransactionsPage() {
               label="Sort transactions"
               value={sortBy}
               onChange={setSortBy}
-              className="flex-1 md:w-44 md:flex-none"
+              className="w-full sm:w-[48%] md:w-44 md:flex-none"
             >
               <option value="date-desc">Sort by Date (Newest)</option>
               <option value="date-asc">Sort by Date (Oldest)</option>

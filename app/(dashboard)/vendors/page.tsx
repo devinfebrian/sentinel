@@ -1,5 +1,7 @@
 'use client';
 
+/* eslint-disable react-hooks/set-state-in-effect */
+
 import React, { useState, useEffect } from 'react';
 import { listVendorsApi, createVendorApi, updateVendorApi, type Vendor } from '@/lib/services/api';
 import { useAuthStore } from '@/lib/stores/auth.store';
@@ -259,12 +261,12 @@ export default function VendorsPage() {
             />
           </div>
 
-          <div className="flex w-full gap-3 md:w-auto">
+          <div className="flex w-full flex-wrap gap-3 md:w-auto">
             <FilterSelect
               label="Filter by status"
               value={statusFilter}
               onChange={setStatusFilter}
-              className="flex-1 md:w-36 md:flex-none"
+              className="w-full sm:w-[48%] md:w-36 md:flex-none"
             >
               <option value="All Status">All Status</option>
               <option value="active">Active</option>
@@ -275,7 +277,7 @@ export default function VendorsPage() {
               label="Sort vendors"
               value={sortBy}
               onChange={setSortBy}
-              className="flex-1 md:w-48 md:flex-none"
+              className="w-full sm:w-[48%] md:w-48 md:flex-none"
             >
               <option value="join-desc">Sort by Join Date (Newest)</option>
               <option value="join-asc">Sort by Join Date (Oldest)</option>

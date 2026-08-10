@@ -22,6 +22,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { FilterSelect, FILTER_INPUT_CLASSES } from '@/components/common/FilterControls';
 import RippleButton, { PRIMARY_ACTION_CLASSES } from '@/components/common/RippleButton';
+import Pagination from '@/components/common/Pagination';
 
 type LoadStatus = 'loading' | 'ready' | 'error';
 type RoleFilter = 'all' | 'admin' | 'staff';
@@ -34,7 +35,7 @@ interface Reveal {
   notice: string;
 }
 
-const FILTER_WIDTH = 'flex-1 md:w-36 md:flex-none';
+const FILTER_WIDTH = 'w-full sm:w-[48%] md:w-36 md:flex-none';
 
 export default function AdministrationPage() {
   const router = useRouter();
@@ -54,6 +55,9 @@ export default function AdministrationPage() {
 
   const [registerOpen, setRegisterOpen] = useState(false);
   const [reveal, setReveal] = useState<Reveal | null>(null);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Bumped by the "Try again" button to re-run the fetch below.
   const [reloadKey, setReloadKey] = useState(0);
@@ -119,6 +123,11 @@ export default function AdministrationPage() {
       return bTime - aTime;
     });
   }, [users, search, roleFilter, statusFilter, sortBy]);
+
+  const paginatedUsers = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredUsers.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredUsers, currentPage, itemsPerPage]);
 
   const handleRegistered = (user: AdminUser) => {
     setUsers((prev) => [user, ...prev]);
@@ -203,17 +212,23 @@ export default function AdministrationPage() {
               id="user-search"
               type="text"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setCurrentPage(1);
+              }}
               placeholder="Search users..."
               className={`${FILTER_INPUT_CLASSES} pl-10 pr-4`}
             />
           </div>
 
-          <div className="flex w-full gap-3 md:w-auto">
+          <div className="flex w-full flex-wrap gap-3 md:w-auto">
             <FilterSelect
               label="Filter by role"
               value={roleFilter}
-              onChange={setRoleFilter}
+              onChange={(val) => {
+                setRoleFilter(val);
+                setCurrentPage(1);
+              }}
               className={FILTER_WIDTH}
             >
               <option value="all">All Roles</option>
@@ -224,7 +239,10 @@ export default function AdministrationPage() {
             <FilterSelect
               label="Filter by status"
               value={statusFilter}
-              onChange={setStatusFilter}
+              onChange={(val) => {
+                setStatusFilter(val);
+                setCurrentPage(1);
+              }}
               className={FILTER_WIDTH}
             >
               <option value="all">All Status</option>
@@ -236,7 +254,10 @@ export default function AdministrationPage() {
             <FilterSelect
               label="Sort members"
               value={sortBy}
-              onChange={setSortBy}
+              onChange={(val) => {
+                setSortBy(val);
+                setCurrentPage(1);
+              }}
               className={FILTER_WIDTH}
             >
               <option value="name">Sort: Name A-Z</option>
@@ -272,17 +293,23 @@ export default function AdministrationPage() {
           {status === 'ready' && (
             <>
               <UserTable
-                users={filteredUsers}
+                users={paginatedUsers}
                 currentUserId={currentUser.id}
                 mutatingId={mutatingId}
                 onResetPassword={handleResetPassword}
                 onStatusChange={handleStatusChange}
               />
-              <div className="flex items-center justify-between border-t border-surface-container-high bg-surface-bright px-4 py-3">
-                <span className="font-label-sm text-label-sm text-on-surface-variant">
-                  Showing {filteredUsers.length} of {users.length} users
-                </span>
-              </div>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={Math.ceil(filteredUsers.length / itemsPerPage)}
+                itemsPerPage={itemsPerPage}
+                totalItems={filteredUsers.length}
+                onPageChange={setCurrentPage}
+                onItemsPerPageChange={(limit) => {
+                  setItemsPerPage(limit);
+                  setCurrentPage(1);
+                }}
+              />
             </>
           )}
         </div>
