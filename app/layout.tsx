@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Urbanist } from "next/font/google";
 import Script from "next/script";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 
@@ -52,6 +54,7 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
         </ThemeProvider>
+        <ToastContainer position="bottom-center" theme="colored" autoClose={6000} />
       </body>
     </html>
   );

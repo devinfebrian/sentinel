@@ -30,7 +30,7 @@ const SHOWCASE: ShowcaseCard[] = [
   {
     icon: DocumentTextIcon,
     title: 'Transactions',
-    description: 'Record income and expenses, or import an existing ledger in bulk.',
+    description: 'Record income and expenses, or import existing transactions in bulk.',
     href: '/transactions',
     cta: 'Open transactions',
   },
@@ -74,7 +74,7 @@ const QUICK_START = [
   },
   {
     title: 'Run an audit',
-    body: 'Sentinel reviews the ledger and reports what looks wrong. Arriving in Sprint 2.',
+    body: 'Sentinel reviews the transactions and reports what looks wrong. Arriving in Sprint 2.',
     href: '/findings',
     linkText: 'Preview findings',
   },
@@ -130,7 +130,7 @@ export default function OverviewPage() {
 
           <BlurFade delay={0.2}>
             <p className="mt-4 font-body-md text-body-md text-on-surface-variant">
-              Sentinel audits your company&rsquo;s financial records. Set up your ledger here, and
+              Sentinel audits your company&rsquo;s financial records. Set up your transactions here, and
               the analysis follows from it.
             </p>
           </BlurFade>

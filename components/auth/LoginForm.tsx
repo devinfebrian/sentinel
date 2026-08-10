@@ -8,11 +8,22 @@ import PasswordInput from '@/components/common/PasswordInput';
 import PrimaryButton from '@/components/common/PrimaryButton';
 import GoogleButton from '@/components/common/GoogleButton';
 import AlertNotice from '@/components/common/AlertNotice';
+import { toast } from 'react-toastify';
 import { loginSchema, validateForm } from '@/lib/validations/auth.schema';
 import { loginApi, googleLoginApi, ApiError } from '@/lib/services/api';
 import { useAuthStore, type User, type AuthTokens } from '@/lib/stores/auth.store';
 
 const googleEnabled = process.env.NEXT_PUBLIC_ENABLE_GOOGLE_AUTH === 'true';
+
+// TODO: Branching on backend message strings is fragile — it breaks the moment
+// the backend rewords an error. If the backend ever adds a machine-readable
+// errorCode to error responses, switch these checks to it.
+const GOOGLE_UNREGISTERED_MESSAGE =
+  'This account is not registered. Please contact your Finance Lead.';
+const GOOGLE_DEACTIVATED_MESSAGE =
+  'This account has been deactivated. Please contact your Finance Lead.';
+const GOOGLE_UNREGISTERED_COPY =
+  "This account isn't registered yet. Please contact your Finance Lead.";
 
 interface SessionResult {
   user: User;
@@ -78,9 +89,36 @@ export default function LoginForm() {
 
     try {
       const res = await googleLoginApi({ idToken });
+      if (res.data.tempPasswordCleared) {
+        toast.info('Your temporary password is no longer valid.');
+      }
       enterApp(res.data);
     } catch (err) {
-      handleFailure(err, 'Google sign-in failed.');
+      if (err instanceof ApiError) {
+        // Both 403s mean "reach the Finance Lead", but the copy differs.
+        // The backend distinguishes them only by message text (see TODO above).
+        if (err.status === 403 && err.message === GOOGLE_UNREGISTERED_MESSAGE) {
+          setServerError(GOOGLE_UNREGISTERED_COPY);
+          return;
+        }
+        if (err.status === 403 && err.message === GOOGLE_DEACTIVATED_MESSAGE) {
+          setServerError(err.message);
+          return;
+        }
+
+        // Pass through the backend's safe operational message instead of masking it.
+        // This will surface "Invalid or expired Google token", "Google sign-in is not configured", etc.
+        // We filter for 4xx and 503 to ensure we don't expose 500 internal database errors or stack traces.
+        const isSafeErrorStatus = (err.status >= 400 && err.status < 500) || err.status === 503;
+        if (isSafeErrorStatus && err.message) {
+          setServerError(err.message);
+          return;
+        }
+        
+        setServerError('Google sign-in failed. Please try again.');
+        return;
+      }
+      setServerError('Google sign-in failed. Please try again.');
     } finally {
       setLoading(false);
     }

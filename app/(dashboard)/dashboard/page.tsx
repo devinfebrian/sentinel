@@ -342,7 +342,7 @@ export default function DashboardPage() {
             Overview
           </h1>
           <p className="font-body-md text-body-md text-on-surface-variant mt-2">
-            Financial performance and AI audit insights across the ledger.
+            Financial performance and AI audit insights across the transactions.
           </p>
         </div>
         
@@ -490,12 +490,12 @@ export default function DashboardPage() {
             <table className="w-full min-w-[800px] border-collapse text-left">
               <thead>
                 <tr className="border-b border-surface-container-high bg-surface-container-highest/30 font-label-sm text-label-sm text-on-surface-variant">
-                  <th className="px-4 py-3 font-semibold">Date</th>
-                  <th className="px-4 py-3 font-semibold">Finding</th>
-                  <th className="px-4 py-3 font-semibold">Category</th>
-                  <th className="px-4 py-3 font-semibold">Risk Score</th>
-                  <th className="px-4 py-3 font-semibold">Risk Level</th>
-                  <th className="px-4 py-3 font-semibold">Status</th>
+                  <th className="px-4 py-3 text-center font-semibold">Date</th>
+                  <th className="px-4 py-3 text-center font-semibold">Finding</th>
+                  <th className="px-4 py-3 text-center font-semibold">Category</th>
+                  <th className="px-4 py-3 text-center font-semibold">Risk Score</th>
+                  <th className="px-4 py-3 text-center font-semibold">Risk Level</th>
+                  <th className="px-4 py-3 text-center font-semibold">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-surface-container-high font-table-data text-table-data text-on-surface">

@@ -69,19 +69,19 @@ export default function UserTable({
       <table className="w-full border-collapse text-left">
         <thead>
           <tr className="border-b border-surface-container-high bg-surface-container-highest/30">
-            <th className="px-4 py-3 font-label-sm text-label-sm font-semibold text-on-surface-variant">
+            <th className="px-4 py-3 text-center font-label-sm text-label-sm font-semibold text-on-surface-variant">
               Name &amp; Email
             </th>
-            <th className="px-4 py-3 font-label-sm text-label-sm font-semibold text-on-surface-variant">
+            <th className="px-4 py-3 text-center font-label-sm text-label-sm font-semibold text-on-surface-variant">
               Role
             </th>
-            <th className="px-4 py-3 font-label-sm text-label-sm font-semibold text-on-surface-variant">
+            <th className="px-4 py-3 text-center font-label-sm text-label-sm font-semibold text-on-surface-variant">
               Status
             </th>
-            <th className="px-4 py-3 font-label-sm text-label-sm font-semibold text-on-surface-variant">
+            <th className="px-4 py-3 text-center font-label-sm text-label-sm font-semibold text-on-surface-variant">
               Last Active
             </th>
-            <th className="px-4 py-3 text-right font-label-sm text-label-sm font-semibold text-on-surface-variant">
+            <th className="px-4 py-3 text-center font-label-sm text-label-sm font-semibold text-on-surface-variant">
               Actions
             </th>
           </tr>
@@ -131,7 +131,7 @@ export default function UserTable({
                     </div>
                   </div>
                 </td>
-                <td className="px-4 py-4">
+                <td className="px-4 py-4 text-center">
                   <RoleBadge isAdmin={user.isAdmin} dimmed={dimmed} />
                 </td>
                 <td className="px-4 py-4">
