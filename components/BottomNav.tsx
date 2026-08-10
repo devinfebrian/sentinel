@@ -38,7 +38,7 @@ export default function BottomNav() {
   const navItems = [
     { href: '/', icon: Squares2X2Icon, label: 'Overview' },
     { href: '/dashboard', icon: ChartBarIcon, label: 'Dashboard' },
-    { href: '/transactions', icon: DocumentTextIcon, label: 'Ledger' },
+    { href: '/transactions', icon: DocumentTextIcon, label: 'Transactions' },
     { href: '/vendors', icon: BuildingStorefrontIcon, label: 'Vendors' },
   ];
 

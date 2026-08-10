@@ -293,11 +293,11 @@ export default function VendorsPage() {
               <thead>
                 <tr className="bg-surface-container-highest/30 border-b border-surface-container-high">
                   <th className="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant font-semibold w-16 text-center">No.</th>
-                  <th className="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant font-semibold">Vendor Name</th>
-                  <th className="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant font-semibold">Bank Account</th>
-                  <th className="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant font-semibold">Status</th>
-                  <th className="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant font-semibold">Join Date</th>
-                  <th className="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant font-semibold text-right">Actions</th>
+                  <th className="py-3 px-4 text-center font-label-sm text-label-sm text-on-surface-variant font-semibold">Vendor Name</th>
+                  <th className="py-3 px-4 text-center font-label-sm text-label-sm text-on-surface-variant font-semibold">Bank Account</th>
+                  <th className="py-3 px-4 text-center font-label-sm text-label-sm text-on-surface-variant font-semibold">Status</th>
+                  <th className="py-3 px-4 text-center font-label-sm text-label-sm text-on-surface-variant font-semibold">Join Date</th>
+                  <th className="py-3 px-4 text-center font-label-sm text-label-sm text-on-surface-variant font-semibold">Actions</th>
                 </tr>
               </thead>
               <tbody className="font-table-data text-table-data text-on-surface divide-y divide-surface-container-high">

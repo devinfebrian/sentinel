@@ -82,10 +82,10 @@ export function AskSentinel() {
           <table className="w-full text-left text-sm">
             <thead className="bg-surface">
               <tr className="border-b border-surface-container-high">
-                <th className="px-4 py-3 font-semibold text-on-surface">Category</th>
-                <th className="px-4 py-3 font-semibold text-on-surface">Q2 Spend</th>
-                <th className="px-4 py-3 font-semibold text-on-surface">Q3 Spend</th>
-                <th className="px-4 py-3 font-semibold text-on-surface">Δ Change</th>
+                <th className="px-4 py-3 text-center font-semibold text-on-surface">Category</th>
+                <th className="px-4 py-3 text-center font-semibold text-on-surface">Q2 Spend</th>
+                <th className="px-4 py-3 text-center font-semibold text-on-surface">Q3 Spend</th>
+                <th className="px-4 py-3 text-center font-semibold text-on-surface">Δ Change</th>
               </tr>
             </thead>
             <tbody className="bg-surface">
