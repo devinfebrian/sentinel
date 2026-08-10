@@ -108,7 +108,14 @@ export default function LoginForm() {
 
         // Pass through the backend's safe operational message instead of masking it.
         // This will surface "Invalid or expired Google token", "Google sign-in is not configured", etc.
-        setServerError(err.message || 'Google sign-in failed. Please try again.');
+        // We filter for 4xx and 503 to ensure we don't expose 500 internal database errors or stack traces.
+        const isSafeErrorStatus = (err.status >= 400 && err.status < 500) || err.status === 503;
+        if (isSafeErrorStatus && err.message) {
+          setServerError(err.message);
+          return;
+        }
+        
+        setServerError('Google sign-in failed. Please try again.');
         return;
       }
       setServerError('Google sign-in failed. Please try again.');
