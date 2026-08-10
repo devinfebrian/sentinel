@@ -252,6 +252,19 @@ export function updateVendorApi(id: number, payload: { vendor_name?: string; ban
   return request<{ vendor: Vendor }>(`/vendors/${id}`, jsonPut(payload, accessToken));
 }
 
+export interface AskResponse {
+  answer: string;
+  figures?: Record<string, unknown>;
+  tools_used?: string[];
+  steps?: unknown[];
+  unsourced_figures?: string[];
+  warning?: string;
+}
+
+export function askApi(question: string, accessToken: string) {
+  return request<AskResponse>('/ask', jsonPost({ question }, accessToken));
+}
+
 export interface Finding {
   id: number;
   finding_date: string;

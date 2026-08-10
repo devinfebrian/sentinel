@@ -8,17 +8,17 @@ import {
   EllipsisVerticalIcon,
   PaperClipIcon,
   CpuChipIcon,
-  CalendarDaysIcon,
   ExclamationTriangleIcon,
   ArrowPathIcon,
 } from '@heroicons/react/24/outline';
-import { askSentinelApi } from '@/lib/services/ask';
+import { askApi, ApiError } from '@/lib/services/api';
+import { useAuthStore } from '@/lib/stores/auth.store';
 
 interface Message {
   id: string;
   role: 'user' | 'ai';
   content: string;
-  dataRange?: string;
+  warning?: string;
   unsourcedFigures?: string[];
 }
 
@@ -45,6 +45,7 @@ export function AskSentinel() {
   const [error, setError] = useState<string | null>(null);
   const lastQuestionRef = useRef<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const accessToken = useAuthStore((s) => s.accessToken);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -55,23 +56,25 @@ export function AskSentinel() {
   }, [messages, isTyping, error]);
 
   const runAsk = async (question: string) => {
+    if (!accessToken) return;
+
     setError(null);
     setIsTyping(true);
 
     try {
-      const res = await askSentinelApi(question);
+      const res = await askApi(question, accessToken);
       setMessages(prev => [
         ...prev,
         {
           id: createMessageId(),
           role: 'ai',
-          content: res.answer,
-          dataRange: res.data_range,
-          unsourcedFigures: res.unsourced_figures ?? [],
+          content: res.data.answer,
+          warning: res.data.warning,
+          unsourcedFigures: res.data.unsourced_figures ?? [],
         },
       ]);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+      setError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.');
     } finally {
       setIsTyping(false);
     }
@@ -79,7 +82,7 @@ export function AskSentinel() {
 
   const handleSend = (text: string) => {
     const trimmed = text.trim();
-    if (!trimmed || isTyping) return;
+    if (!trimmed || isTyping || !accessToken) return;
 
     const userMsg: Message = {
       id: createMessageId(),
@@ -120,10 +123,10 @@ export function AskSentinel() {
       <div className="flex flex-col gap-3 w-full">
         <p className="whitespace-pre-wrap">{renderAnswer(msg.content)}</p>
 
-        {msg.dataRange && (
+        {msg.warning && (
           <div className="inline-flex items-center gap-1.5 self-start rounded-full bg-secondary-container/70 px-3 py-1 text-[11px] font-semibold text-on-secondary-container">
-            <CalendarDaysIcon aria-hidden="true" className="h-3.5 w-3.5" />
-            Data range: {msg.dataRange}
+            <ExclamationTriangleIcon aria-hidden="true" className="h-3.5 w-3.5" />
+            {msg.warning}
           </div>
         )}
 
