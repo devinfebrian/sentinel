@@ -48,81 +48,127 @@ const RISK_TONES: Record<RiskLevel, BadgeTone> = {
 function SimpleLineChart({ data }: { data: { label: string; income: number; expense: number; net?: number }[] }) {
   if (data.length === 0) return <div className="h-64 flex items-center justify-center text-on-surface-variant font-body-sm">No data</div>;
 
-  const maxVal = Math.max(...data.map((d) => Math.max(d.income, d.expense, d.net ?? 0, 1)));
-  
-  const ptsIncome = data.map((d, i) => {
-    const x = data.length > 1 ? (i / (data.length - 1)) * 100 : 50;
-    const y = 100 - (d.income / maxVal) * 100;
-    return `${x},${y}`;
-  }).join(' ');
+  const series = data.map((d) => ({
+    ...d,
+    net: d.net !== undefined ? d.net : d.income - d.expense,
+  }));
 
-  const ptsExpense = data.map((d, i) => {
-    const x = data.length > 1 ? (i / (data.length - 1)) * 100 : 50;
-    const y = 100 - (d.expense / maxVal) * 100;
-    return `${x},${y}`;
-  }).join(' ');
+  const rawMin = Math.min(0, ...series.flatMap((d) => [d.income, d.expense, d.net]));
+  const rawMax = Math.max(0, ...series.flatMap((d) => [d.income, d.expense, d.net]));
 
-  const ptsNet = data.map((d, i) => {
-    const x = data.length > 1 ? (i / (data.length - 1)) * 100 : 50;
-    const netVal = d.net !== undefined ? d.net : (d.income - d.expense);
-    const y = 100 - (Math.max(netVal, 0) / maxVal) * 100;
-    return `${x},${y}`;
-  }).join(' ');
+  let minVal = rawMin;
+  let maxVal = rawMax;
+  let ticks: number[] = [];
+  const rawRange = rawMax - rawMin;
+  if (rawRange > 0) {
+    const rawStep = rawRange / 5;
+    const exponent = Math.floor(Math.log10(rawStep));
+    const fraction = rawStep / 10 ** exponent;
+    const niceFraction = fraction <= 1 ? 1 : fraction <= 2 ? 2 : fraction <= 5 ? 5 : 10;
+    const step = niceFraction * 10 ** exponent;
+    minVal = Math.floor(rawMin / step) * step;
+    maxVal = Math.ceil(rawMax / step) * step;
+    for (let v = minVal; v <= maxVal + step * 0.5; v += step) {
+      ticks.push(Number(v.toFixed(10)));
+    }
+  } else {
+    ticks = [0];
+  }
+
+  const span = Math.max(maxVal - minVal, 1e-9);
+  const yPct = (v: number) => ((v - minVal) / span) * 100;
+  const xPct = (i: number) => (series.length > 1 ? (i / (series.length - 1)) * 100 : 50);
+
+  const toPoints = (key: 'income' | 'expense' | 'net') =>
+    series.map((d, i) => `${xPct(i)},${100 - yPct(d[key])}`).join(' ');
+
+  const compactCurrency = (v: number) => {
+    const sign = v < 0 ? '-' : '';
+    const abs = Math.abs(v);
+    const num = (x: number) => x.toLocaleString('id-ID', { maximumFractionDigits: 2 });
+    if (abs >= 1_000_000_000) return `${sign}Rp ${num(abs / 1_000_000_000)}B`;
+    if (abs >= 1_000_000) return `${sign}Rp ${num(abs / 1_000_000)}M`;
+    if (abs >= 1_000) return `${sign}Rp ${num(abs / 1_000)}K`;
+    return `${sign}Rp ${num(abs)}`;
+  };
 
   return (
-    <div className="w-full h-64 flex flex-col pt-4">
-      <div className="flex-1 relative w-full border-b border-surface-container-high">
-         <svg viewBox="0 -5 100 110" preserveAspectRatio="none" className="w-full h-full absolute inset-0 overflow-visible">
-           <polyline points={ptsIncome} fill="none" stroke="currentColor" strokeWidth="2" className="text-secondary opacity-80" vectorEffect="non-scaling-stroke" />
-           <polyline points={ptsExpense} fill="none" stroke="currentColor" strokeWidth="2" className="text-error opacity-80" vectorEffect="non-scaling-stroke" />
-           <polyline points={ptsNet} fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="4,2" className="text-primary" vectorEffect="non-scaling-stroke" />
-           
-           {data.map((d, i) => {
-             const x = data.length > 1 ? (i / (data.length - 1)) * 100 : 50;
-             const yInc = 100 - (d.income / maxVal) * 100;
-             const yExp = 100 - (d.expense / maxVal) * 100;
-             const netVal = d.net !== undefined ? d.net : (d.income - d.expense);
-             const yNet = 100 - (Math.max(netVal, 0) / maxVal) * 100;
-             return (
-               <g key={i}>
-                 <circle cx={x} cy={yInc} r="4" fill="currentColor" className="text-secondary drop-shadow-md cursor-pointer transition-transform hover:r-6 opacity-80" vectorEffect="non-scaling-stroke" />
-                 <circle cx={x} cy={yExp} r="4" fill="currentColor" className="text-error drop-shadow-md cursor-pointer transition-transform hover:r-6 opacity-80" vectorEffect="non-scaling-stroke" />
-                 <circle cx={x} cy={yNet} r="4" fill="currentColor" className="text-primary drop-shadow-md cursor-pointer transition-transform hover:r-6" vectorEffect="non-scaling-stroke" />
-               </g>
-             );
-           })}
-         </svg>
+    <div className="w-full">
+      <div className="flex">
+        <div className="relative h-[220px] w-10 shrink-0 sm:w-12">
+          {ticks.map((tick) => (
+            <span
+              key={tick}
+              className="absolute right-2 -translate-y-1/2 text-[10px] font-medium tabular-nums text-on-surface-variant sm:right-3"
+              style={{ top: `${100 - yPct(tick)}%` }}
+            >
+              {compactCurrency(tick)}
+            </span>
+          ))}
+        </div>
 
-         {/* Interactive Tooltip Overlay */}
-         <div className="absolute inset-0 flex justify-between z-10">
-           {data.map((d, i) => (
-             <div key={i} className="flex-1 group relative h-full flex justify-center">
-                <div className="absolute top-1/2 -translate-y-1/2 hidden group-hover:block w-max max-w-[150px] bg-inverse-surface text-inverse-on-surface text-[10px] p-3 rounded shadow-lg pointer-events-none">
-                  <div className="font-semibold mb-1">{d.label}</div>
-                  <div className="text-secondary font-medium">Income: {formatCurrency(d.income)}</div>
-                  <div className="text-error font-medium">Expense: {formatCurrency(d.expense)}</div>
-                  <div className="text-primary font-bold mt-1 pt-1 border-t border-inverse-on-surface/20">Net: {formatCurrency(d.net !== undefined ? d.net : (d.income - d.expense))}</div>
+        <div className="relative h-[220px] min-w-0 flex-1 border-b border-surface-container-high">
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full overflow-visible">
+            {ticks.map((tick) => (
+              <line
+                key={tick}
+                x1="0"
+                y1={100 - yPct(tick)}
+                x2="100"
+                y2={100 - yPct(tick)}
+                stroke="currentColor"
+                className="text-surface-container-high"
+                strokeWidth="1"
+                vectorEffect="non-scaling-stroke"
+              />
+            ))}
+            <polyline points={toPoints('income')} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-secondary" vectorEffect="non-scaling-stroke" />
+            <polyline points={toPoints('expense')} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-error" vectorEffect="non-scaling-stroke" />
+            <polyline points={toPoints('net')} fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="4 3" className="text-[#243B53]" vectorEffect="non-scaling-stroke" />
+          </svg>
+
+          {series.map((d, i) => (
+            <span key={`m-${i}`}>
+              <span className="absolute h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-secondary" style={{ left: `${xPct(i)}%`, top: `${100 - yPct(d.income)}%` }} />
+              <span className="absolute h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-error" style={{ left: `${xPct(i)}%`, top: `${100 - yPct(d.expense)}%` }} />
+              <span className="absolute h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#243B53]" style={{ left: `${xPct(i)}%`, top: `${100 - yPct(d.net)}%` }} />
+            </span>
+          ))}
+
+          <div className="absolute inset-0 z-10 flex">
+            {series.map((d, i) => (
+              <div key={i} className="group relative h-full flex-1">
+                <div className="pointer-events-none absolute left-1/2 top-1/2 hidden w-max max-w-[150px] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-inverse-surface p-3 text-[10px] text-inverse-on-surface group-hover:block">
+                  <div className="mb-1 font-semibold">{d.label}</div>
+                  <div className="font-medium text-secondary">Income: {formatCurrency(d.income)}</div>
+                  <div className="font-medium text-error">Expense: {formatCurrency(d.expense)}</div>
+                  <div className="mt-1 border-t border-inverse-on-surface/20 pt-1 font-bold text-[#243B53]">Net: {formatCurrency(d.net)}</div>
                 </div>
-             </div>
-           ))}
-         </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
-      <div className="flex justify-between mt-2 text-on-surface-variant font-label-sm">
-        {data.map((d, i) => (
-          <span key={i} className="text-center w-full truncate px-1 text-[10px]">{d.label}</span>
+
+      <div className="ml-10 mt-2 flex justify-between sm:ml-12">
+        {series.map((d, i) => (
+          <span key={i} className={`flex-1 truncate px-0.5 text-center text-[10px] font-medium text-on-surface-variant ${series.length > 8 && i % 2 !== 0 ? 'invisible' : ''}`}>
+            {d.label}
+          </span>
         ))}
       </div>
-      <div className="flex justify-center gap-6 mt-4">
+
+      <div className="mt-4 flex justify-center gap-6">
         <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-secondary"></span>
+          <span className="h-3 w-3 rounded-full bg-secondary"></span>
           <span className="text-[10px] font-medium text-on-surface">Income</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-error"></span>
+          <span className="h-3 w-3 rounded-full bg-error"></span>
           <span className="text-[10px] font-medium text-on-surface">Expense</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-3 h-0 border-t-2 border-dashed border-primary"></span>
+          <span className="h-0 w-3 border-t-[3px] border-dashed border-[#243B53]"></span>
           <span className="text-[10px] font-medium text-on-surface">Net Cash Flow</span>
         </div>
       </div>
@@ -265,7 +311,7 @@ export default function DashboardPage() {
       };
     }
     if (t.type === 'income') trendDataMap[month].income += parseFloat(t.amount);
-    if (t.type === 'expense') trendDataMap[month].expense += parseFloat(t.amount);
+    if (t.type === 'expense') trendDataMap[month].expense += Math.abs(parseFloat(t.amount));
   });
   
   // Sort chronologically
