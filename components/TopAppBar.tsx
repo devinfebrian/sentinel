@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ArrowLeftStartOnRectangleIcon,
-  BellIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   ClockIcon,
@@ -63,15 +62,6 @@ export default function TopAppBar() {
 
       <div className="flex shrink-0 items-center gap-1.5 sm:gap-4">
         {/* Hide these placeholder buttons on mobile to save space */}
-        <button
-          type="button"
-          disabled
-          aria-label="Notifications"
-          className="hidden sm:flex h-10 w-10 items-center justify-center rounded-full bg-surface-container text-on-surface-variant transition-colors hover:bg-surface-container-high disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <BellIcon aria-hidden="true" className="h-6 w-6" />
-        </button>
-
         <button
           type="button"
           disabled

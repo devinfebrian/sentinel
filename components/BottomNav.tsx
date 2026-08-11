@@ -45,7 +45,7 @@ export default function BottomNav() {
   const extraItems = [
     { href: '/findings', icon: ShieldExclamationIcon, label: 'Findings' },
     { href: '/ask', icon: SparklesIcon, label: 'Ask Sentinel', soon: true },
-    ...(isAdmin ? [{ href: '/administration', icon: UsersIcon, label: 'User Mgt' }] : []),
+    ...(isAdmin ? [{ href: '/administration', icon: UsersIcon, label: 'User Management' }] : []),
   ];
 
   const hasActiveExtraItem = extraItems.some(
