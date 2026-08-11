@@ -328,7 +328,7 @@ export default function DashboardPage() {
       <header className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
         <div>
           <h1 className="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">
-            Overview
+            Dashboard
           </h1>
           <p className="font-body-md text-body-md text-on-surface-variant mt-2">
             Financial performance and AI audit insights across the transactions.
