@@ -11,8 +11,8 @@ import RippleButton, {
   PRIMARY_ACTION_CLASSES,
   SECONDARY_ACTION_CLASSES,
 } from '@/components/common/RippleButton';
-import { 
-  listTransactionsApi, 
+import {
+  listTransactionsApi,
   createTransactionApi,
   updateTransactionApi,
   getTransactionCategoriesApi,
@@ -37,11 +37,10 @@ function TypeChip({ type }: { type: string }) {
   const income = type === 'income';
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-wide ${
-        income
-          ? 'bg-secondary-container text-on-secondary-container'
-          : 'bg-error-container text-on-error-container'
-      }`}
+      className={`inline-flex items-center rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-wide ${income
+        ? 'bg-secondary-container text-on-secondary-container'
+        : 'bg-error-container text-on-error-container'
+        }`}
     >
       {type}
     </span>
@@ -79,7 +78,7 @@ function TransactionDialog({
 
   const [categories, setCategories] = useState<string[]>([]);
   const [vendors, setVendors] = useState<Vendor[]>([]);
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -195,77 +194,77 @@ function TransactionDialog({
       }
     >
       <form id="tx-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
-            {error && <div className="text-error font-body-sm bg-error-container/20 p-3 rounded-lg">{error}</div>}
-            
-            {/* Tanggal tidak lagi diisi pengguna: transaksi berasal dari mutasi
+        {error && <div className="text-error font-body-sm bg-error-container/20 p-3 rounded-lg">{error}</div>}
+
+        {/* Tanggal tidak lagi diisi pengguna: transaksi berasal dari mutasi
                 bank, dan waktu pencatatannya (created_at) ditulis server. */}
-            <div className="grid grid-cols-1 gap-4">
-              <div className="flex flex-col gap-2">
-                <label className="font-label-sm text-label-sm font-semibold text-on-surface">Type</label>
-                <select
-                  className="px-3 py-2 bg-surface-container-low border border-outline-variant/50 rounded-lg text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
-                  value={type}
-                  onChange={(e) => setType(e.target.value)}
-                >
-                  <option value="expense">Expense</option>
-                  <option value="income">Income</option>
-                </select>
-              </div>
-            </div>
+        <div className="grid grid-cols-1 gap-4">
+          <div className="flex flex-col gap-2">
+            <label className="font-label-sm text-label-sm font-semibold text-on-surface">Type</label>
+            <select
+              className="px-3 py-2 bg-surface-container-low border border-outline-variant/50 rounded-lg text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
+              value={type}
+              onChange={(e) => setType(e.target.value)}
+            >
+              <option value="expense">Expense</option>
+              <option value="income">Income</option>
+            </select>
+          </div>
+        </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-2">
-                <label className="font-label-sm text-label-sm font-semibold text-on-surface">Amount</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  required
-                  className="px-3 py-2 bg-surface-container-low border border-outline-variant/50 rounded-lg text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
-                  placeholder="0.00"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <label className="font-label-sm text-label-sm font-semibold text-on-surface">Category</label>
-                <select
-                  required
-                  className="px-3 py-2 bg-surface-container-low border border-outline-variant/50 rounded-lg text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                >
-                  {categories.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col gap-2">
+            <label className="font-label-sm text-label-sm font-semibold text-on-surface">Amount</label>
+            <input
+              type="number"
+              step="0.01"
+              min="0.01"
+              required
+              className="px-3 py-2 bg-surface-container-low border border-outline-variant/50 rounded-lg text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
+              placeholder="0.00"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="font-label-sm text-label-sm font-semibold text-on-surface">Category</label>
+            <select
+              required
+              className="px-3 py-2 bg-surface-container-low border border-outline-variant/50 rounded-lg text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+            >
+              {categories.map(cat => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+          </div>
+        </div>
 
-            <div className="flex flex-col gap-2">
-              <label className="font-label-sm text-label-sm font-semibold text-on-surface">Vendor (Optional)</label>
-              <select
-                className="px-3 py-2 bg-surface-container-low border border-outline-variant/50 rounded-lg text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
-                value={vendorId}
-                onChange={(e) => setVendorId(e.target.value)}
-              >
-                <option value="">-- No Vendor --</option>
-                {vendors.map(v => (
-                  <option key={v.id} value={v.id.toString()}>{v.vendor_name}</option>
-                ))}
-              </select>
-            </div>
+        <div className="flex flex-col gap-2">
+          <label className="font-label-sm text-label-sm font-semibold text-on-surface">Vendor (Optional)</label>
+          <select
+            className="px-3 py-2 bg-surface-container-low border border-outline-variant/50 rounded-lg text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
+            value={vendorId}
+            onChange={(e) => setVendorId(e.target.value)}
+          >
+            <option value="">-- No Vendor --</option>
+            {vendors.map(v => (
+              <option key={v.id} value={v.id.toString()}>{v.vendor_name}</option>
+            ))}
+          </select>
+        </div>
 
-            <div className="flex flex-col gap-2">
-              <label className="font-label-sm text-label-sm font-semibold text-on-surface">Description</label>
-              <textarea
-                required
-                className="px-3 py-2 bg-surface-container-low border border-outline-variant/50 rounded-lg text-on-surface focus:outline-none focus:ring-1 focus:ring-primary resize-none h-20"
-                placeholder="Transaction details..."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </div>
+        <div className="flex flex-col gap-2">
+          <label className="font-label-sm text-label-sm font-semibold text-on-surface">Description</label>
+          <textarea
+            required
+            className="px-3 py-2 bg-surface-container-low border border-outline-variant/50 rounded-lg text-on-surface focus:outline-none focus:ring-1 focus:ring-primary resize-none h-20"
+            placeholder="Transaction details..."
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+        </div>
       </form>
     </Modal>
   );
@@ -275,7 +274,7 @@ export default function TransactionsPage() {
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState<string | null>(null);
-  
+
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [totalItems, setTotalItems] = useState(0);
@@ -289,12 +288,12 @@ export default function TransactionsPage() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  
+
   const [txToEdit, setTxToEdit] = useState<Transaction | null>(null);
 
   const [allCategories, setAllCategories] = useState<string[]>([]);
   const [allVendors, setAllVendors] = useState<Vendor[]>([]);
-  
+
   const accessToken = useAuthStore((s) => s.accessToken);
 
   // Fetch all categories for filter dropdown
@@ -491,98 +490,98 @@ export default function TransactionsPage() {
         </div>
 
         <div className="overflow-hidden rounded-xl border border-surface-container-high bg-surface card-shadow">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[960px] border-collapse text-left">
-            <thead>
-              <tr className="border-b border-surface-container-high bg-surface-container-highest/30 font-label-sm text-label-sm text-on-surface-variant">
-                <th className="w-12 px-4 py-3 text-center font-semibold">No.</th>
-                <th className="px-4 py-3 text-center font-semibold">Date</th>
-                <th className="w-[25%] px-4 py-3 text-center font-semibold">Description</th>
-                <th className="px-4 py-3 text-center font-semibold">Category</th>
-                <th className="px-4 py-3 text-center font-semibold">Type</th>
-                <th className="px-4 py-3 text-center font-semibold">Vendor</th>
-                <th className="px-4 py-3 text-center font-semibold">Amount</th>
-                <th className="w-16 px-4 py-3 text-center font-semibold">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-surface-container-high font-table-data text-table-data text-on-surface">
-              {filteredTransactions.length === 0 && !isLoading && (
-                <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-on-surface-variant">
-                    No transactions found matching criteria.
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[960px] border-collapse text-left">
+              <thead>
+                <tr className="border-b border-surface-container-high bg-surface-container-highest/30 font-label-sm text-label-sm text-on-surface-variant">
+                  <th className="w-12 px-4 py-3 text-center font-semibold">No.</th>
+                  <th className="px-4 py-3 text-center font-semibold">Date</th>
+                  <th className="w-[25%] px-4 py-3 text-center font-semibold">Description</th>
+                  <th className="px-4 py-3 text-center font-semibold">Category</th>
+                  <th className="px-4 py-3 text-center font-semibold">Type</th>
+                  <th className="px-4 py-3 text-center font-semibold">Vendor</th>
+                  <th className="px-4 py-3 text-center font-semibold">Amount</th>
+                  <th className="w-16 px-4 py-3 text-center font-semibold">Actions</th>
                 </tr>
-              )}
-              {paginatedTransactions.map((tx, idx) => {
-                const dateStr = formatDate(tx.created_at);
-                const absoluteIndex = (currentPage - 1) * itemsPerPage + idx + 1;
-                
-                return (
-                  <tr key={tx.id} className="transition-colors hover:bg-surface-container-low">
-                    <td className="px-4 py-3 text-center text-on-surface-variant">
-                      {absoluteIndex}
+              </thead>
+              <tbody className="divide-y divide-surface-container-high font-table-data text-table-data text-on-surface">
+                {filteredTransactions.length === 0 && !isLoading && (
+                  <tr>
+                    <td colSpan={8} className="px-4 py-8 text-center text-on-surface-variant">
+                      No transactions found matching criteria.
                     </td>
-                    <td className="px-4 py-3 text-center text-on-surface-variant">{dateStr}</td>
-                    {/* title, not a custom tooltip: the row lives inside an
+                  </tr>
+                )}
+                {paginatedTransactions.map((tx, idx) => {
+                  const dateStr = formatDate(tx.created_at);
+                  const absoluteIndex = (currentPage - 1) * itemsPerPage + idx + 1;
+
+                  return (
+                    <tr key={tx.id} className="transition-colors hover:bg-surface-container-low">
+                      <td className="px-4 py-3 text-center text-on-surface-variant">
+                        {absoluteIndex}
+                      </td>
+                      <td className="px-4 py-3 text-center text-on-surface-variant">{dateStr}</td>
+                      {/* title, not a custom tooltip: the row lives inside an
                         overflow-x-auto scroller that would clip a positioned
                         one, and the native bubble is the only thing that can
                         escape it. */}
-                    <td
-                      className="max-w-xs truncate px-4 py-3 font-medium"
-                      title={tx.description}
-                    >
-                      {tx.description}
-                    </td>
-                    <td className="px-4 py-3 text-center">{tx.category}</td>
-                    <td className="px-4 py-3 text-center">
-                      <TypeChip type={tx.type} />
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      {tx.vendor_name ? (
-                        <button 
-                          type="button"
-                          className="font-medium text-secondary hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-container"
-                          onClick={() => setSelectedVendor(tx.vendor_name)}
-                        >
-                          {tx.vendor_name}
-                        </button>
-                      ) : (
-                        <span className="text-on-surface-variant">-</span>
-                      )}
-                    </td>
-                    <td className={`px-4 py-3 text-right font-medium ${tx.type === 'income' ? 'text-secondary' : ''}`}>
-                      {formatCurrency(tx.amount, tx.type)}
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <div className="flex justify-center gap-1">
-                        <button 
-                          type="button"
-                          aria-label="Edit transaction"
-                          className="rounded-md p-1.5 text-on-surface-variant transition-colors hover:bg-surface-container hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-container"
-                          onClick={() => handleEditClick(tx)}
-                        >
-                          <PencilSquareIcon aria-hidden="true" className="h-[18px] w-[18px]" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                      <td
+                        className="max-w-xs truncate px-4 py-3 font-medium"
+                        title={tx.description}
+                      >
+                        {tx.description}
+                      </td>
+                      <td className="px-4 py-3 text-center">{tx.category}</td>
+                      <td className="px-4 py-3 text-center">
+                        <TypeChip type={tx.type} />
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        {tx.vendor_name ? (
+                          <button
+                            type="button"
+                            className="font-medium text-secondary hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-container"
+                            onClick={() => setSelectedVendor(tx.vendor_name)}
+                          >
+                            {tx.vendor_name}
+                          </button>
+                        ) : (
+                          <span className="text-on-surface-variant">-</span>
+                        )}
+                      </td>
+                      <td className={`px-4 py-3 text-right font-medium ${tx.type === 'income' ? 'text-secondary' : ''}`}>
+                        {formatCurrency(tx.amount, tx.type)}
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <div className="flex justify-center gap-1">
+                          <button
+                            type="button"
+                            aria-label="Edit transaction"
+                            className="rounded-md p-1.5 text-on-surface-variant transition-colors hover:bg-surface-container hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-container"
+                            onClick={() => handleEditClick(tx)}
+                          >
+                            <PencilSquareIcon aria-hidden="true" className="h-[18px] w-[18px]" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPageCount}
+            itemsPerPage={itemsPerPage}
+            totalItems={totalFiltered}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={(limit) => {
+              setItemsPerPage(limit);
+              setCurrentPage(1);
+            }}
+          />
         </div>
-        <Pagination 
-          currentPage={currentPage}
-          totalPages={totalPageCount}
-          itemsPerPage={itemsPerPage}
-          totalItems={totalFiltered}
-          onPageChange={setCurrentPage}
-          onItemsPerPageChange={(limit) => {
-            setItemsPerPage(limit);
-            setCurrentPage(1);
-          }}
-        />
-      </div>
       </div>
 
       <ImportDialog isOpen={isImportOpen} onClose={() => setIsImportOpen(false)} />

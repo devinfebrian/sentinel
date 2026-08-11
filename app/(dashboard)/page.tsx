@@ -181,7 +181,7 @@ export default function OverviewPage() {
         </div>
 
         <BlurFade inView delay={0.1} className="h-full lg:col-span-1">
-          <div className="h-full rounded-xl card-shadow">
+          <div className="block h-full rounded-xl card-shadow">
             <MagicCard className="h-full rounded-xl">
               <section className="relative flex h-full flex-col p-6">
                 <h2 className="font-headline-md text-headline-md text-on-surface">Quick start</h2>
