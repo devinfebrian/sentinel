@@ -546,13 +546,13 @@ export default function DashboardPage() {
                       {/* Findings carry one narrative, not a title/category pair —
                           the Category column was showing undefined for every row. */}
                       <td className="max-w-md truncate px-4 py-3 font-medium">{finding.description}</td>
-                      <td className="px-4 py-3 font-semibold text-on-surface">{finding.risk_score}</td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 text-center font-semibold text-on-surface">{finding.risk_score}</td>
+                      <td className="px-4 py-3 text-center">
                         <Badge tone={RISK_TONES[finding.risk_level]} dot>
                           {RISK_LABELS[finding.risk_level]}
                         </Badge>
                       </td>
-                      <td className="px-4 py-3 text-on-surface-variant">
+                      <td className="px-4 py-3 text-center text-on-surface-variant">
                         {finding.resolution ? 'Resolved' : 'Open'}
                       </td>
                     </tr>

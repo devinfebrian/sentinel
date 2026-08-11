@@ -10,10 +10,10 @@ import { cn } from '@/lib/utils';
 export type BadgeTone = 'critical' | 'high' | 'medium' | 'low' | 'neutral' | 'success';
 
 const TONE_CLASSES: Record<BadgeTone, string> = {
-  critical: 'bg-error/10 text-error',
-  high: 'bg-tertiary/10 text-tertiary',
-  medium: 'bg-secondary-container text-on-secondary-container',
-  low: 'bg-surface-container-highest text-on-surface-variant',
+  critical: 'bg-red-600 text-white',
+  high: 'bg-rose-400 text-white',
+  medium: 'bg-amber-400 text-white',
+  low: 'bg-emerald-500 text-white',
   neutral: 'bg-surface-container-high text-on-surface-variant',
   success: 'bg-secondary/10 text-secondary',
 };
