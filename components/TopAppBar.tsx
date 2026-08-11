@@ -8,6 +8,7 @@ import {
   ChevronUpIcon,
   ClockIcon,
   Cog6ToothIcon,
+  KeyIcon,
 } from '@heroicons/react/24/outline';
 import { useAuthStore } from '@/lib/stores/auth.store';
 
@@ -123,6 +124,18 @@ export default function TopAppBar() {
                     {roleLabel}
                   </p>
                 </div>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    router.push('/change-password');
+                  }}
+                  className="flex items-center gap-2 px-4 py-3 text-left font-label-sm font-bold text-on-surface transition-colors hover:bg-surface-container-high"
+                >
+                  <KeyIcon aria-hidden="true" className="h-[18px] w-[18px]" />
+                  Setup / Change Password
+                </button>
                 <button
                   type="button"
                   role="menuitem"
