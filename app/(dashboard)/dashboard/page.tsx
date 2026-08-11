@@ -315,10 +315,10 @@ export default function DashboardPage() {
   const aiSummary = { totalFindings, highRisk, criticalRisk, mediumRisk, lowRisk };
   
   const riskDistribution = [
-    { level: 'Critical', count: criticalRisk, color: 'bg-error text-on-error' },
-    { level: 'High', count: highRisk, color: 'bg-error-container text-on-error-container' },
-    { level: 'Medium', count: mediumRisk, color: 'bg-secondary-container text-on-secondary-container' },
-    { level: 'Low', count: lowRisk, color: 'bg-surface-container-highest text-on-surface' },
+    { level: 'Critical', count: criticalRisk, color: 'bg-red-600' },
+    { level: 'High', count: highRisk, color: 'bg-rose-400' },
+    { level: 'Medium', count: mediumRisk, color: 'bg-amber-400' },
+    { level: 'Low', count: lowRisk, color: 'bg-emerald-500' },
   ];
 
   const recentFindings = filteredFindings.slice(0, 5);
@@ -423,21 +423,21 @@ export default function DashboardPage() {
                  <span className="font-label-sm text-outline uppercase tracking-wider">Total Findings</span>
                  <span className="font-headline-sm text-on-surface">{aiSummary.totalFindings}</span>
                </div>
-               <div className="flex flex-col gap-1 p-3 rounded-lg bg-error/20 border border-error">
-                 <span className="font-label-sm text-error uppercase tracking-wider">Critical Risk</span>
-                 <span className="font-headline-sm text-error">{aiSummary.criticalRisk}</span>
+               <div className="flex flex-col gap-1 p-3 rounded-lg bg-red-100 border border-red-200">
+                 <span className="font-label-sm text-red-800 uppercase tracking-wider">Critical Risk</span>
+                 <span className="font-headline-sm text-red-800">{aiSummary.criticalRisk}</span>
                </div>
-               <div className="flex flex-col gap-1 p-3 rounded-lg bg-error-container/20 border border-error-container">
-                 <span className="font-label-sm text-error uppercase tracking-wider">High Risk</span>
-                 <span className="font-headline-sm text-error">{aiSummary.highRisk}</span>
+               <div className="flex flex-col gap-1 p-3 rounded-lg bg-rose-50 border border-rose-200">
+                 <span className="font-label-sm text-rose-700 uppercase tracking-wider">High Risk</span>
+                 <span className="font-headline-sm text-rose-700">{aiSummary.highRisk}</span>
                </div>
-               <div className="flex flex-col gap-1 p-3 rounded-lg bg-secondary-container/30 border border-secondary-container">
-                 <span className="font-label-sm text-secondary uppercase tracking-wider">Medium Risk</span>
-                 <span className="font-headline-sm text-secondary">{aiSummary.mediumRisk}</span>
+               <div className="flex flex-col gap-1 p-3 rounded-lg bg-amber-50 border border-amber-200">
+                 <span className="font-label-sm text-amber-800 uppercase tracking-wider">Medium Risk</span>
+                 <span className="font-headline-sm text-amber-800">{aiSummary.mediumRisk}</span>
                </div>
-               <div className="flex flex-col gap-1 p-3 rounded-lg bg-surface-container border border-surface-container-high">
-                 <span className="font-label-sm text-on-surface-variant uppercase tracking-wider">Low Risk</span>
-                 <span className="font-headline-sm text-on-surface">{aiSummary.lowRisk}</span>
+               <div className="flex flex-col gap-1 p-3 rounded-lg bg-emerald-50 border border-emerald-200">
+                 <span className="font-label-sm text-emerald-800 uppercase tracking-wider">Low Risk</span>
+                 <span className="font-headline-sm text-emerald-800">{aiSummary.lowRisk}</span>
                </div>
             </div>
           </div>

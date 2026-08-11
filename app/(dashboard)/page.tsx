@@ -12,7 +12,6 @@ import { useAuthStore } from '@/lib/stores/auth.store';
 import { formatTimestamp } from '@/lib/format/datetime';
 import type { IconComponent } from '@/lib/types/icon';
 import { BlurFade } from '@/components/ui/blur-fade';
-import { GlareHover } from '@/components/ui/glare-hover';
 import { MagicCard } from '@/components/ui/magic-card';
 import { Particles } from '@/components/ui/particles';
 
@@ -182,44 +181,41 @@ export default function OverviewPage() {
         </div>
 
         <BlurFade inView delay={0.1} className="h-full lg:col-span-1">
-          <GlareHover
-            className="h-full w-full place-items-stretch rounded-xl"
-            color="#edff8c"
-            opacity={0.35}
-            duration={700}
-          >
-            <section className="relative flex h-full flex-col overflow-hidden rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-6 card-shadow">
-              <h2 className="font-headline-md text-headline-md text-on-surface">Quick start</h2>
+          <div className="h-full rounded-xl card-shadow">
+            <MagicCard className="h-full rounded-xl">
+              <section className="relative flex h-full flex-col p-6">
+                <h2 className="font-headline-md text-headline-md text-on-surface">Quick start</h2>
 
-              <ol className="mt-stack-sm space-y-stack-sm">
-                {QUICK_START.map((step, index) => (
-                  <li key={step.href} className="flex gap-4">
-                    <span
-                      aria-hidden="true"
-                      className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-container font-label-sm text-label-sm text-on-primary-container"
-                    >
-                      {index + 1}
-                    </span>
-                    <div className="min-w-0">
-                      <p className="font-body-md text-body-md font-semibold text-on-surface">
-                        {step.title}
-                      </p>
-                      <p className="mt-1 font-body-sm text-body-sm text-on-surface-variant">
-                        {step.body}
-                      </p>
-                      <Link
-                        href={step.href}
-                        className="mt-1.5 inline-flex items-center gap-1 font-label-sm text-label-sm text-primary hover:underline"
+                <ol className="mt-stack-sm space-y-stack-sm">
+                  {QUICK_START.map((step, index) => (
+                    <li key={step.href} className="flex gap-4">
+                      <span
+                        aria-hidden="true"
+                        className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-container font-label-sm text-label-sm text-on-primary-container"
                       >
-                        {step.linkText}
-                        <span aria-hidden="true">&rarr;</span>
-                      </Link>
-                    </div>
-                  </li>
-                ))}
-              </ol>
-            </section>
-          </GlareHover>
+                        {index + 1}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="font-body-md text-body-md font-semibold text-on-surface">
+                          {step.title}
+                        </p>
+                        <p className="mt-1 font-body-sm text-body-sm text-on-surface-variant">
+                          {step.body}
+                        </p>
+                        <Link
+                          href={step.href}
+                          className="mt-1.5 inline-flex items-center gap-1 font-label-sm text-label-sm text-primary hover:underline"
+                        >
+                          {step.linkText}
+                          <span aria-hidden="true">&rarr;</span>
+                        </Link>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            </MagicCard>
+          </div>
         </BlurFade>
       </div>
     </div>
