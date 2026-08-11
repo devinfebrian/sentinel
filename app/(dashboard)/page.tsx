@@ -12,7 +12,6 @@ import { useAuthStore } from '@/lib/stores/auth.store';
 import { formatTimestamp } from '@/lib/format/datetime';
 import type { IconComponent } from '@/lib/types/icon';
 import { BlurFade } from '@/components/ui/blur-fade';
-import { GlareHover } from '@/components/ui/glare-hover';
 import { MagicCard } from '@/components/ui/magic-card';
 import { Particles } from '@/components/ui/particles';
 
@@ -182,7 +181,7 @@ export default function OverviewPage() {
         </div>
 
         <BlurFade inView delay={0.1} className="h-full lg:col-span-1">
-          <div className="block h-full rounded-xl card-shadow">
+          <div className="h-full rounded-xl card-shadow">
             <MagicCard className="h-full rounded-xl">
               <section className="relative flex h-full flex-col p-6">
                 <h2 className="font-headline-md text-headline-md text-on-surface">Quick start</h2>
