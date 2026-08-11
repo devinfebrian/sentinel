@@ -439,12 +439,12 @@ export default function FindingsClient() {
                       <div
                         className={`h-full rounded-full ${
                           level === 'critical'
-                            ? 'bg-error'
+                            ? 'bg-red-600'
                             : level === 'high'
-                              ? 'bg-tertiary'
+                              ? 'bg-rose-400'
                               : level === 'medium'
-                                ? 'bg-secondary'
-                                : 'bg-outline-variant'
+                                ? 'bg-amber-400'
+                                : 'bg-emerald-500'
                         }`}
                         style={{ width: `${width}%` }}
                       />
@@ -512,8 +512,8 @@ export default function FindingsClient() {
                 <th className="w-20 px-6 py-4">ID</th>
                 <th className="w-44 px-6 py-4">Created</th>
                 <th className="min-w-[300px] px-6 py-4">Finding</th>
-                <th className="w-32 px-6 py-4">Risk</th>
-                <th className="w-20 px-6 py-4 text-right">Score</th>
+                <th className="w-32 px-6 py-4 text-center">Risk</th>
+                <th className="w-20 px-6 py-4 text-center">Score</th>
                 <th className="w-12 px-6 py-4" />
               </tr>
             </thead>
@@ -548,7 +548,7 @@ export default function FindingsClient() {
                       </span>
                     )}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 text-center">
                     {f.resolution ? (
                       <Badge tone="success">Resolved</Badge>
                     ) : (
@@ -557,7 +557,7 @@ export default function FindingsClient() {
                       </Badge>
                     )}
                   </td>
-                  <td className="px-6 py-4 text-right font-kpi-value text-body-lg">{f.risk_score}</td>
+                  <td className="px-6 py-4 text-center font-kpi-value text-body-lg">{f.risk_score}</td>
                   <td className="px-6 py-4 text-right">
                     <ChevronRightIcon
                       aria-hidden="true"
