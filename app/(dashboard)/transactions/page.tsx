@@ -359,8 +359,8 @@ export default function TransactionsPage() {
 
   // Local filtering and pagination
   const filteredTransactions = transactions.filter(tx => {
-    if (typeFilter !== 'All' && tx.type !== typeFilter.toLowerCase()) return false;
-    if (categoryFilter !== 'All' && tx.category !== categoryFilter) return false;
+    if (typeFilter !== 'All' && tx.type?.toLowerCase() !== typeFilter.toLowerCase()) return false;
+    if (categoryFilter !== 'All' && tx.category?.toLowerCase() !== categoryFilter.toLowerCase()) return false;
     if (vendorFilter !== 'All' && tx.vendor_id?.toString() !== vendorFilter) return false;
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
