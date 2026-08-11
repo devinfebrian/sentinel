@@ -1,6 +1,6 @@
 // AUTO-GENERATED. Jangan edit. Sumber: snapshot OpenAPI sentinel-agent-server.
 // Regenerasi: npm run contract:pull
-// Fingerprint: 80338f168eb3f0c6
+// Fingerprint: d7bc0a311d1bbef4
 
 export const RISK_LEVELS = ["low", "medium", "high", "critical"] as const;
 export const RESOLUTIONS = ["justified", "false_positive", "confirmed_fraud", "escalated"] as const;
