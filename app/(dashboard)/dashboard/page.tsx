@@ -46,15 +46,15 @@ const RISK_TONES: Record<RiskLevel, BadgeTone> = {
 // --- CHARTS (SVG/CSS based) ---
 
 function SimpleLineChart({ data }: { data: { label: string; income: number; expense: number; net?: number }[] }) {
-  if (data.length === 0) return <div className="h-64 flex items-center justify-center text-on-surface-variant font-body-sm">No data</div>;
+  if (data.length === 0) return <div className="h-full min-h-[220px] flex items-center justify-center text-on-surface-variant font-body-sm">No transaction data available</div>;
 
   const series = data.map((d) => ({
     ...d,
     net: d.net !== undefined ? d.net : d.income - d.expense,
   }));
 
-  const rawMin = Math.min(0, ...series.flatMap((d) => [d.income, d.expense, d.net]));
-  const rawMax = Math.max(0, ...series.flatMap((d) => [d.income, d.expense, d.net]));
+  const rawMax = Math.max(0, ...series.flatMap((d) => [d.income, d.net]));
+  const rawMin = Math.min(0, ...series.flatMap((d) => [-d.expense, d.net]));
 
   let minVal = rawMin;
   let maxVal = rawMax;
@@ -68,8 +68,19 @@ function SimpleLineChart({ data }: { data: { label: string; income: number; expe
     const step = niceFraction * 10 ** exponent;
     minVal = Math.floor(rawMin / step) * step;
     maxVal = Math.ceil(rawMax / step) * step;
+    
+    // Ensure zero is a tick if data spans positive and negative
+    if (minVal < 0 && maxVal > 0) {
+      minVal = Math.floor(rawMin / step) * step;
+      maxVal = Math.ceil(rawMax / step) * step;
+    }
+    
     for (let v = minVal; v <= maxVal + step * 0.5; v += step) {
       ticks.push(Number(v.toFixed(10)));
+    }
+    if (!ticks.includes(0) && minVal <= 0 && maxVal >= 0) {
+        ticks.push(0);
+        ticks.sort((a,b) => a-b);
     }
   } else {
     ticks = [0];
@@ -77,9 +88,12 @@ function SimpleLineChart({ data }: { data: { label: string; income: number; expe
 
   const span = Math.max(maxVal - minVal, 1e-9);
   const yPct = (v: number) => ((v - minVal) / span) * 100;
-  const xPct = (i: number) => (series.length > 1 ? (i / (series.length - 1)) * 100 : 50);
+  
+  const xPadding = series.length === 1 ? 50 : 8; 
+  const availableWidth = 100 - xPadding * 2;
+  const xPct = (i: number) => series.length > 1 ? xPadding + (i / (series.length - 1)) * availableWidth : 50;
 
-  const toPoints = (key: 'income' | 'expense' | 'net') =>
+  const toPoints = (key: 'net') =>
     series.map((d, i) => `${xPct(i)},${100 - yPct(d[key])}`).join(' ');
 
   const compactCurrency = (v: number) => {
@@ -93,13 +107,13 @@ function SimpleLineChart({ data }: { data: { label: string; income: number; expe
   };
 
   return (
-    <div className="w-full">
-      <div className="flex">
-        <div className="relative h-[220px] w-10 shrink-0 sm:w-12">
+    <div className="w-full flex-1 flex flex-col min-h-0">
+      <div className="flex flex-1 min-h-[220px] relative">
+        <div className="relative w-10 shrink-0 sm:w-12 h-full">
           {ticks.map((tick) => (
             <span
               key={tick}
-              className="absolute right-2 -translate-y-1/2 text-[10px] font-medium tabular-nums text-on-surface-variant sm:right-3"
+              className="absolute right-2 -translate-y-1/2 text-[9px] sm:text-[10px] font-medium tabular-nums text-on-surface-variant sm:right-3"
               style={{ top: `${100 - yPct(tick)}%` }}
             >
               {compactCurrency(tick)}
@@ -107,7 +121,8 @@ function SimpleLineChart({ data }: { data: { label: string; income: number; expe
           ))}
         </div>
 
-        <div className="relative h-[220px] min-w-0 flex-1 border-b border-surface-container-high">
+        <div className="relative min-w-0 flex-1 border-b border-surface-container-high h-full">
+          {/* Background Grid Lines */}
           <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full overflow-visible">
             {ticks.map((tick) => (
               <line
@@ -117,32 +132,101 @@ function SimpleLineChart({ data }: { data: { label: string; income: number; expe
                 x2="100"
                 y2={100 - yPct(tick)}
                 stroke="currentColor"
-                className="text-surface-container-high"
-                strokeWidth="1"
+                className={tick === 0 ? "text-on-surface-variant opacity-40" : "text-surface-container-high"}
+                strokeWidth={tick === 0 ? "2" : "1"}
                 vectorEffect="non-scaling-stroke"
               />
             ))}
-            <polyline points={toPoints('income')} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-secondary" vectorEffect="non-scaling-stroke" />
-            <polyline points={toPoints('expense')} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-error" vectorEffect="non-scaling-stroke" />
-            <polyline points={toPoints('net')} fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="4 3" className="text-[#243B53]" vectorEffect="non-scaling-stroke" />
           </svg>
 
+          {/* HTML Bars */}
+          <div className="absolute inset-0 w-full h-full pointer-events-none z-0">
+            {series.map((d, i) => {
+              const x = xPct(i);
+              const bottomZeroPct = yPct(0);
+              const incomeHeight = Math.max(0, yPct(d.income) - yPct(0));
+              const expenseHeight = Math.max(0, yPct(0) - yPct(-d.expense));
+              const barWidthPct = Math.max(2, Math.min(8, 60 / Math.max(series.length, 1)));
+              
+              return (
+                <div 
+                  key={`bars-${i}`} 
+                  className="absolute top-0 bottom-0 flex flex-col items-center" 
+                  style={{ 
+                    left: `${x}%`, 
+                    transform: 'translateX(-50%)', 
+                    width: `${barWidthPct}%`, 
+                    maxWidth: '48px', 
+                    minWidth: '12px' 
+                  }}
+                >
+                   {incomeHeight > 0 && (
+                     <div 
+                       className="absolute bg-[#596B00] w-full"
+                       style={{
+                         bottom: `${bottomZeroPct}%`,
+                         height: `${incomeHeight}%`,
+                         borderTopLeftRadius: '5px',
+                         borderTopRightRadius: '5px',
+                       }}
+                     />
+                   )}
+                   {expenseHeight > 0 && (
+                     <div 
+                       className="absolute bg-error w-full"
+                       style={{
+                         top: `${100 - bottomZeroPct}%`,
+                         height: `${expenseHeight}%`,
+                         borderBottomLeftRadius: '5px',
+                         borderBottomRightRadius: '5px',
+                       }}
+                     />
+                   )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Foreground Line */}
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full overflow-visible pointer-events-none z-10">
+            <polyline 
+              points={toPoints('net')} 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2.5" 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              className="text-[#243B53]" 
+              vectorEffect="non-scaling-stroke" 
+            />
+          </svg>
+
+          {/* Points */}
           {series.map((d, i) => (
-            <span key={`m-${i}`}>
-              <span className="absolute h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-secondary" style={{ left: `${xPct(i)}%`, top: `${100 - yPct(d.income)}%` }} />
-              <span className="absolute h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-error" style={{ left: `${xPct(i)}%`, top: `${100 - yPct(d.expense)}%` }} />
-              <span className="absolute h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#243B53]" style={{ left: `${xPct(i)}%`, top: `${100 - yPct(d.net)}%` }} />
-            </span>
+            <span 
+              key={`m-${i}`}
+              className="absolute h-[7px] w-[7px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#243B53] shadow-sm ring-[1.5px] ring-surface pointer-events-none z-10"
+              style={{ left: `${xPct(i)}%`, top: `${100 - yPct(d.net)}%` }}
+            />
           ))}
 
-          <div className="absolute inset-0 z-10 flex">
+          <div className="absolute inset-0 z-20 flex">
             {series.map((d, i) => (
-              <div key={i} className="group relative h-full flex-1">
-                <div className="pointer-events-none absolute left-1/2 top-1/2 hidden w-max max-w-[150px] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-inverse-surface p-3 text-[10px] text-inverse-on-surface group-hover:block">
-                  <div className="mb-1 font-semibold">{d.label}</div>
-                  <div className="font-medium text-secondary">Income: {formatCurrency(d.income)}</div>
-                  <div className="font-medium text-error">Expense: {formatCurrency(d.expense)}</div>
-                  <div className="mt-1 border-t border-inverse-on-surface/20 pt-1 font-bold text-[#243B53]">Net: {formatCurrency(d.net)}</div>
+              <div key={i} className="group relative h-full flex-1 hover:bg-surface-variant/5 transition-colors">
+                <div className="pointer-events-none absolute left-1/2 top-1/2 hidden w-max max-w-[220px] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-surface p-3 text-[11px] text-on-surface group-hover:block z-50 shadow-lg border border-surface-container-highest">
+                  <div className="mb-2 font-bold text-[12px] border-b border-surface-container-highest pb-1">{d.label}</div>
+                  <div className="flex justify-between gap-4 font-medium text-[#596B00]">
+                    <span>Income:</span>
+                    <span>{formatCurrency(d.income)}</span>
+                  </div>
+                  <div className="flex justify-between gap-4 font-medium text-error mt-0.5">
+                    <span>Expense:</span>
+                    <span>{formatCurrency(d.expense)}</span>
+                  </div>
+                  <div className="flex justify-between gap-4 mt-1.5 border-t border-surface-container-highest pt-1.5 font-bold text-[#243B53]">
+                    <span>Net Cash Flow:</span>
+                    <span>{formatCurrency(d.net)}</span>
+                  </div>
                 </div>
               </div>
             ))}
@@ -150,25 +234,29 @@ function SimpleLineChart({ data }: { data: { label: string; income: number; expe
         </div>
       </div>
 
-      <div className="ml-10 mt-2 flex justify-between sm:ml-12">
+      <div className="ml-10 mt-3 relative h-4 sm:ml-12 shrink-0">
         {series.map((d, i) => (
-          <span key={i} className={`flex-1 truncate px-0.5 text-center text-[10px] font-medium text-on-surface-variant ${series.length > 8 && i % 2 !== 0 ? 'invisible' : ''}`}>
+          <span 
+            key={i} 
+            className={`absolute -translate-x-1/2 text-center text-[10px] font-medium text-on-surface-variant whitespace-nowrap ${series.length > 6 && i % 2 !== 0 ? 'hidden md:block' : ''}`}
+            style={{ left: `${xPct(i)}%` }}
+          >
             {d.label}
           </span>
         ))}
       </div>
 
-      <div className="mt-4 flex justify-center gap-6">
+      <div className="mt-4 flex justify-center gap-6 shrink-0">
         <div className="flex items-center gap-2">
-          <span className="h-3 w-3 rounded-full bg-secondary"></span>
+          <span className="h-3 w-3 rounded-[2px] bg-[#596B00]"></span>
           <span className="text-[10px] font-medium text-on-surface">Income</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="h-3 w-3 rounded-full bg-error"></span>
+          <span className="h-3 w-3 rounded-[2px] bg-error"></span>
           <span className="text-[10px] font-medium text-on-surface">Expense</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="h-0 w-3 border-t-[3px] border-dashed border-[#243B53]"></span>
+          <span className="h-0 w-3 border-t-[3px] border-solid border-[#243B53]"></span>
           <span className="text-[10px] font-medium text-on-surface">Net Cash Flow</span>
         </div>
       </div>
@@ -176,13 +264,15 @@ function SimpleLineChart({ data }: { data: { label: string; income: number; expe
   );
 }
 
-function SimplePieChart({ data }: { data: { label: string; value: number; color: string }[] }) {
-  const total = data.reduce((acc, d) => acc + d.value, 0);
-  if (total === 0) return <div className="h-64 flex items-center justify-center text-on-surface-variant font-body-sm">No data</div>;
+function DonutChart({ data, total }: { data: { label: string; value: number; color: string }[], total: number }) {
+  const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+  const [tooltip, setTooltip] = useState<{ x: number; y: number; data: typeof data[0] } | null>(null);
 
-  const getCoordinatesForPercent = (percent: number) => {
-    const x = Math.cos(2 * Math.PI * percent);
-    const y = Math.sin(2 * Math.PI * percent);
+  if (total === 0 || data.length === 0) return <div className="h-64 flex items-center justify-center text-on-surface-variant font-body-sm">No expense data available</div>;
+
+  const getCoordinatesForPercent = (percent: number, radius: number) => {
+    const x = radius * Math.cos(2 * Math.PI * percent);
+    const y = radius * Math.sin(2 * Math.PI * percent);
     return [x, y];
   };
 
@@ -195,37 +285,111 @@ function SimplePieChart({ data }: { data: { label: string; value: number; color:
   }, [] as (typeof data[0] & { slicePercent: number; startPercent: number; endPercent: number })[]);
 
   return (
-    <div className="flex flex-col md:flex-row items-center justify-center h-full gap-8">
-      <div className="relative w-40 h-40">
-        <svg viewBox="-1 -1 2 2" className="transform -rotate-90 w-full h-full">
+    <div 
+      className="flex flex-row flex-wrap items-center justify-center h-full gap-x-10 gap-y-8 w-full py-4 relative"
+      onClick={() => setSelectedIdx(null)}
+    >
+      <div className="relative w-48 h-48 shrink-0">
+        <svg viewBox="-1 -1 2 2" className="transform -rotate-90 w-full h-full overflow-visible">
           {slices.map((slice, i) => {
-            // If the slice is 100%, render a circle
+            if (slice.slicePercent === 0) return null;
+            
+            const isSelected = selectedIdx === i;
+            const isOtherSelected = selectedIdx !== null && selectedIdx !== i;
+            const currentRadius = isSelected ? 0.84 : 0.8;
+            const strokeW = isSelected ? 0.28 : 0.25;
+            
             if (slice.slicePercent === 1) {
-              return <circle key={i} cx="0" cy="0" r="1" fill={slice.color} />;
+              return (
+                <circle 
+                  key={i} 
+                  cx="0" cy="0" r={currentRadius} fill="none" stroke={slice.color} strokeWidth={strokeW}
+                  className={`transition-all duration-300 cursor-pointer ${isOtherSelected ? 'opacity-40' : 'opacity-100 hover:opacity-85'}`}
+                  onClick={(e) => { e.stopPropagation(); setSelectedIdx(isSelected ? null : i); }}
+                  onMouseEnter={(e) => setTooltip({ x: e.clientX, y: e.clientY, data: slice })}
+                  onMouseMove={(e) => setTooltip(t => t ? { ...t, x: e.clientX, y: e.clientY } : null)}
+                  onMouseLeave={() => setTooltip(null)}
+                />
+              );
             }
 
-            const [startX, startY] = getCoordinatesForPercent(slice.startPercent);
-            const [endX, endY] = getCoordinatesForPercent(slice.endPercent);
-            const largeArcFlag = slice.slicePercent > 0.5 ? 1 : 0;
+            const capPercent = strokeW / (2 * Math.PI * currentRadius);
+            const gapPerSide = slices.length > 1 ? (capPercent + 0.01) / 2 : 0; 
+            let startP = slice.startPercent + gapPerSide;
+            let endP = slice.endPercent - gapPerSide;
+            
+            if (endP <= startP) {
+              const midP = slice.startPercent + slice.slicePercent / 2;
+              startP = midP - 0.00001;
+              endP = midP + 0.00001;
+            }
+
+            const [startX, startY] = getCoordinatesForPercent(startP, currentRadius);
+            const [endX, endY] = getCoordinatesForPercent(endP, currentRadius);
+            const largeArcFlag = endP - startP > 0.5 ? 1 : 0;
             const pathData = [
               `M ${startX} ${startY}`,
-              `A 1 1 0 ${largeArcFlag} 1 ${endX} ${endY}`,
-              `L 0 0`,
+              `A ${currentRadius} ${currentRadius} 0 ${largeArcFlag} 1 ${endX} ${endY}`
             ].join(' ');
 
-            return <path key={i} d={pathData} fill={slice.color} className="transition-all duration-300 hover:opacity-80" />;
+            return (
+              <path 
+                key={i} 
+                d={pathData} 
+                fill="none" 
+                stroke={slice.color} 
+                strokeWidth={strokeW} 
+                strokeLinecap="round" 
+                className={`transition-all duration-300 cursor-pointer ${isOtherSelected ? 'opacity-40' : 'opacity-100 hover:opacity-85'}`}
+                onClick={(e) => { e.stopPropagation(); setSelectedIdx(isSelected ? null : i); }}
+                onMouseEnter={(e) => setTooltip({ x: e.clientX, y: e.clientY, data: slice })}
+                onMouseMove={(e) => setTooltip(t => t ? { ...t, x: e.clientX, y: e.clientY } : null)}
+                onMouseLeave={() => setTooltip(null)}
+              />
+            );
           })}
         </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 pointer-events-none">
+          <span className="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider mb-1 line-clamp-2 text-center break-words">
+            {selectedIdx !== null ? data[selectedIdx].label : "Total Expense"}
+          </span>
+          <span className="text-[14px] font-bold text-on-surface truncate w-full">
+            {selectedIdx !== null ? formatCurrency(data[selectedIdx].value) : formatCurrency(total)}
+          </span>
+        </div>
       </div>
-      <div className="flex flex-col gap-2">
-        {data.map((d, i) => (
-          <div key={i} className="flex items-center gap-2 text-sm text-on-surface">
-            <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: d.color }}></span>
-            <span className="truncate max-w-[120px] font-medium">{d.label}</span>
-            <span className="font-semibold ml-auto">{((d.value / total) * 100).toFixed(0)}%</span>
+      
+      <div className="flex flex-col gap-2 flex-1 min-w-[240px] max-w-full">
+        {data.map((d, i) => {
+          const isSelected = selectedIdx === i;
+          const isOtherSelected = selectedIdx !== null && selectedIdx !== i;
+          return (
+            <div 
+              key={i} 
+              className={`flex items-center gap-3 text-[13px] w-full p-2 rounded-lg cursor-pointer transition-all duration-200 ${isSelected ? 'bg-surface-container-low shadow-sm' : 'hover:bg-surface-container-lowest'} ${isOtherSelected ? 'opacity-50' : 'opacity-100'}`}
+              onClick={(e) => { e.stopPropagation(); setSelectedIdx(isSelected ? null : i); }}
+            >
+              <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: d.color }}></span>
+              <span className={`truncate flex-1 ${isSelected ? 'font-semibold text-on-surface' : 'font-medium text-on-surface-variant'}`}>{d.label}</span>
+              <span className="font-semibold tabular-nums text-on-surface text-right shrink-0">{formatCurrency(d.value)}</span>
+              <span className="font-bold w-10 text-right tabular-nums text-on-surface-variant shrink-0">{((d.value / total) * 100).toFixed(0)}%</span>
+            </div>
+          );
+        })}
+      </div>
+
+      {tooltip && (
+        <div 
+          className="fixed z-50 pointer-events-none bg-inverse-surface text-inverse-on-surface px-3 py-2 rounded-lg text-xs shadow-lg transform -translate-x-1/2 -translate-y-[calc(100%+12px)]"
+          style={{ left: tooltip.x, top: tooltip.y }}
+        >
+          <div className="font-semibold mb-1">{tooltip.data.label}</div>
+          <div className="flex justify-between gap-4">
+            <span>{formatCurrency(tooltip.data.value)}</span>
+            <span className="font-bold">{((tooltip.data.value / total) * 100).toFixed(0)}%</span>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -327,22 +491,31 @@ export default function DashboardPage() {
 
   // Chart Data: Expense Breakdown
   const expenseByCategory: Record<string, number> = {};
+  let trueTotalExpense = 0;
+  
   filteredTransactions.filter(t => t.type === 'expense').forEach(t => {
-    expenseByCategory[t.category] = (expenseByCategory[t.category] || 0) + parseFloat(t.amount);
+    const amount = Math.abs(parseFloat(t.amount));
+    expenseByCategory[t.category] = (expenseByCategory[t.category] || 0) + amount;
+    trueTotalExpense += amount;
   });
   
-  const colors = ['#576400', '#B0CC00', '#D3E646', '#8FA800', '#414D00'];
-  let pieData = Object.keys(expenseByCategory)
+  const top5Colors = ['#576400', '#8FA800', '#B0CC00', '#CFE1CA', '#EDFF8C'];
+  const othersColor = '#D8DFE9';
+  
+  let donutData = Object.keys(expenseByCategory)
     .map(k => ({ label: k, value: expenseByCategory[k] }))
     .sort((a, b) => b.value - a.value);
     
-  if (pieData.length > 5) {
-    const top = pieData.slice(0, 4);
-    const otherVal = pieData.slice(4).reduce((sum, d) => sum + d.value, 0);
-    pieData = [...top, { label: 'Other', value: otherVal }];
+  if (donutData.length > 5) {
+    const top = donutData.slice(0, 5);
+    const otherVal = donutData.slice(5).reduce((sum, d) => sum + d.value, 0);
+    donutData = [...top, { label: 'Others', value: otherVal }];
   }
   
-  const pieChartData = pieData.map((d, i) => ({ ...d, color: colors[i % colors.length] }));
+  const donutChartData = donutData.map((d, i) => ({
+    ...d,
+    color: d.label === 'Others' ? othersColor : top5Colors[i % top5Colors.length]
+  }));
 
   // AI Findings calculations
   const totalFindings = filteredFindings.length;
@@ -399,7 +572,7 @@ export default function DashboardPage() {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 gap-gutter sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { label: 'Total Income', value: totalIncome, icon: ArrowUpIcon, color: 'text-secondary', bg: 'bg-secondary-container text-on-secondary-container' },
+          { label: 'Total Income', value: totalIncome, icon: ArrowUpIcon, color: 'text-[#596B00]', bg: 'bg-[#596B00] text-white' },
           { label: 'Total Expenses', value: totalExpenses, icon: ArrowDownIcon, color: 'text-error', bg: 'bg-error-container text-on-error-container' },
           { label: 'Net Cash Flow', value: netCashFlow, icon: BanknotesIcon, color: netCashFlow >= 0 ? 'text-secondary' : 'text-error', bg: 'bg-primary-container text-on-primary-container' },
           { label: 'Total Transactions', value: txCount, isCount: true, icon: DocumentTextIcon, color: 'text-on-surface', bg: 'bg-surface-container-highest text-on-surface' },
@@ -430,10 +603,10 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
         <div className="lg:col-span-2 overflow-hidden rounded-xl border border-surface-container-high bg-surface p-5 card-shadow flex flex-col">
           <h2 className="font-headline-sm text-headline-sm text-on-surface">Cash Flow Trend</h2>
-          <p className="font-body-sm text-on-surface-variant mb-4">Income and expenses over time.</p>
-          <div className="flex-1 mt-auto">
+          <p className="font-body-sm text-on-surface-variant mb-2">Income and expenses over time.</p>
+          <div className="flex-1 flex flex-col min-h-0">
              {isLoading ? (
-               <div className="h-64 flex items-center justify-center text-on-surface-variant">Loading chart...</div>
+               <div className="flex-1 flex items-center justify-center text-on-surface-variant">Loading chart...</div>
              ) : (
                <SimpleLineChart data={trendData} />
              )}
@@ -446,7 +619,7 @@ export default function DashboardPage() {
              {isLoading ? (
                <div className="h-64 flex items-center justify-center text-on-surface-variant">Loading chart...</div>
              ) : (
-               <SimplePieChart data={pieChartData} />
+               <DonutChart data={donutChartData} total={trueTotalExpense} />
              )}
           </div>
         </div>
@@ -546,13 +719,13 @@ export default function DashboardPage() {
                       {/* Findings carry one narrative, not a title/category pair —
                           the Category column was showing undefined for every row. */}
                       <td className="max-w-md truncate px-4 py-3 font-medium">{finding.description}</td>
-                      <td className="px-4 py-3 font-semibold text-on-surface">{finding.risk_score}</td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 text-center font-semibold text-on-surface">{finding.risk_score}</td>
+                      <td className="px-4 py-3 text-center">
                         <Badge tone={RISK_TONES[finding.risk_level]} dot>
                           {RISK_LABELS[finding.risk_level]}
                         </Badge>
                       </td>
-                      <td className="px-4 py-3 text-on-surface-variant">
+                      <td className="px-4 py-3 text-center text-on-surface-variant">
                         {finding.resolution ? 'Resolved' : 'Open'}
                       </td>
                     </tr>
