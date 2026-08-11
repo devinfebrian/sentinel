@@ -73,8 +73,8 @@ function VendorDialog({
           onClose();
         }
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to save vendor');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save vendor');
     } finally {
       setIsSubmitting(false);
     }

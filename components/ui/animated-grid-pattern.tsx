@@ -64,6 +64,20 @@ export function AnimatedGridPattern({
     [getPos]
   );
 
+  // Populate the grid once the container has been measured. This is state that
+  // depends on other state, so it adjusts during render (the React-sanctioned
+  // "derive state from props" pattern) rather than in an effect.
+  const [lastMeasured, setLastMeasured] = useState(dimensions);
+  if (
+    lastMeasured.width !== dimensions.width ||
+    lastMeasured.height !== dimensions.height
+  ) {
+    setLastMeasured(dimensions);
+    if (dimensions.width && dimensions.height) {
+      setSquares(generateSquares(numSquares));
+    }
+  }
+
   const updateSquarePosition = useCallback(
     (squareId: number) => {
       setSquares((currentSquares) => {
@@ -82,12 +96,6 @@ export function AnimatedGridPattern({
     },
     [getPos]
   );
-
-  useEffect(() => {
-    if (dimensions.width && dimensions.height) {
-      setSquares(generateSquares(numSquares));
-    }
-  }, [dimensions.width, dimensions.height, generateSquares, numSquares]);
 
   useEffect(() => {
     const element = containerRef.current;

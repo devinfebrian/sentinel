@@ -184,12 +184,19 @@ export default function FindingsClient() {
   }, [accessToken, statusFilter, riskFilter, limit]);
 
   useEffect(() => {
+    // Fetch on mount. This is the React-documented data-fetching-in-effect
+    // pattern — the rule flags it because `load` sets loading synchronously,
+    // but there is no event handler that can trigger the first fetch.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
   }, [load]);
 
   // A finished run changes both the queue and the counts.
   const runStatus = run.status;
   useEffect(() => {
+    // Reload after a backfill completes. Same pattern as above: the trigger is
+    // a state change, not a user event.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (runStatus === 'done') load();
   }, [runStatus, load]);
 
@@ -580,12 +587,14 @@ export default function FindingsClient() {
         </div>
 
         {/* The API takes a limit but has no offset, so this raises the ceiling
-            rather than pretending to paginate. */}
-        {findings.length >= limit && limit < 200 && (
+            rather than pretending to paginate. Backend zod caps the wire value
+            at 100 — a higher request fails validation, so the ceiling has to
+            stop there. */}
+        {findings.length >= limit && limit < 100 && (
           <div className="flex items-center justify-center border-t border-surface-container-high p-4">
             <button
               type="button"
-              onClick={() => setLimit((n) => Math.min(n * 2, 200))}
+              onClick={() => setLimit((n) => Math.min(n * 2, 100))}
               className="font-label-lg text-label-lg text-primary transition-opacity hover:opacity-80"
             >
               Show more

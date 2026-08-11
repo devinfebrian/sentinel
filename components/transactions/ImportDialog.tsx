@@ -1,135 +1,363 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import {
   ArrowRightIcon,
   CheckCircleIcon,
   DocumentArrowUpIcon,
-  SparklesIcon,
+  ExclamationTriangleIcon,
+  XCircleIcon,
 } from '@heroicons/react/24/outline';
 import Modal from '@/components/common/Modal';
+import { useAuthStore } from '@/lib/stores/auth.store';
+import {
+  importTransactionsApi,
+  ApiError,
+  type ImportTransactionRow,
+} from '@/lib/services/api';
+import { parseSpreadsheetFile, type ImportParseResult } from '@/lib/import/parse-file';
 
 interface ImportDialogProps {
   isOpen: boolean;
   onClose: () => void;
+  /** Fired after a successful import so the page can reload its list. */
+  onImported: () => void;
 }
 
-export default function ImportDialog({ isOpen, onClose }: ImportDialogProps) {
-  const [showToast, setShowToast] = useState(false);
+type Step = 'upload' | 'review' | 'done';
 
-  const handleSimulate = () => {
+const MAX_ROWS = 2000;
+
+const ACCEPTED = '.xlsx,.xls,.csv';
+
+export default function ImportDialog({ isOpen, onClose, onImported }: ImportDialogProps) {
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const [step, setStep] = useState<Step>('upload');
+  const [fileName, setFileName] = useState<string | null>(null);
+  const [parsed, setParsed] = useState<ImportParseResult | null>(null);
+  const [parsing, setParsing] = useState(false);
+  const [parseError, setParseError] = useState<string | null>(null);
+  const [importing, setImporting] = useState(false);
+  const [result, setResult] = useState<{
+    inserted: number;
+    rejected: { row: number; message: string }[];
+  } | null>(null);
+
+  const reset = useCallback(() => {
+    setStep('upload');
+    setFileName(null);
+    setParsed(null);
+    setParsing(false);
+    setParseError(null);
+    setImporting(false);
+    setResult(null);
+    if (inputRef.current) inputRef.current.value = '';
+  }, []);
+
+  const handleClose = () => {
+    reset();
     onClose();
-    setShowToast(true);
-    setTimeout(() => {
-      setShowToast(false);
-    }, 3000);
   };
 
+  const handleFile = useCallback(
+    async (file: File) => {
+      if (!file) return;
+      setParsing(true);
+      setParseError(null);
+      setFileName(file.name);
+      try {
+        const result = await parseSpreadsheetFile(file);
+        if (result.rows.length > MAX_ROWS) {
+          setParseError(`Too many rows (${result.rows.length}). Limit is ${MAX_ROWS} per import.`);
+          setStep('upload');
+        } else {
+          setParsed(result);
+          setStep('review');
+        }
+      } catch (error) {
+        setParseError(
+          error instanceof Error ? error.message : 'Could not read that file. Try .xlsx or .csv.'
+        );
+        setStep('upload');
+      } finally {
+        setParsing(false);
+      }
+    },
+    []
+  );
+
+  const handleImport = async () => {
+    if (!accessToken || !parsed) return;
+    setImporting(true);
+    try {
+      const res = await importTransactionsApi(parsed.rows as ImportTransactionRow[], accessToken);
+      setResult({ inserted: res.data.inserted, rejected: res.data.rejected });
+      setStep('done');
+      onImported();
+    } catch (error) {
+      setParseError(error instanceof ApiError ? error.message : 'Import failed. Please retry.');
+      setStep('upload');
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const canImport = (parsed?.rows.length ?? 0) > 0;
+
   return (
-    <>
-      <Modal
-        open={isOpen}
-        onClose={onClose}
-        title="Import Transaction Data"
-        size="xl"
-        bare
-        footer={
+    <Modal
+      open={isOpen}
+      onClose={handleClose}
+      title="Import Transaction Data"
+      size="xl"
+      bare
+      footer={
+        step === 'review' ? (
           <>
             <button
               type="button"
               className="h-10 rounded-lg px-4 font-label-sm text-label-sm text-on-surface-variant transition-colors hover:bg-surface-container"
-              onClick={onClose}
+              onClick={() => {
+                reset();
+              }}
             >
-              Cancel
+              Choose another file
             </button>
             <button
               type="button"
-              className="flex h-10 items-center gap-2 rounded-lg bg-primary-container px-5 font-label-sm text-label-sm text-on-primary-container transition-colors hover:bg-primary-fixed"
-              onClick={handleSimulate}
+              disabled={!canImport || importing}
+              className="flex h-10 items-center gap-2 rounded-lg bg-primary-container px-5 font-label-sm text-label-sm text-on-primary-container transition-colors hover:bg-primary-fixed disabled:cursor-not-allowed disabled:opacity-40"
+              onClick={handleImport}
             >
-              Simulate Upload
-              <ArrowRightIcon aria-hidden="true" className="h-4 w-4" />
+              {importing ? 'Importing…' : `Import ${parsed?.rows.length ?? 0} rows`}
+              {!importing && <ArrowRightIcon aria-hidden="true" className="h-4 w-4" />}
             </button>
           </>
-        }
-      >
-        {/* Stepper. `bare` drops the modal's body padding so this strip can span
-            the full width like the header above it. */}
-        <div className="flex items-center gap-2 border-b border-surface-container-high bg-surface-container-low px-6 py-3 font-label-sm text-[11px] font-semibold">
-          <span className="flex items-center gap-1 text-on-surface">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary-container text-on-primary-container">
-              1
-            </span>
-            Upload
-          </span>
-          <div className="h-px w-8 bg-outline-variant/50" />
-          <span className="flex items-center gap-1 text-on-surface-variant">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-surface-variant text-on-surface-variant">
-              2
-            </span>
-            Map Columns
-          </span>
-          <div className="h-px w-8 bg-outline-variant/50" />
-          <span className="flex items-center gap-1 text-on-surface-variant">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-surface-variant text-on-surface-variant">
-              3
-            </span>
-            Validate
-          </span>
-        </div>
+        ) : step === 'done' ? (
+          <button
+            type="button"
+            className="h-10 rounded-lg bg-primary-container px-5 font-label-sm text-label-sm text-on-primary-container transition-colors hover:bg-primary-fixed"
+            onClick={handleClose}
+          >
+            Done
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="h-10 rounded-lg px-4 font-label-sm text-label-sm text-on-surface-variant transition-colors hover:bg-surface-container"
+            onClick={handleClose}
+          >
+            Cancel
+          </button>
+        )
+      }
+    >
+      {/* Stepper. `bare` drops the modal's body padding so this strip can span
+          the full width like the header above it. */}
+      <div className="flex items-center gap-2 border-b border-surface-container-high bg-surface-container-low px-6 py-3 font-label-sm text-[11px] font-semibold">
+        {(
+          [
+            ['upload', 'Upload'],
+            ['review', 'Review'],
+            ['done', 'Validate'],
+          ] as const
+        ).map(([id, label], i) => {
+          const stepIndex = step === 'upload' ? 0 : step === 'review' ? 1 : 2;
+          const active = stepIndex === i;
+          const done = stepIndex > i;
+          return (
+            <React.Fragment key={id}>
+              {i > 0 && <div className="h-px w-8 bg-outline-variant/50" />}
+              <span
+                className={`flex items-center gap-1 ${
+                  active ? 'text-on-surface' : done ? 'text-primary' : 'text-on-surface-variant'
+                }`}
+              >
+                <span
+                  className={`flex h-5 w-5 items-center justify-center rounded-full ${
+                    done
+                      ? 'bg-primary-container text-on-primary-container'
+                      : active
+                        ? 'bg-primary-container text-on-primary-container'
+                        : 'bg-surface-variant text-on-surface-variant'
+                  }`}
+                >
+                  {done ? <CheckCircleIcon aria-hidden="true" className="h-3.5 w-3.5" /> : i + 1}
+                </span>
+                {label}
+              </span>
+            </React.Fragment>
+          );
+        })}
+      </div>
 
+      {step === 'upload' && (
         <div className="flex min-h-[300px] flex-col items-center justify-center bg-background p-8">
-          <div className="group flex w-full max-w-md cursor-pointer flex-col items-center rounded-xl border-2 border-dashed border-outline-variant/50 bg-surface p-8 text-center transition-colors hover:border-primary">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-surface-container transition-colors group-hover:bg-primary-container">
+          <label
+            className={`group flex w-full max-w-md cursor-pointer flex-col items-center rounded-xl border-2 border-dashed border-outline-variant/50 bg-surface p-8 text-center transition-colors hover:border-primary ${
+              parsing ? 'pointer-events-none opacity-60' : ''
+            }`}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              e.preventDefault();
+              const file = e.dataTransfer.files?.[0];
+              if (file) handleFile(file);
+            }}
+          >
+            <input
+              ref={inputRef}
+              type="file"
+              accept={ACCEPTED}
+              className="sr-only"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleFile(file);
+              }}
+            />
+            <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-surface-container transition-colors group-hover:bg-primary-container">
               <DocumentArrowUpIcon
                 aria-hidden="true"
                 className="h-6 w-6 text-tertiary group-hover:text-on-primary-container"
               />
-            </div>
-            <h4 className="mb-1 font-headline-sm text-headline-sm text-on-surface">
-              Drag and drop your Excel file
-            </h4>
-            <p className="mb-4 font-body-sm text-body-sm text-on-surface-variant">
-              Supported formats: .xlsx, .csv (Max 50MB)
-            </p>
-            <button
-              type="button"
-              className="h-10 rounded-lg border border-outline-variant/50 bg-surface px-4 font-label-sm text-label-sm text-on-surface transition-colors hover:bg-surface-container card-shadow"
-            >
+            </span>
+            <span className="mb-1 font-headline-sm text-headline-sm text-on-surface">
+              {parsing ? 'Reading file…' : fileName ?? 'Drag and drop your Excel file'}
+            </span>
+            <span className="mb-4 font-body-sm text-body-sm text-on-surface-variant">
+              Supported formats: .xlsx, .csv (max {MAX_ROWS.toLocaleString('en-US')} rows)
+            </span>
+            <span className="h-10 rounded-lg border border-outline-variant/50 bg-surface px-4 font-label-sm text-label-sm text-on-surface transition-colors hover:bg-surface-container card-shadow">
               Browse Files
-            </button>
-          </div>
+            </span>
+          </label>
 
-          <div className="mt-6 flex w-full max-w-md items-start gap-3 rounded-lg border border-surface-container-high bg-surface p-3 ai-glow">
-            <SparklesIcon aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
-            <div>
-              <p className="mb-0.5 font-label-sm text-label-sm text-on-surface">
-                AI Auto-Mapping enabled
-              </p>
-              <p className="font-body-sm text-body-sm text-on-surface-variant">
-                Our models will automatically detect and map headers based on historical transaction
-                structures.
-              </p>
+          {parseError && (
+            <div className="mt-4 flex w-full max-w-md items-start gap-2 rounded-lg bg-error-container px-3 py-2.5 font-body-sm text-body-sm text-on-error-container">
+              <ExclamationTriangleIcon aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
+              <span>{parseError}</span>
             </div>
-          </div>
-        </div>
-      </Modal>
-
-      {/* Sits outside the dialog on purpose: it appears after the modal closes. */}
-      {showToast && (
-        <div
-          role="status"
-          className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-lg bg-inverse-surface px-4 py-3 font-body-sm text-body-sm text-inverse-on-surface shadow-ambient-lvl-2 animate-fade-in"
-        >
-          <CheckCircleIcon aria-hidden="true" className="h-6 w-6 shrink-0 text-primary-container" />
-          <div>
-            <p className="font-semibold">Import Started</p>
-            <p className="text-xs text-outline-variant">
-              Processing 1,240 rows. AI mapping in progress.
-            </p>
-          </div>
+          )}
         </div>
       )}
-    </>
+
+      {step === 'review' && parsed && (
+        <div className="bg-background p-6">
+          <p className="mb-1 font-body-sm text-body-sm text-on-surface-variant">
+            {fileName} · {parsed.rows.length} rows ready to import
+            {parsed.errors.length > 0 ? `, ${parsed.errors.length} rows with errors` : ''}.
+          </p>
+          <p className="mb-4 font-body-sm text-body-sm text-on-surface-variant">
+            Vendor names are matched case-insensitively and created if new. Imported expenses are
+            analyzed automatically in the background.
+          </p>
+
+          {parsed.headers.length > 0 && (
+            <div className="mb-4">
+              <p className="mb-1.5 font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant">
+                Columns found
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {parsed.headers.map((h) => (
+                  <span
+                    key={h}
+                    className="rounded bg-surface-container px-2 py-1 font-mono text-[11px] text-on-surface"
+                  >
+                    {h}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {parsed.rows.length > 0 && (
+            <div className="mb-4 max-h-56 overflow-y-auto rounded-lg border border-outline-variant/30">
+              <table className="w-full border-collapse text-left font-table-data text-table-data">
+                <thead className="sticky top-0 bg-surface-container-low font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">
+                  <tr>
+                    <th className="px-4 py-2">Date</th>
+                    <th className="px-4 py-2">Type</th>
+                    <th className="px-4 py-2">Amount</th>
+                    <th className="px-4 py-2">Category</th>
+                    <th className="px-4 py-2">Vendor</th>
+                    <th className="px-4 py-2">Description</th>
+                  </tr>
+                </thead>
+                <tbody className="text-on-surface">
+                  {parsed.rows.slice(0, 100).map((row, i) => (
+                    <tr key={i} className="border-t border-outline-variant/20">
+                      <td className="whitespace-nowrap px-4 py-2 text-on-surface-variant">
+                        {row.date ?? '—'}
+                      </td>
+                      <td className="px-4 py-2">{row.type}</td>
+                      <td className="whitespace-nowrap px-4 py-2">
+                        {row.amount.toLocaleString('id-ID')}
+                      </td>
+                      <td className="px-4 py-2">{row.category}</td>
+                      <td className="px-4 py-2 text-on-surface-variant">{row.vendor_name ?? '—'}</td>
+                      <td className="max-w-xs truncate px-4 py-2 text-on-surface-variant">
+                        {row.description}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {parsed.rows.length > 100 && (
+                <p className="bg-surface-container-low px-4 py-2 font-body-sm text-body-sm text-on-surface-variant">
+                  …and {parsed.rows.length - 100} more.
+                </p>
+              )}
+            </div>
+          )}
+
+          {parsed.errors.length > 0 && (
+            <div className="rounded-lg bg-error-container/60 px-4 py-3">
+              <p className="mb-1.5 font-label-sm text-label-sm uppercase tracking-widest text-error">
+                {parsed.errors.length} rows skipped
+              </p>
+              <ul className="flex flex-col gap-1">
+                {parsed.errors.slice(0, 20).map((e) => (
+                  <li key={e.row} className="font-body-sm text-body-sm text-on-error-container">
+                    Row {e.row}: {e.message}
+                  </li>
+                ))}
+              </ul>
+              {parsed.errors.length > 20 && (
+                <p className="mt-1 font-body-sm text-body-sm text-on-error-container">
+                  …and {parsed.errors.length - 20} more. Fix the file and re-upload to import them.
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {step === 'done' && result && (
+        <div className="flex min-h-[300px] flex-col items-center justify-center bg-background p-8 text-center">
+          <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary-container">
+            <CheckCircleIcon aria-hidden="true" className="h-8 w-8 text-on-primary-container" />
+          </span>
+          <h4 className="mb-1 font-headline-sm text-headline-sm text-on-surface">
+            {result.inserted} transaction{result.inserted === 1 ? '' : 's'} imported
+          </h4>
+          <p className="mb-4 font-body-sm text-body-sm text-on-surface-variant">
+            {result.rejected.length > 0
+              ? `${result.rejected.length} row${result.rejected.length === 1 ? '' : 's'} rejected server-side.`
+              : 'Imported expenses are being analyzed in the background — findings will appear shortly.'}
+          </p>
+          {result.rejected.length > 0 && (
+            <div className="flex w-full max-w-md items-start gap-2 rounded-lg bg-error-container/60 px-3 py-2.5 text-left font-body-sm text-body-sm text-on-error-container">
+              <XCircleIcon aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
+              <ul className="flex flex-col gap-0.5">
+                {result.rejected.slice(0, 10).map((r) => (
+                  <li key={r.row}>Row {r.row}: {r.message}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+    </Modal>
   );
 }
