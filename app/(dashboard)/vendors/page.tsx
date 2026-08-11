@@ -266,11 +266,12 @@ export default function VendorsPage() {
               label="Filter by status"
               value={statusFilter}
               onChange={setStatusFilter}
-              className="w-full sm:w-[48%] md:w-36 md:flex-none"
+              className="w-full sm:w-[48%] md:w-40 md:flex-none"
             >
               <option value="All Status">All Status</option>
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
+              <option value="high_risk">High Risk</option>
             </FilterSelect>
 
             <FilterSelect
@@ -310,6 +311,7 @@ export default function VendorsPage() {
                 )}
                 {paginatedVendors.map((vendor, idx) => {
                   const isActive = vendor.status === 'active';
+                  const isHighRisk = vendor.status === 'high_risk';
                   const initials = vendor.vendor_name.substring(0, 2).toUpperCase();
                   const absoluteIndex = (currentPage - 1) * itemsPerPage + idx + 1;
                   const colorIndex = idx % 3;
@@ -321,7 +323,7 @@ export default function VendorsPage() {
                   const joinDateStr = formatDate(vendor.join_date);
 
                   return (
-                    <tr key={vendor.id} className={`hover:bg-surface-container-low transition-colors group ${!isActive ? 'bg-surface-bright/50' : ''}`}>
+                    <tr key={vendor.id} className={`hover:bg-surface-container-low transition-colors group ${!isActive && !isHighRisk ? 'bg-surface-bright/50' : isHighRisk ? 'bg-error-container/10' : ''}`}>
                       <td className="py-4 px-4 text-center text-sm font-mono text-on-surface-variant">{absoluteIndex}</td>
                       <td className="py-4 px-4">
                         <div className="flex items-center gap-3">
@@ -329,23 +331,23 @@ export default function VendorsPage() {
                             {initials}
                           </div>
                           <div>
-                            <div className={`font-semibold ${!isActive ? 'text-on-surface-variant/70' : ''}`}>{vendor.vendor_name}</div>
-                            <div className={`text-xs ${!isActive ? 'text-on-surface-variant/50' : 'text-on-surface-variant'}`}>ID: V-{vendor.id}</div>
+                            <div className={`font-semibold ${!isActive && !isHighRisk ? 'text-on-surface-variant/70' : isHighRisk ? 'text-error' : ''}`}>{vendor.vendor_name}</div>
+                            <div className={`text-xs ${!isActive && !isHighRisk ? 'text-on-surface-variant/50' : 'text-on-surface-variant'}`}>ID: V-{vendor.id}</div>
                           </div>
                         </div>
                       </td>
                       <td className="py-4 px-4">
-                        <span className={`font-mono text-sm ${!isActive ? 'text-on-surface-variant/50' : 'text-on-surface-variant'}`}>
+                        <span className={`font-mono text-sm ${!isActive && !isHighRisk ? 'text-on-surface-variant/50' : 'text-on-surface-variant'}`}>
                           {vendor.bank_account}
                         </span>
                       </td>
                       <td className="py-4 px-4 text-center">
-                        <div className={`flex items-center justify-center gap-2 ${!isActive ? 'opacity-60' : ''}`}>
-                          <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-success' : 'bg-outline-variant'}`} />
-                          <span className="text-sm capitalize">{vendor.status}</span>
+                        <div className={`flex items-center justify-center gap-2 ${!isActive && !isHighRisk ? 'opacity-60' : ''}`}>
+                          <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-success' : isHighRisk ? 'bg-error' : 'bg-outline-variant'}`} />
+                          <span className={`text-sm capitalize ${isHighRisk ? 'text-error font-semibold' : ''}`}>{vendor.status.replace('_', ' ')}</span>
                         </div>
                       </td>
-                      <td className={`py-4 px-4 text-center text-sm ${!isActive ? 'text-on-surface-variant/50' : 'text-on-surface-variant'}`}>
+                      <td className={`py-4 px-4 text-center text-sm ${!isActive && !isHighRisk ? 'text-on-surface-variant/50' : 'text-on-surface-variant'}`}>
                         {joinDateStr}
                       </td>
                       <td className="py-4 px-4 text-center transition-opacity">
