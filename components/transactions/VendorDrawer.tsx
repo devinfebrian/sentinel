@@ -74,12 +74,12 @@ export default function VendorDrawer({ isOpen, onClose, vendorName }: VendorDraw
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-surface-container-lowest p-4 rounded-xl shadow-ambient-lvl-1 border border-outline-variant/30">
               <p className="font-label-sm text-label-sm text-on-surface-variant mb-1">YTD Spend</p>
-              <p className="font-headline-md text-headline-md font-semibold text-on-surface">$148,500</p>
+              <p className="font-headline-md text-headline-md font-semibold text-on-surface">Rp 148.500</p>
               <p className="text-[11px] text-secondary mt-1 flex items-center gap-1"><ArrowTrendingUpIcon aria-hidden="true" className="h-6 w-6 text-[12px]" /> 12% vs LY</p>
             </div>
             <div className="bg-surface-container-lowest p-4 rounded-xl shadow-ambient-lvl-1 border border-outline-variant/30">
               <p className="font-label-sm text-label-sm text-on-surface-variant mb-1">Avg Transaction</p>
-              <p className="font-headline-md text-headline-md font-semibold text-on-surface">$12,375</p>
+              <p className="font-headline-md text-headline-md font-semibold text-on-surface">Rp 12.375</p>
               <p className="text-[11px] text-on-surface-variant mt-1">Monthly frequency</p>
             </div>
           </div>
@@ -93,21 +93,21 @@ export default function VendorDrawer({ isOpen, onClose, vendorName }: VendorDraw
                     <p className="font-medium text-on-surface">Oct 24, 2023</p>
                     <p className="text-on-surface-variant text-[11px]">AWS US-East Server...</p>
                   </div>
-                  <span className="font-medium">-$12,450.00</span>
+                  <span className="font-medium">-Rp 12.450,00</span>
                 </li>
                 <li className="p-3 flex justify-between items-center hover:bg-surface-container/50 transition-colors">
                   <div>
                     <p className="font-medium text-on-surface">Sep 24, 2023</p>
                     <p className="text-on-surface-variant text-[11px]">AWS US-East Server...</p>
                   </div>
-                  <span className="font-medium">-$12,120.00</span>
+                  <span className="font-medium">-Rp 12.120,00</span>
                 </li>
                 <li className="p-3 flex justify-between items-center hover:bg-surface-container/50 transition-colors">
                   <div>
                     <p className="font-medium text-on-surface">Aug 24, 2023</p>
                     <p className="text-on-surface-variant text-[11px]">AWS US-East Server...</p>
                   </div>
-                  <span className="font-medium">-$11,890.00</span>
+                  <span className="font-medium">-Rp 11.890,00</span>
                 </li>
               </ul>
               <div className="p-2 text-center bg-surface-container-low border-t border-surface-variant">

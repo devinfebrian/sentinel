@@ -282,7 +282,6 @@ export default function TransactionsPage() {
   const [totalPages, setTotalPages] = useState(1);
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('All');
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [vendorFilter, setVendorFilter] = useState('All');
@@ -323,39 +322,30 @@ export default function TransactionsPage() {
   const fetchTransactions = () => {
     if (!accessToken) return;
     setIsLoading(true);
+    // Fetch up to 1000 transactions and do all filtering/pagination locally
+    // because the backend doesn't support searching by vendor name.
     listTransactionsApi(accessToken, {
-      page: currentPage,
-      limit: itemsPerPage,
-      type: typeFilter,
-      category: categoryFilter,
-      search: debouncedSearch || undefined
+      page: 1,
+      limit: 100
     })
       .then((res) => {
         if (res.success) {
           setTransactions(res.data.transactions);
-          setTotalItems(res.data.pagination?.total ?? res.data.transactions.length);
-          setTotalPages(res.data.pagination?.totalPages ?? 1);
         }
       })
       .catch(console.error)
       .finally(() => setIsLoading(false));
   };
 
-  // Debounce search input before it drives a server request
-  useEffect(() => {
-    const delay = setTimeout(() => setDebouncedSearch(searchQuery), 300);
-    return () => clearTimeout(delay);
-  }, [searchQuery]);
-
   // Any filter change invalidates the current page
   useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedSearch, typeFilter, categoryFilter]);
+  }, [searchQuery, typeFilter, categoryFilter, vendorFilter]);
 
-  // Server is the source of truth for what's on the page — page/limit/type/category/search are all sent, not re-derived client-side
+  // Fetch once on mount
   useEffect(() => {
     fetchTransactions();
-  }, [currentPage, itemsPerPage, debouncedSearch, typeFilter, categoryFilter, accessToken]);
+  }, [accessToken]);
 
   const handleEditClick = (tx: Transaction) => {
     setTxToEdit(tx);
@@ -367,11 +357,18 @@ export default function TransactionsPage() {
     setIsAddOpen(true);
   };
 
-  // Type/category/search/pagination are already applied server-side (see fetchTransactions).
-  // Vendor filter and sort have no backend query support yet, so they only refine
-  // what's on the current server-fetched page rather than the full result set.
+  // Local filtering and pagination
   const filteredTransactions = transactions.filter(tx => {
+    if (typeFilter !== 'All' && tx.type !== typeFilter.toLowerCase()) return false;
+    if (categoryFilter !== 'All' && tx.category !== categoryFilter) return false;
     if (vendorFilter !== 'All' && tx.vendor_id?.toString() !== vendorFilter) return false;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      const matchDesc = tx.description?.toLowerCase().includes(q) || false;
+      const matchCat = tx.category?.toLowerCase().includes(q) || false;
+      const matchVendor = tx.vendor_name?.toLowerCase().includes(q) || false;
+      if (!matchDesc && !matchCat && !matchVendor) return false;
+    }
     return true;
   }).sort((a, b) => {
     if (sortBy === 'date-desc') return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
@@ -381,7 +378,12 @@ export default function TransactionsPage() {
     return 0;
   });
 
-  const paginatedTransactions = filteredTransactions;
+  const totalFiltered = filteredTransactions.length;
+  const totalPageCount = Math.ceil(totalFiltered / itemsPerPage) || 1;
+  const paginatedTransactions = filteredTransactions.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   return (
     // No animate-fade-in here: it animates `transform`, which turns this div
@@ -520,7 +522,7 @@ export default function TransactionsPage() {
                     <td className="px-4 py-3 text-center text-on-surface-variant">
                       {absoluteIndex}
                     </td>
-                    <td className="px-4 py-3 text-on-surface-variant">{dateStr}</td>
+                    <td className="px-4 py-3 text-center text-on-surface-variant">{dateStr}</td>
                     {/* title, not a custom tooltip: the row lives inside an
                         overflow-x-auto scroller that would clip a positioned
                         one, and the native bubble is the only thing that can
@@ -531,11 +533,11 @@ export default function TransactionsPage() {
                     >
                       {tx.description}
                     </td>
-                    <td className="px-4 py-3">{tx.category}</td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 text-center">{tx.category}</td>
+                    <td className="px-4 py-3 text-center">
                       <TypeChip type={tx.type} />
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 text-center">
                       {tx.vendor_name ? (
                         <button 
                           type="button"
@@ -551,8 +553,8 @@ export default function TransactionsPage() {
                     <td className={`px-4 py-3 text-right font-medium ${tx.type === 'income' ? 'text-secondary' : ''}`}>
                       {formatCurrency(tx.amount, tx.type)}
                     </td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex justify-end gap-1">
+                    <td className="px-4 py-3 text-center">
+                      <div className="flex justify-center gap-1">
                         <button 
                           type="button"
                           aria-label="Edit transaction"
@@ -571,9 +573,9 @@ export default function TransactionsPage() {
         </div>
         <Pagination 
           currentPage={currentPage}
-          totalPages={totalPages}
+          totalPages={totalPageCount}
           itemsPerPage={itemsPerPage}
-          totalItems={totalItems}
+          totalItems={totalFiltered}
           onPageChange={setCurrentPage}
           onItemsPerPageChange={(limit) => {
             setItemsPerPage(limit);

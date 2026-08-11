@@ -294,7 +294,7 @@ export default function VendorsPage() {
                 <tr className="bg-surface-container-highest/30 border-b border-surface-container-high">
                   <th className="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant font-semibold w-16 text-center">No.</th>
                   <th className="py-3 px-4 text-center font-label-sm text-label-sm text-on-surface-variant font-semibold">Vendor Name</th>
-                  <th className="py-3 px-4 text-center font-label-sm text-label-sm text-on-surface-variant font-semibold">Bank Account</th>
+                  <th className="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant font-semibold">Bank Account</th>
                   <th className="py-3 px-4 text-center font-label-sm text-label-sm text-on-surface-variant font-semibold">Status</th>
                   <th className="py-3 px-4 text-center font-label-sm text-label-sm text-on-surface-variant font-semibold">Join Date</th>
                   <th className="py-3 px-4 text-center font-label-sm text-label-sm text-on-surface-variant font-semibold">Actions</th>
@@ -339,17 +339,17 @@ export default function VendorsPage() {
                           {vendor.bank_account}
                         </span>
                       </td>
-                      <td className="py-4 px-4">
-                        <div className={`flex items-center gap-2 ${!isActive ? 'opacity-60' : ''}`}>
+                      <td className="py-4 px-4 text-center">
+                        <div className={`flex items-center justify-center gap-2 ${!isActive ? 'opacity-60' : ''}`}>
                           <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-success' : 'bg-outline-variant'}`} />
                           <span className="text-sm capitalize">{vendor.status}</span>
                         </div>
                       </td>
-                      <td className={`py-4 px-4 text-sm ${!isActive ? 'text-on-surface-variant/50' : 'text-on-surface-variant'}`}>
+                      <td className={`py-4 px-4 text-center text-sm ${!isActive ? 'text-on-surface-variant/50' : 'text-on-surface-variant'}`}>
                         {joinDateStr}
                       </td>
-                      <td className="py-4 px-4 text-right transition-opacity">
-                        <div className="flex justify-end gap-1">
+                      <td className="py-4 px-4 text-center transition-opacity">
+                        <div className="flex justify-center gap-1">
                           <button 
                             className="p-1.5 text-on-surface-variant hover:text-primary transition-colors rounded-md hover:bg-surface-container" 
                             title="Edit Details"
