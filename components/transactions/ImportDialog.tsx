@@ -56,7 +56,8 @@ export default function ImportDialog({ isOpen, onClose, onSuccess }: ImportDialo
     if (!selectedFile || !accessToken || !user) return;
     setIsUploading(true);
     try {
-      const ExcelJS = (await import('exceljs')).default;
+      const exceljsModule = await import('exceljs');
+      const ExcelJS = exceljsModule.default || exceljsModule;
       const workbook = new ExcelJS.Workbook();
       
       if (selectedFile.name.endsWith('.csv')) {
@@ -176,7 +177,8 @@ export default function ImportDialog({ isOpen, onClose, onSuccess }: ImportDialo
         categories = ['Sales', 'B2B Sales', 'Payroll & Benefits', 'Office Supplies', 'Rent & Lease']; // Fallback
       }
 
-      const ExcelJS = (await import('exceljs')).default;
+      const exceljsModule = await import('exceljs');
+      const ExcelJS = exceljsModule.default || exceljsModule;
       const workbook = new ExcelJS.Workbook();
       
       const sheet = workbook.addWorksheet('Transactions');
