@@ -403,6 +403,29 @@ export default function TransactionsPage() {
     currentPage * itemsPerPage
   );
 
+  const handleExportExcel = async () => {
+    try {
+      const XLSX = await import('xlsx');
+      const dataToExport = filteredTransactions.map((tx, index) => ({
+        'No.': index + 1,
+        'Date': formatDate(tx.created_at),
+        'Description': tx.description,
+        'Category': tx.category,
+        'Type': tx.type.toUpperCase(),
+        'Vendor': tx.vendor_name || '-',
+        'Amount': parseFloat(tx.amount.toString())
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Transactions');
+      
+      XLSX.writeFile(workbook, 'Transactions_Export.xlsx');
+    } catch (error) {
+      console.error('Error exporting to excel:', error);
+    }
+  };
+
   return (
     // No animate-fade-in here: it animates `transform`, which turns this div
     // into a backdrop root and leaves the modal's backdrop-blur with nothing
@@ -499,9 +522,9 @@ export default function TransactionsPage() {
 
             <button
               type="button"
-              disabled
+              onClick={handleExportExcel}
               aria-label="Export transactions"
-              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-outline-variant/30 bg-surface-container-low text-on-surface-variant transition-colors hover:bg-surface-container-high disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-outline-variant/30 bg-surface-container-low text-on-surface-variant transition-colors hover:bg-surface-container-high focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-container"
             >
               <ArrowDownTrayIcon aria-hidden="true" className="h-[18px] w-[18px]" />
             </button>

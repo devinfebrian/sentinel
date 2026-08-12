@@ -371,7 +371,7 @@ export default function ImportDialog({ isOpen, onClose, onImported }: ImportDial
             <span className="mb-4 font-body-sm text-body-sm text-on-surface-variant">
               Supported formats: .xlsx, .csv (max {MAX_ROWS.toLocaleString('en-US')} rows)
             </span>
-            <span className="h-10 rounded-lg border border-outline-variant/50 bg-surface px-4 font-label-sm text-label-sm text-on-surface transition-colors hover:bg-surface-container card-shadow">
+            <span className="inline-flex h-10 items-center justify-center rounded-lg border border-outline-variant/50 bg-surface px-4 font-label-sm text-label-sm text-on-surface transition-colors hover:bg-surface-container card-shadow">
               Browse Files
             </span>
           </label>
