@@ -37,14 +37,17 @@ export function AskHistoryPanel() {
         end_date: endDate ? new Date(endDate).toISOString() : undefined,
       });
       setHistory(res.data || []);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch history');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch history');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    // Fetch on mount. There is no event handler that can trigger the first
+    // load, so the setState inside `fetchHistory` is expected here.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchHistory();
   }, [accessToken]);
 
