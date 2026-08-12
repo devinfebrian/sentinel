@@ -15,6 +15,7 @@ import {
   importTransactionsApi,
   ApiError,
   type ImportTransactionRow,
+  type Vendor,
   listVendorsApi,
   getTransactionCategoriesApi
 } from '@/lib/services/api';
@@ -53,7 +54,7 @@ export default function ImportDialog({ isOpen, onClose, onImported }: ImportDial
     if (isOpen && accessToken) {
       listVendorsApi(accessToken).then(res => {
         if (res.success && res.data.vendors.length > 0) {
-          const maxTime = Math.max(...res.data.vendors.map((v: any) => new Date(v.join_date || 0).getTime()));
+          const maxTime = Math.max(...res.data.vendors.map((v) => new Date(v.join_date || 0).getTime()));
           if (maxTime > 0) {
             setLastVendorUpdate(new Date(maxTime).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }));
           } else {
@@ -125,7 +126,7 @@ export default function ImportDialog({ isOpen, onClose, onImported }: ImportDial
 
   const handleDownloadTemplate = async () => {
     try {
-      let activeVendors: any[] = [];
+      let activeVendors: Vendor[] = [];
       let categories: string[] = [];
 
       if (accessToken) {
@@ -134,7 +135,7 @@ export default function ImportDialog({ isOpen, onClose, onImported }: ImportDial
           getTransactionCategoriesApi(undefined, accessToken)
         ]);
         if (vendorRes.success) {
-          activeVendors = vendorRes.data.vendors.filter((v: any) => v.status === 'active');
+          activeVendors = vendorRes.data.vendors.filter((v) => v.status === 'active');
         }
         if (catRes.success) {
           const arr = [...(catRes.data.income || []), ...(catRes.data.expense || [])];
@@ -184,7 +185,7 @@ export default function ImportDialog({ isOpen, onClose, onImported }: ImportDial
       
       listSheet.getColumn('A').values = ['Categories', ...categories];
       
-      const vendorOptions = activeVendors.map((v: any) => `${v.id} - ${v.vendor_name}`);
+      const vendorOptions = activeVendors.map((v) => `${v.id} - ${v.vendor_name}`);
       listSheet.getColumn('B').values = ['Vendors', ...vendorOptions];
 
       const catCount = categories.length;
