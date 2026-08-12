@@ -6,7 +6,6 @@ import {
   PaperAirplaneIcon,
   MagnifyingGlassIcon,
   EllipsisVerticalIcon,
-  PaperClipIcon,
   CpuChipIcon,
   ExclamationTriangleIcon,
   ArrowPathIcon,
@@ -266,10 +265,6 @@ export function AskSentinel() {
         )}
 
         <div className="relative flex items-center w-full bg-surface border border-surface-container-high rounded-2xl p-2 shadow-sm focus-within:border-primary transition-colors">
-          <button className="p-2 text-on-surface-variant hover:text-on-surface transition-colors">
-            <PaperClipIcon className="w-5 h-5" />
-          </button>
-
           <input
             type="text"
             value={inputValue}
@@ -282,7 +277,7 @@ export function AskSentinel() {
           <button
             onClick={onSubmit}
             disabled={!inputValue.trim() || isTyping}
-            className="ml-2 p-3 rounded-xl bg-primary text-gray-900 hover:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className="ml-2 p-3 rounded-xl bg-primary-container text-on-primary-container hover:bg-primary-fixed disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <PaperAirplaneIcon className="h-5 w-5" />
           </button>

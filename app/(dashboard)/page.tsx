@@ -54,7 +54,6 @@ const SHOWCASE: ShowcaseCard[] = [
     description: 'Ask about your transactions and vendors in plain language.',
     href: '/ask',
     cta: 'Preview',
-    soon: true,
   },
 ];
 
