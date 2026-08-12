@@ -77,7 +77,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: 'Audit',
     items: [
       { href: '/findings', icon: ShieldExclamationIcon, label: 'Findings' },
-      { href: '/ask', icon: SparklesIcon, label: 'Ask Sentinel', soon: true },
+      { href: '/ask', icon: SparklesIcon, label: 'Ask Sentinel' },
     ],
   },
   {
