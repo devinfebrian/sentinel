@@ -60,25 +60,40 @@ export default function ImportDialog({ isOpen, onClose, onSuccess }: ImportDialo
       const ExcelJS = exceljsModule.default || exceljsModule;
       const workbook = new ExcelJS.Workbook();
       
+      let failedRows = 0;
+      let lastError = '';
+
       if (selectedFile.name.endsWith('.csv')) {
         // Minimal CSV support, but focusing on XLSX
         const text = await selectedFile.text();
         const lines = text.split('\n');
         for (let i = 1; i < lines.length; i++) {
+          // simple csv split, doesn't handle quoted commas well, but suffices for basic templates
           const row = lines[i].split(',');
           if (row.length < 5) continue;
           let vendor_id = null;
           const vMatch = row[3].match(/^(\d+)\s+-/);
           if (vMatch) vendor_id = parseInt(vMatch[1], 10);
           
+          let cleanStr = row[1].replace(/\./g, '').replace(/,/g, '.').replace(/[^0-9.-]+/g, '');
+          const amount = parseFloat(cleanStr);
+          const type = row[0].toLowerCase().trim();
+          const category = row[2].trim();
+          if (!type || isNaN(amount) || amount <= 0 || !category) continue;
+
           await createTransactionApi({
-            type: row[0].toLowerCase(),
-            amount: parseFloat(row[1]),
-            category: row[2],
+            type,
+            amount,
+            category,
             vendor_id: vendor_id,
-            description: row[4],
+            description: row[4].trim() || '-',
             input_by_user_id: user.id
-          }, accessToken).catch(e => console.error(e));
+          }, accessToken).catch((e: any) => {
+            console.error(e);
+            failedRows++;
+            const fields = e.fieldErrors?.map((f: any) => `${f.field}: ${f.message}`).join(', ') || '';
+            lastError = `Row ${i}: ${e.message} ${fields}`;
+          });
         }
       } else {
         await workbook.xlsx.load(await selectedFile.arrayBuffer());
@@ -87,29 +102,51 @@ export default function ImportDialog({ isOpen, onClose, onSuccess }: ImportDialo
         
         for (let i = 2; i <= rowCount; i++) {
           const row = sheet.getRow(i);
-          const type = row.getCell(1).text || row.getCell(1).value?.toString() || '';
-          const amountVal = row.getCell(2).value;
-          const category = row.getCell(3).text || row.getCell(3).value?.toString() || '';
-          const vendorStr = row.getCell(4).text || row.getCell(4).value?.toString() || '';
-          const description = row.getCell(5).text || row.getCell(5).value?.toString() || '';
+          const type = (row.getCell(1).text || row.getCell(1).value?.toString() || '').toLowerCase().trim();
+          
+          let amountVal = row.getCell(2).value;
+          if (amountVal && typeof amountVal === 'object' && 'result' in (amountVal as any)) {
+            amountVal = (amountVal as any).result;
+          }
+          
+          const category = (row.getCell(3).text || row.getCell(3).value?.toString() || '').trim();
+          const vendorStr = (row.getCell(4).text || row.getCell(4).value?.toString() || '').trim();
+          const description = (row.getCell(5).text || row.getCell(5).value?.toString() || '').trim();
 
           if (!type || !amountVal || !category) continue;
           
-          const amount = typeof amountVal === 'number' ? amountVal : parseFloat(amountVal.toString());
+          let amount = 0;
+          if (typeof amountVal === 'number') {
+            amount = amountVal;
+          } else {
+            let cleanStr = amountVal.toString().replace(/\./g, '').replace(/,/g, '.').replace(/[^0-9.-]+/g, '');
+            amount = parseFloat(cleanStr);
+          }
+
+          if (isNaN(amount) || amount <= 0) continue;
 
           let vendor_id = null;
           const match = vendorStr.match(/^(\d+)\s+-/);
           if (match) vendor_id = parseInt(match[1], 10);
 
           await createTransactionApi({
-            type: type.toLowerCase(),
+            type,
             amount,
             category,
-            description,
+            description: description || '-',
             vendor_id,
             input_by_user_id: user.id
-          }, accessToken).catch(e => console.error(e));
+          }, accessToken).catch((e: any) => {
+            console.error(e);
+            failedRows++;
+            const fields = e.fieldErrors?.map((f: any) => `${f.field}: ${f.message}`).join(', ') || '';
+            lastError = `Row ${i}: ${e.message}. ${fields}`;
+          });
         }
+      }
+
+      if (failedRows > 0) {
+        alert(`Finished with ${failedRows} failed row(s).\nLast error: ${lastError}`);
       }
 
       setShowToast(true);

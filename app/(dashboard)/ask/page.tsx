@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function AskPage() {
   return (
-    <div className="flex flex-col h-[calc(100vh-100px)] w-full">
+    <div className="flex flex-col flex-1 min-h-0 w-full">
       <AskSentinel />
     </div>
   );

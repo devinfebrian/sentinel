@@ -406,10 +406,20 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!accessToken) return;
     setIsLoading(true);
-    // Fetch data independently so one failure doesn't block the others
     Promise.allSettled([
-      listTransactionsApi(accessToken, { limit: 5000 }),
-      listFindingsApi(accessToken, { limit: 5000 }),
+      (async () => {
+        let allTx: Transaction[] = [];
+        let page = 1;
+        while (allTx.length < 2000) {
+          const res = await listTransactionsApi(accessToken, { page, limit: 100 });
+          if (!res.success) throw new Error(res.message);
+          allTx = [...allTx, ...res.data.transactions];
+          if (res.data.transactions.length < 100) break;
+          page++;
+        }
+        return { success: true, data: { transactions: allTx } };
+      })(),
+      listFindingsApi(accessToken, { limit: 100 }),
       listVendorsApi(accessToken)
     ])
       .then(([txResult, findResult, vendorResult]) => {

@@ -377,6 +377,25 @@ body {
   display: none;
 }
 
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: var(--outline-variant);
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: var(--outline);
+}
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--outline-variant) transparent;
+}
+
 /* Elevation scale, neutral rather than tinted — the old values carried a blue
    rgba left over from the pre-reference palette. lvl-1 sits just above
    card-shadow; lvl-2 is for things floating over the page (drawer, toast). */

@@ -155,7 +155,7 @@ export function AskSentinel() {
   };
 
   return (
-    <div className="flex flex-col h-full w-full max-h-full">
+    <div className="flex flex-col flex-1 min-h-0 w-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-2 pb-4 shrink-0">
         <div>
