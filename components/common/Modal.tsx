@@ -10,6 +10,12 @@ export interface ModalProps {
   children: React.ReactNode;
   /** Actions pinned to a tinted bar at the bottom, outside the scrolling body. */
   footer?: React.ReactNode;
+  /**
+   * A single primary action next to the title, left of the close button —
+   * for the one action a long, scrollable modal shouldn't make a user hunt
+   * for at the bottom (e.g. "Close this finding" in the findings detail view).
+   */
+  headerAction?: React.ReactNode;
   /** Drops the body padding so the content can own the whole panel. */
   bare?: boolean;
   size?: 'sm' | 'md' | 'lg' | 'xl';
@@ -28,6 +34,7 @@ export default function Modal({
   title,
   children,
   footer,
+  headerAction,
   bare = false,
   size = 'md',
 }: ModalProps) {
@@ -55,18 +62,21 @@ export default function Modal({
         className={`w-full ${SIZE_CLASSES[size]} max-h-[90vh] overflow-hidden rounded-xl border border-outline-variant/30 bg-surface card-shadow`}
       >
         {title && (
-          <div className="flex items-center justify-between border-b border-surface-container-high px-6 py-5">
+          <div className="flex items-center justify-between gap-4 border-b border-surface-container-high px-6 py-5">
             <h2 id="modal-title" className="font-headline-md text-headline-md text-on-surface">
               {title}
             </h2>
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Close"
-              className="p-1 text-on-surface-variant transition-colors hover:text-on-surface"
-            >
-              <XMarkIcon aria-hidden="true" className="h-6 w-6" />
-            </button>
+            <div className="flex shrink-0 items-center gap-2">
+              {headerAction}
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close"
+                className="p-1 text-on-surface-variant transition-colors hover:text-on-surface"
+              >
+                <XMarkIcon aria-hidden="true" className="h-6 w-6" />
+              </button>
+            </div>
           </div>
         )}
         <div className={`max-h-[70vh] overflow-y-auto ${bare ? '' : 'p-6'}`}>{children}</div>

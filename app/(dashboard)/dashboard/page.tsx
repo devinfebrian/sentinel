@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/stores/auth.store';
 import { listTransactionsApi, listFindingsApi, listVendorsApi, type Transaction, type Finding, type Vendor, type RiskLevel } from '@/lib/services/api';
 import Badge, { type BadgeTone } from '@/components/common/Badge';
@@ -515,6 +516,7 @@ function DonutChart({ data, total }: { data: { label: string; value: number; col
 // --- MAIN PAGE ---
 
 export default function DashboardPage() {
+  const router = useRouter();
   const accessToken = useAuthStore((s) => s.accessToken);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [findings, setFindings] = useState<Finding[]>([]);
@@ -888,7 +890,11 @@ export default function DashboardPage() {
                   </tr>
                 ) : (
                   recentFindings.map((finding) => (
-                    <tr key={finding.id} className="transition-colors hover:bg-surface-container-low cursor-pointer">
+                    <tr
+                      key={finding.id}
+                      onClick={() => router.push(`/findings?finding=${finding.id}`)}
+                      className="transition-colors hover:bg-surface-container-low cursor-pointer"
+                    >
                       <td className="px-4 py-3 text-on-surface-variant">{formatDate(finding.created_at)}</td>
                       {/* Findings carry one narrative, not a title/category pair —
                           the Category column was showing undefined for every row. */}

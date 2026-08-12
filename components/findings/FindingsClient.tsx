@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   CircleStackIcon,
   MagnifyingGlassIcon,
@@ -15,7 +16,7 @@ import {
 } from '@heroicons/react/24/outline';
 import Badge, { type BadgeTone } from '@/components/common/Badge';
 import { FilterSelect, FILTER_INPUT_CLASSES } from '@/components/common/FilterControls';
-import EvidenceModal from '@/components/findings/EvidenceModal';
+import FindingDetailModal from '@/components/findings/FindingDetailModal';
 import RippleButton, { PRIMARY_ACTION_CLASSES } from '@/components/common/RippleButton';
 import { DataLoadingSkeleton, DataErrorState } from '@/components/common/DataState';
 import { useAnalysisRun, type LogLine } from '@/lib/hooks/use-analysis-run';
@@ -148,12 +149,20 @@ function KpiCard({
 export default function FindingsClient() {
   const accessToken = useAuthStore((s) => s.accessToken);
   const run = useAnalysisRun();
+  const searchParams = useSearchParams();
 
   const [summary, setSummary] = useState<FindingsSummary | null>(null);
   const [findings, setFindings] = useState<Finding[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [evidenceFor, setEvidenceFor] = useState<number | null>(null);
+  // Deep-linked from the dashboard's "Recent Findings" table
+  // (`/findings?finding=<id>`) — opens straight to that finding's detail
+  // instead of leaving the visitor to hunt for it in the list.
+  const [evidenceFor, setEvidenceFor] = useState<number | null>(() => {
+    const raw = searchParams.get('finding');
+    const parsed = raw ? Number(raw) : NaN;
+    return Number.isFinite(parsed) ? parsed : null;
+  });
 
   const [statusFilter, setStatusFilter] = useState<FindingStatusFilter>('open');
   const [riskFilter, setRiskFilter] = useState<RiskLevel | 'all'>('all');
@@ -672,7 +681,7 @@ export default function FindingsClient() {
         )}
       </section>
 
-      <EvidenceModal
+      <FindingDetailModal
         findingId={evidenceFor}
         onClose={() => setEvidenceFor(null)}
         onResolved={load}

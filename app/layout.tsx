@@ -1,10 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Urbanist } from "next/font/google";
 import Script from "next/script";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { AppToaster } from "@/components/common/AppToaster";
 
 // Two families by design: Urbanist is a geometric display face that carries the
 // headings, Inter handles body/label/table text where it stays legible small.
@@ -54,8 +53,11 @@ export default function RootLayout({
         )}
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
+          {/* Inside ThemeProvider, not beside it: AppToaster reads
+              useTheme() to keep toasts in sync with the in-app dark-mode
+              toggle rather than raw OS preference. */}
+          <AppToaster />
         </ThemeProvider>
-        <ToastContainer position="bottom-center" theme="colored" autoClose={6000} />
       </body>
     </html>
   );

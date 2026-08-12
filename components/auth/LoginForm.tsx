@@ -8,7 +8,7 @@ import PasswordInput from '@/components/common/PasswordInput';
 import PrimaryButton from '@/components/common/PrimaryButton';
 import GoogleButton from '@/components/common/GoogleButton';
 import AlertNotice from '@/components/common/AlertNotice';
-import { toast } from 'react-toastify';
+import { toast } from 'sonner';
 import { loginSchema, validateForm } from '@/lib/validations/auth.schema';
 import { loginApi, googleLoginApi, ApiError } from '@/lib/services/api';
 import { useAuthStore, type User, type AuthTokens } from '@/lib/stores/auth.store';

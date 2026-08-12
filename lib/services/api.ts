@@ -243,6 +243,13 @@ export function listTransactionsApi(
   return request<{ transactions: Transaction[]; pagination: unknown }>(url, authGet(accessToken));
 }
 
+export function getTransactionApi(id: number, accessToken: string, signal?: AbortSignal) {
+  return request<{ transaction: Transaction }>(`/transactions/${id}`, {
+    ...authGet(accessToken),
+    signal,
+  });
+}
+
 export function updateTransactionApi(
   id: number,
   payload: {
