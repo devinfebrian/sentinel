@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldCheckIcon } from '@heroicons/react/24/solid';
+import Image from 'next/image';
 
 export interface BrandingHeaderProps {
   title?: string;
@@ -12,8 +12,8 @@ export default function BrandingHeader({
 }: BrandingHeaderProps) {
   return (
     <div className="flex flex-col items-center mb-8 text-center">
-      <span className="bg-on-surface p-3 rounded-lg mb-4">
-        <ShieldCheckIcon aria-hidden="true" className="h-6 w-6 text-primary-container" />
+      <span className="relative mb-4 h-16 w-16 shrink-0">
+        <Image src="/sentinel_logo.png" alt="" fill priority sizes="64px" className="object-contain" />
       </span>
       <h1 className="font-headline-lg text-headline-lg md:text-headline-lg text-on-surface font-bold tracking-tight">
         {title}

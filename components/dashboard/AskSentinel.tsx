@@ -4,9 +4,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   SparklesIcon,
   PaperAirplaneIcon,
-  MagnifyingGlassIcon,
-  EllipsisVerticalIcon,
-  CpuChipIcon,
   ExclamationTriangleIcon,
   ArrowPathIcon,
 } from '@heroicons/react/24/outline';
@@ -32,10 +29,38 @@ function renderAnswer(text: string) {
   );
 }
 
-// Monotonic id source. Date.now() is impure per react-hooks/purity, and ids
-// only need to be unique within the list.
-let nextMessageId = 0;
-const createMessageId = () => `msg-${nextMessageId++}`;
+// crypto.randomUUID() rather than a module-level counter — a counter resets
+// on Fast Refresh while existing message state survives it, producing
+// duplicate keys against messages already in the list.
+const createMessageId = () => crypto.randomUUID();
+
+// Inlined (rather than <img src="/knight-svgrepo-com.svg">) so the strokes
+// can use currentColor — the source file hardcodes stroke="#000000", which
+// can't be recolored or theme-adapted from outside an <img>.
+function KnightIcon({ className, animateEyes = false }: { className?: string; animateEyes?: boolean }) {
+  return (
+    <svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+      <path d="M103.948 189.007C122.979 146.166 174.912 106.379 225.953 118.967C337.274 146.418 292.742 318.738 178.953 308.374C119.948 303 90.022 208.667 105.949 192.952C126.975 172.215 181.401 166.48 200.176 166.48C219.28 166.48 267.7 175.748 282.957 187.033C289.496 191.872 246.484 201.828 240.954 202.82C198.208 210.485 161.608 212.189 119.948 199.86" stroke="currentColor" strokeOpacity="0.9" strokeWidth="16" strokeLinecap="round" strokeLinejoin="round" />
+      <g className={animateEyes ? 'animate-knight-eyes' : undefined}>
+        <path d="M181.472 190.628C180.808 185.073 181.738 179.593 182.57 174.201" stroke="currentColor" strokeOpacity="0.9" strokeWidth="16" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M210.059 189.891C208.932 183.937 209.453 178.421 208.932 174.729" stroke="currentColor" strokeOpacity="0.9" strokeWidth="16" strokeLinecap="round" strokeLinejoin="round" />
+      </g>
+      <path opacity="0.503384" d="M165.817 55.4552C188.059 88.8544 185.092 123.901 191.955 118.596C202.113 110.743 199.839 94.0062 202.009 66.2158C202.993 53.6086 202.993 43.87 202.009 37C202.638 64.5934 202.974 78.8407 203.016 79.742C203.049 80.4493 203.205 91.9041 203.485 114.106C207.245 114.106 200 114.106 217.399 88.0728C228.597 71.3186 229.553 69.1864 234.184 57.399" stroke="currentColor" strokeOpacity="0.9" strokeWidth="14" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M150 300C65 300 69.7204 333.085 58 363" stroke="currentColor" strokeOpacity="0.9" strokeWidth="16" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M260.771 292.24C323.999 292.24 331.999 338 338 363" stroke="currentColor" strokeOpacity="0.9" strokeWidth="16" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+// Colors are hardcoded (not the on-primary-container token) so this avatar
+// looks identical in light and dark mode, unlike the rest of the theme.
+function AiAvatar({ isGenerating = false }: { isGenerating?: boolean }) {
+  return (
+    <div className="w-12 h-12 rounded-full bg-white text-[#687710] border-2 border-current flex items-center justify-center shrink-0 mr-3 mt-1 overflow-hidden">
+      <KnightIcon className="h-14 w-14" animateEyes={isGenerating} />
+    </div>
+  );
+}
 
 export function AskSentinel() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -156,42 +181,23 @@ export function AskSentinel() {
 
   return (
     <div className="flex flex-col flex-1 min-h-0 w-full">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-2 pb-4 shrink-0">
-        <div>
-          <h2 className="font-headline-sm text-headline-sm text-on-surface font-semibold">Financial Assistant</h2>
-          <div className="flex items-center gap-1.5 mt-1">
-            <div className="w-2 h-2 rounded-full bg-primary"></div>
-            <span className="text-xs text-on-surface-variant">Online</span>
-          </div>
-        </div>
-        <div className="flex items-center gap-3 text-on-surface-variant">
-          <button className="hover:text-on-surface transition-colors p-1"><MagnifyingGlassIcon className="w-5 h-5" /></button>
-          <button className="hover:text-on-surface transition-colors p-1"><EllipsisVerticalIcon className="w-5 h-5" /></button>
-        </div>
-      </div>
-
       {/* Chat Area */}
       <div className="flex-1 overflow-y-auto pr-2 mb-4 custom-scrollbar flex flex-col relative">
         {messages.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center animate-fade-in my-auto h-full pb-10">
-            <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-6">
-              <SparklesIcon className="w-8 h-8 text-on-surface" />
+            <div className="w-16 h-16 rounded-full bg-primary-container flex items-center justify-center mb-6">
+              <SparklesIcon className="w-8 h-8 text-on-primary-container" />
             </div>
             <h3 className="text-2xl font-semibold text-on-surface mb-3">How can I assist you today?</h3>
             <p className="text-on-surface-variant max-w-md mx-auto text-sm leading-relaxed">
-              I can help analyze spending, generate financial reports, or assess vendor risks based on your latest data.
+              I can help analyze spending or assess vendor risks based on your latest data.
             </p>
           </div>
         ) : (
           <div className="space-y-6">
             {messages.map((msg) => (
               <div key={msg.id} className={`flex w-full ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                {msg.role === 'ai' && (
-                  <div className="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center shrink-0 mr-3 mt-1">
-                    <CpuChipIcon className="w-4 h-4 text-on-surface" />
-                  </div>
-                )}
+                {msg.role === 'ai' && <AiAvatar />}
 
                 <div
                   className={`max-w-[85%] rounded-2xl px-5 py-4 font-body-sm ${
@@ -207,9 +213,7 @@ export function AskSentinel() {
 
             {isTyping && (
               <div className="flex justify-start items-center">
-                <div className="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center shrink-0 mr-3">
-                  <CpuChipIcon className="w-4 h-4 text-on-surface" />
-                </div>
+                <AiAvatar isGenerating />
                 <div className="bg-surface border border-surface-container-high rounded-2xl px-5 py-4 shadow-sm flex gap-1.5 items-center">
                   <div className="w-1.5 h-1.5 bg-on-surface-variant rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
                   <div className="w-1.5 h-1.5 bg-on-surface-variant rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
@@ -220,9 +224,7 @@ export function AskSentinel() {
 
             {error && (
               <div className="flex justify-start items-start">
-                <div className="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center shrink-0 mr-3 mt-1">
-                  <CpuChipIcon className="w-4 h-4 text-on-surface" />
-                </div>
+                <AiAvatar />
                 <div className="max-w-[85%] rounded-2xl border border-error/30 bg-error-container/20 px-5 py-4 shadow-sm">
                   <div className="flex items-center gap-1.5 mb-1">
                     <ExclamationTriangleIcon aria-hidden="true" className="h-4 w-4 shrink-0 text-error" />
@@ -252,7 +254,7 @@ export function AskSentinel() {
       <div className="mt-auto shrink-0 flex flex-col">
         {messages.length === 0 && (
           <div className="flex flex-wrap items-center gap-2 mb-3">
-            {['Summarize expenses', 'Vendor risk analysis', 'Generate Q3 report'].map(suggestion => (
+            {['Summarize expenses', 'Vendor risk analysis'].map(suggestion => (
               <button
                 key={suggestion}
                 onClick={() => handleSend(suggestion)}

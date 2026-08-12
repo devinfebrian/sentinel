@@ -16,6 +16,7 @@ import { ApiError, type Finding, type RiskLevel } from '@/lib/services/api';
 const API_BASE_URL = '/api/v1';
 
 export type RunPhase = 'created' | 'updated' | 'clean' | 'failed';
+export type AgentName = 'agent1' | 'agent2' | 'agent3';
 
 export interface RunSummary {
   diperiksa: number;
@@ -26,7 +27,7 @@ export interface RunSummary {
 }
 
 export interface AnalysisEvent {
-  status: 'info' | 'progress' | 'complete' | 'error';
+  status: 'info' | 'progress' | 'agent' | 'complete' | 'error';
   message?: string;
   /** info */
   total?: number;
@@ -41,6 +42,14 @@ export interface AnalysisEvent {
   finding_id?: number | null;
   risk_level?: RiskLevel | null;
   risk_score?: number | null;
+  /**
+   * agent — fired around the two LLM checkpoints inside a single candidate
+   * transaction's analysis (agent1+agent2 start/finish together, they run
+   * concurrently; agent3 starts after). There is no "in progress" state
+   * between started and done, only those two instants.
+   */
+  agent?: AgentName;
+  agent_phase?: 'started' | 'done';
   /** complete */
   summary?: RunSummary;
   findings?: Finding[];

@@ -6,14 +6,13 @@ import {
   ArrowLeftStartOnRectangleIcon,
   ChevronDownIcon,
   ChevronUpIcon,
-  ClockIcon,
   KeyIcon,
+  MagnifyingGlassIcon,
 } from '@heroicons/react/24/outline';
 import { ShieldCheckIcon } from '@heroicons/react/24/solid';
 import { useAuthStore } from '@/lib/stores/auth.store';
 
-import { useNow } from '@/lib/hooks/use-now';
-import { formatClock, formatDayDate } from '@/lib/format/datetime';
+import { NAV_GROUPS, ACCOUNT_NAV_ITEMS, type NavItem } from '@/lib/nav-items';
 import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
 import { useTheme } from 'next-themes';
 
@@ -53,7 +52,67 @@ export default function TopAppBar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [menuOpen]);
 
-  const now = useNow();
+  const isAdmin = user?.isAdmin ?? false;
+  // Pages a user can jump to from the header search: every sidebar route
+  // plus account-menu destinations (e.g. change password) that aren't in
+  // the sidebar at all.
+  const searchableItems: NavItem[] = [
+    ...NAV_GROUPS.flatMap((group) => group.items).filter((item) => !item.adminOnly || isAdmin),
+    ...ACCOUNT_NAV_ITEMS,
+  ];
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [activeResultIndex, setActiveResultIndex] = useState(0);
+  const searchWrapperRef = useRef<HTMLDivElement>(null);
+
+  const searchResults = searchQuery.trim()
+    ? searchableItems.filter((item) =>
+        item.label.toLowerCase().includes(searchQuery.trim().toLowerCase())
+      )
+    : searchableItems;
+
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    setActiveResultIndex(0);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchWrapperRef.current && !searchWrapperRef.current.contains(event.target as Node)) {
+        setSearchOpen(false);
+      }
+    };
+    if (searchOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [searchOpen]);
+
+  const goToSearchResult = (item: NavItem) => {
+    router.push(item.href);
+    setSearchQuery('');
+    setSearchOpen(false);
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSearchOpen(true);
+      setActiveResultIndex((i) => Math.min(i + 1, searchResults.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveResultIndex((i) => Math.max(i - 1, 0));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      const target = searchResults[activeResultIndex];
+      if (target) goToSearchResult(target);
+    } else if (e.key === 'Escape') {
+      setSearchOpen(false);
+      e.currentTarget.blur();
+    }
+  };
+
   const { resolvedTheme, setTheme } = useTheme();
 
   const handleLogout = () => {
@@ -79,22 +138,61 @@ export default function TopAppBar() {
         </div>
       </div>
 
-      {/* Clock Widget (Center on mobile, Left on desktop) */}
-      <div className="flex shrink-0 items-center justify-center md:justify-start">
-        <div className="flex min-w-0 items-center gap-1.5 sm:gap-2 rounded-full border border-outline-variant/30 bg-surface-container-low px-2 sm:px-4 py-1.5 sm:py-2">
-          <ClockIcon aria-hidden="true" className="h-4 w-4 sm:h-5 sm:w-5 shrink-0 text-on-surface-variant" />
-          {/* aria-live is deliberately off: a clock announcing itself every
-              second would flood a screen reader. */}
-          <p className="flex items-baseline gap-1.5 sm:gap-2 whitespace-nowrap text-[10px] sm:text-table-data">
-            <span className="font-semibold tabular-nums text-on-surface">
-              {now ? formatClock(now) : '--:--:--'}
-            </span>
-            <span className="text-on-surface-variant hidden sm:inline">WIB</span>
-            <span className="hidden text-on-surface-variant/70 md:inline">
-              {now ? formatDayDate(now) : ''}
-            </span>
-          </p>
+      {/* Search (Center on mobile, Left on desktop) */}
+      <div ref={searchWrapperRef} className="relative flex min-w-0 flex-1 items-center justify-center md:flex-none md:justify-start">
+        <div className="relative w-full max-w-[260px] sm:max-w-sm md:w-80">
+          <MagnifyingGlassIcon
+            aria-hidden="true"
+            className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-on-surface-variant"
+          />
+          <input
+            type="text"
+            role="combobox"
+            aria-expanded={searchOpen}
+            aria-controls="header-search-results"
+            aria-autocomplete="list"
+            value={searchQuery}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            onFocus={() => setSearchOpen(true)}
+            onKeyDown={handleSearchKeyDown}
+            placeholder="Search tools, pages..."
+            className="w-full rounded-full border border-outline-variant/30 bg-surface-container-low py-2 sm:py-2.5 pl-10 pr-3 text-xs sm:text-sm text-on-surface placeholder:text-on-surface-variant/70 transition-colors focus:border-primary focus:outline-none"
+          />
         </div>
+
+        {searchOpen && (
+          <div
+            id="header-search-results"
+            role="listbox"
+            className="absolute left-0 top-full z-50 mt-2 w-full max-w-[260px] sm:max-w-sm md:w-80 overflow-hidden rounded-xl border border-outline-variant/30 bg-surface card-shadow"
+          >
+            {searchResults.length === 0 ? (
+              <p className="px-4 py-3 font-label-sm text-label-sm text-on-surface-variant">
+                No matches for &ldquo;{searchQuery}&rdquo;
+              </p>
+            ) : (
+              searchResults.map((item, i) => {
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={item.href}
+                    type="button"
+                    role="option"
+                    aria-selected={i === activeResultIndex}
+                    onMouseEnter={() => setActiveResultIndex(i)}
+                    onClick={() => goToSearchResult(item)}
+                    className={`flex w-full items-center gap-2.5 px-4 py-2.5 text-left font-label-sm text-label-sm text-on-surface transition-colors ${
+                      i === activeResultIndex ? 'bg-surface-container-high' : 'hover:bg-surface-container-high'
+                    }`}
+                  >
+                    <Icon aria-hidden="true" className="h-4 w-4 shrink-0 text-on-surface-variant" />
+                    {item.label}
+                  </button>
+                );
+              })
+            )}
+          </div>
+        )}
       </div>
 
       {/* Right Actions (Profile, Theme) */}

@@ -62,9 +62,11 @@ const CARD = 'rounded-xl border border-outline-variant/30 bg-surface-container-l
  * writes the final narrative, so a separate "Synthesizer" would be a box with
  * nothing behind it.
  *
- * State comes from the run, not from the individual agent. The pipeline has no
- * per-agent telemetry — agents 1 and 2 run on pool threads inside a synchronous
- * function — so lighting these up individually would be animation, not status.
+ * `active` reflects a real `agent` SSE event from the backend (see
+ * `useAnalysisRun`'s `activeAgents`), not a shared "a run is happening" flag —
+ * agent 1 and 2 do light up together, but that is because they genuinely run
+ * concurrently on the same thread pool, not because the UI can't tell them
+ * apart.
  */
 function AgentNode({
   icon: Icon,
@@ -332,14 +334,14 @@ export default function FindingsClient() {
               icon={MagnifyingGlassIcon}
               name="Investigator 1"
               role="Financial analytics"
-              active={running}
+              active={run.activeAgents.agent1}
               done={run.status === 'done'}
             />
             <AgentNode
               icon={FingerPrintIcon}
               name="Investigator 2"
               role="Fraud patterns"
-              active={running}
+              active={run.activeAgents.agent2}
               done={run.status === 'done'}
             />
           </div>
@@ -351,7 +353,7 @@ export default function FindingsClient() {
             icon={ShieldCheckIcon}
             name="Reviewer"
             role="Verifies both, writes the finding"
-            active={running}
+            active={run.activeAgents.agent3}
             done={run.status === 'done'}
           />
         </div>

@@ -57,6 +57,12 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
 
+  --color-chart-income-fill: var(--chart-income-fill);
+  --color-chart-income-strong: var(--chart-income-strong);
+  --color-chart-expense-fill: var(--chart-expense-fill);
+  --color-chart-expense-strong: var(--chart-expense-strong);
+  --color-chart-net: var(--chart-net);
+
   --spacing-unit: 8px;
   --spacing-stack-sm: 12px;
   --spacing-stack-md: 24px;
@@ -129,6 +135,20 @@
   --success: #8bc34a;
   --warning: #d99a2b;
 
+  /* Cash Flow Trend chart series. `-fill` is the bar color: light mode
+     stays a soft pastel, easy on a near-white card, while dark mode (see
+     .dark below) switches to a saturated, vivid pair that actually shows
+     up on a near-black one — pastel there reads as barely-there. `-strong`
+     is the higher-contrast tone for the tooltip text and (for net) the
+     line/dot/legend marker; light mode's near-black "strong" tones read
+     fine on a near-white surface but dark mode needs its own brighter set,
+     see .dark below. */
+  --chart-income-fill: #b7dda9;
+  --chart-income-strong: #3f6644;
+  --chart-expense-fill: #ffb3a8;
+  --chart-expense-strong: #c92a2a;
+  --chart-net: #243b53;
+
   font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
   color-scheme: light;
 }
@@ -189,7 +209,19 @@
 
   --success: #a0db5a;
   --warning: #f5b033;
-  
+
+  /* -fill: the light-mode pastel would be almost invisible here, so dark
+     mode gets its own saturated, vivid pair instead. The light-mode
+     "strong" shades are near-black and invert to near-invisible on this
+     theme's near-black surfaces too (#243b53 in particular used to render
+     as an almost-black line/dot/legend marker on a #0f1513 background), so
+     those also need their own brighter set. */
+  --chart-income-fill: rgb(143, 175, 0);
+  --chart-income-strong: #9fd8a6;
+  --chart-expense-fill: rgb(239, 68, 68);
+  --chart-expense-strong: #ff8a80;
+  --chart-net: #8fb8e8;
+
   color-scheme: dark;
 }
 
@@ -467,6 +499,25 @@ body {
 
 .animate-rippling {
   animation: rippling 600ms ease-out forwards;
+}
+
+/* Amplitude is in the knight SVG's own 400-unit viewBox, not screen px — at
+   the icon's small render size a few px of screen movement needs a much
+   larger shift in local units. */
+@keyframes knightEyes {
+  0%,
+  100% {
+    transform: translateX(-14px);
+  }
+  50% {
+    transform: translateX(14px);
+  }
+}
+
+.animate-knight-eyes {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: knightEyes 2.4s ease-in-out infinite;
 }
 
 /* The custom PasswordInput toggle is the only reveal control we want;

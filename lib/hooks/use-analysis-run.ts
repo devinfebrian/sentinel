@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   streamAnalysis,
+  type AgentName,
   type AnalysisEvent,
   type RunPhase,
   type RunSummary,
@@ -28,6 +29,12 @@ const EMPTY_COUNTERS: Record<RunPhase, number> = {
   failed: 0,
 };
 
+const NO_ACTIVE_AGENTS: Record<AgentName, boolean> = {
+  agent1: false,
+  agent2: false,
+  agent3: false,
+};
+
 export interface RunParams {
   startDate: string;
   endDate: string;
@@ -47,6 +54,7 @@ export function useAnalysisRun() {
   const [status, setStatus] = useState<RunStatus>('idle');
   const [progress, setProgress] = useState({ index: 0, total: 0 });
   const [counters, setCounters] = useState<Record<RunPhase, number>>(EMPTY_COUNTERS);
+  const [activeAgents, setActiveAgents] = useState<Record<AgentName, boolean>>(NO_ACTIVE_AGENTS);
   const [log, setLog] = useState<LogLine[]>([]);
   const [summary, setSummary] = useState<RunSummary | null>(null);
   const [findings, setFindings] = useState<Finding[] | null>(null);
@@ -76,6 +84,7 @@ export function useAnalysisRun() {
       setStatus('running');
       setProgress({ index: 0, total: 0 });
       setCounters(EMPTY_COUNTERS);
+      setActiveAgents(NO_ACTIVE_AGENTS);
       setLog([]);
       setSummary(null);
       setError(null);
@@ -100,6 +109,16 @@ export function useAnalysisRun() {
             break;
           }
 
+          // Only fired for candidate transactions — a clean row never touches
+          // an agent, so `active` naturally stays false between candidates
+          // without any extra reset.
+          case 'agent':
+            if (event.agent && event.agent_phase) {
+              const isStarting = event.agent_phase === 'started';
+              setActiveAgents((prev) => ({ ...prev, [event.agent!]: isStarting }));
+            }
+            break;
+
           case 'complete':
             if (event.summary) {
               setSummary(event.summary);
@@ -111,12 +130,14 @@ export function useAnalysisRun() {
               );
             }
             if (event.findings) setFindings(event.findings);
+            setActiveAgents(NO_ACTIVE_AGENTS);
             setStatus('done');
             break;
 
           case 'error':
             setError(event.message ?? 'The analysis run failed.');
             append(event.message ?? 'The analysis run failed.', 'error');
+            setActiveAgents(NO_ACTIVE_AGENTS);
             setStatus('error');
             break;
         }
@@ -131,6 +152,7 @@ export function useAnalysisRun() {
         setStatus((prev) => (prev === 'running' ? 'done' : prev));
       } catch (e) {
         if (controller.signal.aborted) {
+          setActiveAgents(NO_ACTIVE_AGENTS);
           setStatus('halted');
           append('Halted. Transactions already checked will be skipped next run.', 'info');
           return;
@@ -139,11 +161,12 @@ export function useAnalysisRun() {
         const message = e instanceof ApiError ? e.message : 'The analysis run failed unexpectedly.';
         setError(message);
         append(message, 'error');
+        setActiveAgents(NO_ACTIVE_AGENTS);
         setStatus('error');
       }
     },
     [append]
   );
 
-  return { status, progress, counters, log, summary, findings, error, start, halt };
+  return { status, progress, counters, activeAgents, log, summary, findings, error, start, halt };
 }

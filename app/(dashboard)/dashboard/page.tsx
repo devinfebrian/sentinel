@@ -188,7 +188,7 @@ export function SimpleLineChart({ data, isAllTime = false, metricFilter = 'All' 
                        <div 
                          className="absolute w-full"
                          style={{
-                           backgroundColor: '#D4E7CE',
+                           backgroundColor: 'var(--chart-income-fill)',
                            bottom: `${bottomZeroPct}%`,
                            height: `${incomeHeight}%`,
                            borderTopLeftRadius: '4px',
@@ -200,7 +200,7 @@ export function SimpleLineChart({ data, isAllTime = false, metricFilter = 'All' 
                        <div 
                          className="absolute w-full"
                          style={{
-                           backgroundColor: '#FFD6D2',
+                           backgroundColor: 'var(--chart-expense-fill)',
                            top: `${100 - bottomZeroPct}%`,
                            height: `${expenseHeight}%`,
                            borderBottomLeftRadius: '4px',
@@ -223,7 +223,7 @@ export function SimpleLineChart({ data, isAllTime = false, metricFilter = 'All' 
                   strokeWidth="2.5" 
                   strokeLinecap="round" 
                   strokeLinejoin="round" 
-                  className="text-[#243B53]" 
+                  className="text-chart-net"
                   vectorEffect="non-scaling-stroke" 
                 />
               </svg>
@@ -235,7 +235,7 @@ export function SimpleLineChart({ data, isAllTime = false, metricFilter = 'All' 
               return (
                 <span 
                   key={`m-${i}`}
-                  className={`absolute h-[7px] w-[7px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#243B53] shadow-sm ring-[1.5px] ring-surface pointer-events-none z-10 transition-opacity duration-200 ${isMuted ? 'opacity-40' : 'opacity-100'}`}
+                  className={`absolute h-[7px] w-[7px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-chart-net shadow-sm ring-[1.5px] ring-surface pointer-events-none z-10 transition-opacity duration-200 ${isMuted ? 'opacity-40' : 'opacity-100'}`}
                   style={{ left: `${xPct(i)}%`, top: `${100 - yPct(d.net)}%` }}
                 />
               );
@@ -281,19 +281,19 @@ export function SimpleLineChart({ data, isAllTime = false, metricFilter = 'All' 
                   >
                     <div className="mb-2 font-bold text-[12px] border-b border-surface-container-highest pb-1">{activeData.label}</div>
                     {showIncome && (
-                      <div className="flex justify-between gap-4 font-medium text-[#596B58]">
+                      <div className="flex justify-between gap-4 font-medium text-chart-income-strong">
                         <span>Income:</span>
                         <span>{formatCurrency(activeData.income)}</span>
                       </div>
                     )}
                     {showExpense && (
-                      <div className={`flex justify-between gap-4 font-medium text-[#C92A2A] ${showIncome ? 'mt-0.5' : ''}`}>
+                      <div className={`flex justify-between gap-4 font-medium text-chart-expense-strong ${showIncome ? 'mt-0.5' : ''}`}>
                         <span>Expense:</span>
                         <span>{formatCurrency(activeData.expense)}</span>
                       </div>
                     )}
                     {showNet && (
-                      <div className={`flex justify-between gap-4 font-bold text-[#243B53] ${(showIncome || showExpense) ? 'mt-1.5 border-t border-surface-container-highest pt-1.5' : ''}`}>
+                      <div className={`flex justify-between gap-4 font-bold text-chart-net ${(showIncome || showExpense) ? 'mt-1.5 border-t border-surface-container-highest pt-1.5' : ''}`}>
                         <span>Net Cash Flow:</span>
                         <span>{formatCurrency(activeData.net)}</span>
                       </div>
@@ -325,19 +325,19 @@ export function SimpleLineChart({ data, isAllTime = false, metricFilter = 'All' 
       <div className="mt-2 flex flex-wrap justify-center gap-4 sm:gap-6 shrink-0 bg-surface z-10 pt-2 pb-1">
         {showIncome && (
           <div className="flex items-center gap-2">
-            <span className="h-3 w-3 rounded-[2px]" style={{ backgroundColor: '#D4E7CE' }}></span>
+            <span className="h-3 w-3 rounded-[2px] bg-chart-income-fill"></span>
             <span className="text-[10px] sm:text-[11px] font-medium text-on-surface">Income</span>
           </div>
         )}
         {showExpense && (
           <div className="flex items-center gap-2">
-            <span className="h-3 w-3 rounded-[2px]" style={{ backgroundColor: '#FFD6D2' }}></span>
+            <span className="h-3 w-3 rounded-[2px] bg-chart-expense-fill"></span>
             <span className="text-[10px] sm:text-[11px] font-medium text-on-surface">Expense</span>
           </div>
         )}
         {showNet && (
           <div className="flex items-center gap-2">
-            <span className="h-0 w-3 border-t-[3px] border-solid border-[#243B53]"></span>
+            <span className="h-0 w-3 border-t-[3px] border-solid border-chart-net"></span>
             <span className="text-[10px] sm:text-[11px] font-medium text-on-surface">Net Cash Flow</span>
           </div>
         )}
@@ -767,23 +767,17 @@ export default function DashboardPage() {
               <h2 className="font-headline-sm text-headline-sm text-on-surface">Cash Flow Trend</h2>
               <p className="font-body-sm text-on-surface-variant">Income and expenses over time.</p>
             </div>
-            <div className="flex items-center gap-2 bg-surface border border-surface-container-high rounded-lg p-1 card-shadow self-start sm:self-auto">
-              <select 
-                value={metricFilter} 
-                onChange={(e) => setMetricFilter(e.target.value)}
-                className="bg-transparent text-sm font-medium text-on-surface py-1 px-2 outline-none cursor-pointer appearance-none"
-              >
-                 <option value="All">All</option>
-                 <option value="Income">Income</option>
-                 <option value="Expense">Expense</option>
-                 <option value="Net Cash Flow">Net Cash Flow</option>
-              </select>
-              <div className="pr-2 text-on-surface-variant pointer-events-none">
-                <svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-            </div>
+            <FilterSelect
+              label="Metric"
+              value={metricFilter}
+              onChange={setMetricFilter}
+              className="w-40 self-start sm:self-auto"
+            >
+              <option value="All">All</option>
+              <option value="Income">Income</option>
+              <option value="Expense">Expense</option>
+              <option value="Net Cash Flow">Net Cash Flow</option>
+            </FilterSelect>
           </div>
           <div className="flex-1 flex flex-col min-h-0">
              {isLoading ? (

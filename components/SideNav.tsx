@@ -1,21 +1,12 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/lib/stores/auth.store';
 import { useSidebarStore } from '@/lib/stores/sidebar.store';
-import {
-  BuildingStorefrontIcon,
-  ChartBarIcon,
-  DocumentTextIcon,
-  ShieldExclamationIcon,
-  SparklesIcon,
-  Squares2X2Icon,
-  UsersIcon,
-} from '@heroicons/react/24/outline';
-import { ShieldCheckIcon } from '@heroicons/react/24/solid';
-import type { IconComponent } from '@/lib/types/icon';
+import { NAV_GROUPS } from '@/lib/nav-items';
 
 /**
  * Heroicons has no panel/sidebar glyph, so this is drawn to match their
@@ -48,56 +39,6 @@ function SidebarToggleIcon({ collapsed }: { collapsed: boolean }) {
   );
 }
 
-interface NavItem {
-  href: string;
-  icon: IconComponent;
-  label: string;
-  adminOnly?: boolean;
-  /** Route exists but is a placeholder until the AI service lands in Sprint 2. */
-  soon?: boolean;
-}
-
-interface NavGroup {
-  id: string;
-  /** `null` for the lead group, which sits above the first heading. */
-  label: string | null;
-  items: NavItem[];
-}
-
-const NAV_GROUPS: NavGroup[] = [
-  {
-    id: 'overview',
-    label: null,
-    items: [
-      { href: '/', icon: Squares2X2Icon, label: 'Overview' },
-      { href: '/dashboard', icon: ChartBarIcon, label: 'Dashboard' },
-    ],
-  },
-  {
-    id: 'audit',
-    label: 'Audit',
-    items: [
-      { href: '/findings', icon: ShieldExclamationIcon, label: 'Findings' },
-      { href: '/ask', icon: SparklesIcon, label: 'Ask Sentinel' },
-    ],
-  },
-  {
-    id: 'records',
-    label: 'Records',
-    items: [
-      { href: '/transactions', icon: DocumentTextIcon, label: 'Transactions' },
-      { href: '/vendors', icon: BuildingStorefrontIcon, label: 'Vendors' },
-    ],
-  },
-  {
-    id: 'admin',
-    label: 'Admin',
-    items: [
-      { href: '/administration', icon: UsersIcon, label: 'User Management', adminOnly: true },
-    ],
-  },
-];
-
 export default function SideNav() {
   const pathname = usePathname();
   const isAdmin = useAuthStore((s) => s.user?.isAdmin ?? false);
@@ -128,7 +69,7 @@ export default function SideNav() {
       
       <aside
         id="dashboard-sidebar"
-        className={`flex flex-col h-full py-4 transition-[width,padding,transform] duration-300 sidebar-shell-transition fixed left-0 top-0 z-50 flex-shrink-0 border-r border-outline-variant/50 bg-surface-container-low md:translate-x-0 ${
+        className={`flex flex-col h-full py-4 transition-[width,padding,transform] duration-300 sidebar-shell-transition fixed left-0 top-0 z-50 flex-shrink-0 border-r border-outline-variant/50 bg-surface-container-low md:border-r-0 md:translate-x-0 ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full'
         } ${
           isCollapsed ? 'w-[var(--sidebar-w-rail)] px-2' : 'w-[var(--sidebar-w-full)] px-3'
@@ -139,36 +80,42 @@ export default function SideNav() {
         isCollapsed ? 'mx-auto w-9 justify-center' : 'w-full px-2.5 justify-start'
       }`}>
         <div className="flex items-center gap-3">
-          <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-xl bg-primary shadow-sm">
-            <ShieldCheckIcon aria-hidden="true" className="h-5 w-5 text-on-primary" />
+          <span className="relative h-[34px] w-[34px] shrink-0">
+            <Image src="/sentinel_logo.png" alt="" fill priority sizes="34px" className="object-contain" />
           </span>
           {!isCollapsed && (
-            <span className="font-headline-sm text-lg text-on-surface font-bold tracking-tight whitespace-nowrap">
+            <span className="font-headline-sm text-2xl text-on-surface font-bold tracking-tight whitespace-nowrap">
               Sentinel
             </span>
           )}
         </div>
       </div>
 
-      {/* The toggle borrows the nav row's own geometry in each state — the same
-          px-2.5 when open, the same centred 36px square on the rail — so its
-          icon lands on the nav icons' axis by construction rather than by a
-          tuned offset. */}
-      <div className="flex">
-        <button
-          type="button"
-          onClick={toggleSidebar}
-          className={`hidden md:flex shrink-0 items-center rounded-lg text-on-surface-variant transition-colors hover:bg-secondary-container/60 hover:text-on-surface ${
-            isCollapsed ? 'mx-auto h-9 w-9 justify-center' : 'h-[34px] w-fit px-2.5'
-          }`}
-          title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
-          aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          aria-expanded={!isCollapsed}
-          aria-controls="dashboard-sidebar"
+      {/* The old dedicated toggle button is gone — the sidebar's own right
+          edge is now the control. This strip sits on top of that edge and
+          is clickable along its full height, so the border line itself is
+          the affordance; the circular icon only surfaces on hover/focus as
+          a hint rather than the sole hit target. */}
+      <button
+        type="button"
+        onClick={toggleSidebar}
+        title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+        aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        aria-expanded={!isCollapsed}
+        aria-controls="dashboard-sidebar"
+        className="group/resize absolute inset-y-0 -right-2 z-10 hidden w-4 cursor-pointer items-center justify-center md:flex"
+      >
+        <span
+          aria-hidden="true"
+          className="h-full w-px bg-outline-variant/50 transition-colors duration-150 group-hover/resize:bg-primary group-focus-visible/resize:bg-primary"
+        />
+        <span
+          aria-hidden="true"
+          className="absolute flex h-6 w-6 items-center justify-center rounded-full border border-outline-variant/60 bg-surface-container-low text-on-surface-variant opacity-0 shadow-sm transition-opacity duration-150 group-hover/resize:opacity-100 group-focus-visible/resize:opacity-100"
         >
           <SidebarToggleIcon collapsed={isCollapsed} />
-        </button>
-      </div>
+        </span>
+      </button>
 
       {/* No overflow container: `overflow-y-auto` also clips horizontally,
           which would cut the collapsed tooltips off at the rail edge. */}
