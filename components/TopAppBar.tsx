@@ -10,7 +10,6 @@ import {
   KeyIcon,
   MagnifyingGlassIcon,
 } from '@heroicons/react/24/outline';
-import { ShieldCheckIcon } from '@heroicons/react/24/solid';
 import { useAuthStore } from '@/lib/stores/auth.store';
 
 import { NAV_GROUPS, ACCOUNT_NAV_ITEMS, type NavItem } from '@/lib/nav-items';
