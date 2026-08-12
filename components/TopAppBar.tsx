@@ -7,7 +7,7 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
   ClockIcon,
-  Cog6ToothIcon,
+  KeyIcon,
 } from '@heroicons/react/24/outline';
 import { useAuthStore } from '@/lib/stores/auth.store';
 
@@ -62,15 +62,6 @@ export default function TopAppBar() {
 
       <div className="flex shrink-0 items-center gap-1.5 sm:gap-4">
         {/* Hide these placeholder buttons on mobile to save space */}
-        <button
-          type="button"
-          disabled
-          aria-label="Settings"
-          className="hidden sm:flex h-10 w-10 items-center justify-center rounded-full bg-surface-container text-on-surface-variant transition-colors hover:bg-surface-container-high disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <Cog6ToothIcon aria-hidden="true" className="h-6 w-6" />
-        </button>
-
         <AnimatedThemeToggler 
           className="!flex h-8 w-8 sm:h-10 sm:w-10 !p-0 items-center justify-center rounded-full bg-surface-container text-on-surface-variant transition-colors hover:bg-primary-container hover:text-on-primary-container active:bg-primary-container active:text-on-primary-container" 
           variant="circle"
@@ -123,6 +114,18 @@ export default function TopAppBar() {
                     {roleLabel}
                   </p>
                 </div>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    router.push('/change-password');
+                  }}
+                  className="flex items-center gap-2 px-4 py-3 text-left font-label-sm font-bold text-on-surface transition-colors hover:bg-surface-container-high"
+                >
+                  <KeyIcon aria-hidden="true" className="h-[18px] w-[18px]" />
+                  Setup / Change Password
+                </button>
                 <button
                   type="button"
                   role="menuitem"

@@ -44,7 +44,7 @@ export default function BottomNav() {
 
   const extraItems = [
     { href: '/findings', icon: ShieldExclamationIcon, label: 'Findings' },
-    { href: '/ask', icon: SparklesIcon, label: 'Ask Sentinel', soon: true },
+    { href: '/ask', icon: SparklesIcon, label: 'Ask Sentinel' },
     ...(isAdmin ? [{ href: '/administration', icon: UsersIcon, label: 'User Management' }] : []),
   ];
 
@@ -89,11 +89,6 @@ export default function BottomNav() {
               >
                 <Icon className="h-5 w-5" />
                 <span>{item.label}</span>
-                {item.soon && (
-                  <span className="ml-auto rounded-full bg-surface-container-high px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.04em] text-outline">
-                    Soon
-                  </span>
-                )}
               </Link>
             );
           })}

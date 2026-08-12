@@ -15,6 +15,7 @@ import {
 import Badge, { type BadgeTone } from '@/components/common/Badge';
 import { FilterSelect, FILTER_INPUT_CLASSES } from '@/components/common/FilterControls';
 import EvidenceModal from '@/components/findings/EvidenceModal';
+import RippleButton, { PRIMARY_ACTION_CLASSES } from '@/components/common/RippleButton';
 import { useAnalysisRun, type LogLine } from '@/lib/hooks/use-analysis-run';
 import {
   listFindingsApi,
@@ -237,15 +238,15 @@ export default function FindingsClient() {
             <StopIcon aria-hidden="true" className="h-5 w-5" />
             Halt
           </button>
-          <button
+          <RippleButton
             type="button"
             onClick={() => setShowRunForm((v) => !v)}
             disabled={running}
-            className="inline-flex h-12 items-center gap-2 rounded-xl bg-primary px-5 font-label-lg text-label-lg text-on-primary transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+            className={PRIMARY_ACTION_CLASSES}
           >
             <PlayIcon aria-hidden="true" className="h-5 w-5" />
             Run analysis
-          </button>
+          </RippleButton>
         </div>
       </header>
 
@@ -284,13 +285,13 @@ export default function FindingsClient() {
               Re-check transactions already marked clean
             </span>
           </label>
-          <button
+          <RippleButton
             type="button"
             onClick={startRun}
-            className="ml-auto inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-4 font-label-lg text-label-lg text-on-primary transition-opacity hover:opacity-90"
+            className={`ml-auto ${PRIMARY_ACTION_CLASSES}`}
           >
             Start
-          </button>
+          </RippleButton>
         </div>
       )}
 
