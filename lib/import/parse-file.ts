@@ -39,7 +39,7 @@ const HEADER_ALIASES: Record<keyof Omit<ParsedRow, 'amount' | 'type' | 'category
   description: ['description', 'deskripsi', 'keterangan', 'note', 'catatan'],
   date: ['date', 'tanggal', 'tgl', 'created_at', 'createdat'],
   invoice_no: ['invoice_no', 'invoiceno', 'invoice', 'faktur', 'no_faktur', 'no_invoice', 'nofaktur', 'noinvoice'],
-  vendor_name: ['vendor_name', 'vendorname', 'vendor', 'supplier', 'nama_vendor', 'namavendor'],
+  vendor_name: ['vendor_name', 'vendorname', 'vendor', 'supplier', 'nama_vendor', 'namavendor', 'vendoridname'],
 };
 
 /** Lowercase + strip non-alphanumerics so header matching is forgiving. */
