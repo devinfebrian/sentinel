@@ -15,7 +15,7 @@ const TONE_CLASSES: Record<BadgeTone, string> = {
   medium: 'bg-amber-400 text-white',
   low: 'bg-emerald-500 text-white',
   neutral: 'bg-surface-container-high text-on-surface-variant',
-  success: 'bg-secondary/10 text-secondary',
+  success: 'bg-emerald-100 text-emerald-800',
 };
 
 interface BadgeProps {
