@@ -8,7 +8,7 @@ import React, { useEffect, useState } from 'react';
  * each page inventing its own height, radius, and label size.
  */
 export const PRIMARY_ACTION_CLASSES =
-  'inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-lg bg-primary-container px-6 font-label-lg text-label-lg text-on-primary-container transition-colors interactive-shadow hover:bg-primary-fixed disabled:cursor-not-allowed disabled:opacity-50';
+  'inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-lg bg-primary-container px-6 font-label-lg text-label-lg text-on-primary-container hover:text-on-primary-fixed transition-colors interactive-shadow hover:bg-primary-fixed disabled:cursor-not-allowed disabled:opacity-50';
 
 /** Same box, outline treatment — for the secondary action beside it. */
 export const SECONDARY_ACTION_CLASSES =
