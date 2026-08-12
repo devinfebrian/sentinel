@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ShieldCheckIcon } from '@heroicons/react/24/solid';
+import Image from 'next/image';
 import LoginForm from '@/components/auth/LoginForm';
 import AuthFooterLink from '@/components/auth/AuthFooterLink';
 import LoadingScreen from '@/components/common/LoadingScreen';
