@@ -407,15 +407,37 @@ export function getFindingApi(id: number, accessToken: string, signal?: AbortSig
   });
 }
 
-/**
- * `resolved_by` is deliberately absent: the backend fills it from the verified
- * token. For an audit trail, a self-reported "who signed this off" is worse
- * than no record at all.
- */
 export function resolveFindingApi(
   id: number,
   payload: { resolution: Resolution; note?: string },
   accessToken: string
 ) {
   return request<{ finding: Finding }>(`/findings/${id}/resolve`, jsonPatch(payload, accessToken));
+}
+
+export interface AskHistory {
+  id: number;
+  question: string;
+  answer: string;
+  data_range: string;
+  figures: Record<string, unknown> | null;
+  tools_used: string[] | null;
+  steps: unknown[] | null;
+  unsourced_figures: string[] | null;
+  warning: string | null;
+  created_at: string;
+}
+
+export function askHistoryApi(
+  accessToken: string,
+  params?: { limit?: number; topic?: string; start_date?: string; end_date?: string }
+) {
+  const search = new URLSearchParams();
+  if (params?.limit) search.set('limit', String(params.limit));
+  if (params?.topic) search.set('topic', params.topic);
+  if (params?.start_date) search.set('start_date', params.start_date);
+  if (params?.end_date) search.set('end_date', params.end_date);
+  
+  const qs = search.toString();
+  return request<AskHistory[]>(`/ask/history${qs ? `?${qs}` : ''}`, authGet(accessToken));
 }

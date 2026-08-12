@@ -9,6 +9,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { askApi, ApiError } from '@/lib/services/api';
 import { useAuthStore } from '@/lib/stores/auth.store';
+import { AskHistoryPanel } from './AskHistoryPanel';
 
 interface Message {
   id: string;
@@ -180,117 +181,121 @@ export function AskSentinel() {
   };
 
   return (
-    <div className="flex flex-col flex-1 min-h-0 w-full">
-      {/* Chat Area */}
-      <div className="flex-1 overflow-y-auto pr-2 mb-4 custom-scrollbar flex flex-col relative">
-        {messages.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center text-center animate-fade-in my-auto h-full pb-10">
-            <div className="w-16 h-16 rounded-full bg-primary-container flex items-center justify-center mb-6">
-              <SparklesIcon className="w-8 h-8 text-on-primary-container" />
+    <div className="flex flex-1 min-h-0 w-full overflow-hidden">
+      <div className="flex flex-col flex-1 min-w-0 relative">
+        {/* Chat Area */}
+        <div className="flex-1 overflow-y-auto pr-2 mb-4 custom-scrollbar flex flex-col relative">
+          {messages.length === 0 ? (
+            <div className="flex-1 flex flex-col items-center justify-center text-center animate-fade-in my-auto h-full pb-10">
+              <div className="w-16 h-16 rounded-full bg-primary-container flex items-center justify-center mb-6">
+                <SparklesIcon className="w-8 h-8 text-on-primary-container" />
+              </div>
+              <h3 className="text-2xl font-semibold text-on-surface mb-3">How can I assist you today?</h3>
+              <p className="text-on-surface-variant max-w-md mx-auto text-sm leading-relaxed">
+                I can help analyze spending or assess vendor risks based on your latest data.
+              </p>
             </div>
-            <h3 className="text-2xl font-semibold text-on-surface mb-3">How can I assist you today?</h3>
-            <p className="text-on-surface-variant max-w-md mx-auto text-sm leading-relaxed">
-              I can help analyze spending or assess vendor risks based on your latest data.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {messages.map((msg) => (
-              <div key={msg.id} className={`flex w-full ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                {msg.role === 'ai' && <AiAvatar />}
+          ) : (
+            <div className="space-y-6">
+              {messages.map((msg) => (
+                <div key={msg.id} className={`flex w-full ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  {msg.role === 'ai' && <AiAvatar />}
 
-                <div
-                  className={`max-w-[85%] rounded-2xl px-5 py-4 font-body-sm ${
-                    msg.role === 'user'
-                      ? 'bg-primary-fixed text-on-primary-fixed rounded-br-none'
-                      : 'bg-surface border border-surface-container-high text-on-surface shadow-sm'
-                  }`}
-                >
-                  {renderMessageContent(msg)}
-                </div>
-              </div>
-            ))}
-
-            {isTyping && (
-              <div className="flex justify-start items-center">
-                <AiAvatar isGenerating />
-                <div className="bg-surface border border-surface-container-high rounded-2xl px-5 py-4 shadow-sm flex gap-1.5 items-center">
-                  <div className="w-1.5 h-1.5 bg-on-surface-variant rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                  <div className="w-1.5 h-1.5 bg-on-surface-variant rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                  <div className="w-1.5 h-1.5 bg-on-surface-variant rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                </div>
-              </div>
-            )}
-
-            {error && (
-              <div className="flex justify-start items-start">
-                <AiAvatar />
-                <div className="max-w-[85%] rounded-2xl border border-error/30 bg-error-container/20 px-5 py-4 shadow-sm">
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <ExclamationTriangleIcon aria-hidden="true" className="h-4 w-4 shrink-0 text-error" />
-                    <span className="font-label-sm text-label-sm font-bold text-error">
-                      Could not get an answer
-                    </span>
-                  </div>
-                  <p className="font-body-sm text-body-sm text-on-surface whitespace-pre-wrap">{error}</p>
-                  <button
-                    type="button"
-                    onClick={handleRetry}
-                    className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-surface-container-high bg-surface px-3 py-1.5 text-xs font-semibold text-on-surface transition-colors hover:bg-surface-container"
+                  <div
+                    className={`max-w-[85%] rounded-2xl px-5 py-4 font-body-sm ${
+                      msg.role === 'user'
+                        ? 'bg-primary-fixed text-on-primary-fixed rounded-br-none'
+                        : 'bg-surface border border-surface-container-high text-on-surface shadow-sm'
+                    }`}
                   >
-                    <ArrowPathIcon aria-hidden="true" className="h-3.5 w-3.5" />
-                    Try again
-                  </button>
+                    {renderMessageContent(msg)}
+                  </div>
                 </div>
-              </div>
-            )}
+              ))}
 
-            <div ref={messagesEndRef} />
-          </div>
-        )}
-      </div>
+              {isTyping && (
+                <div className="flex justify-start items-center">
+                  <AiAvatar isGenerating />
+                  <div className="bg-surface border border-surface-container-high rounded-2xl px-5 py-4 shadow-sm flex gap-1.5 items-center">
+                    <div className="w-1.5 h-1.5 bg-on-surface-variant rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                    <div className="w-1.5 h-1.5 bg-on-surface-variant rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                    <div className="w-1.5 h-1.5 bg-on-surface-variant rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                  </div>
+                </div>
+              )}
 
-      {/* Input Area */}
-      <div className="mt-auto shrink-0 flex flex-col">
-        {messages.length === 0 && (
-          <div className="flex flex-wrap items-center gap-2 mb-3">
-            {['Summarize expenses', 'Vendor risk analysis'].map(suggestion => (
-              <button
-                key={suggestion}
-                onClick={() => handleSend(suggestion)}
-                className="px-4 py-1.5 rounded-full bg-surface-container-highest hover:bg-surface-container-high text-xs text-on-surface-variant transition-colors"
-              >
-                {suggestion}
-              </button>
-            ))}
-          </div>
-        )}
+              {error && (
+                <div className="flex justify-start items-start">
+                  <AiAvatar />
+                  <div className="max-w-[85%] rounded-2xl border border-error/30 bg-error-container/20 px-5 py-4 shadow-sm">
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <ExclamationTriangleIcon aria-hidden="true" className="h-4 w-4 shrink-0 text-error" />
+                      <span className="font-label-sm text-label-sm font-bold text-error">
+                        Could not get an answer
+                      </span>
+                    </div>
+                    <p className="font-body-sm text-body-sm text-on-surface whitespace-pre-wrap">{error}</p>
+                    <button
+                      type="button"
+                      onClick={handleRetry}
+                      className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-surface-container-high bg-surface px-3 py-1.5 text-xs font-semibold text-on-surface transition-colors hover:bg-surface-container"
+                    >
+                      <ArrowPathIcon aria-hidden="true" className="h-3.5 w-3.5" />
+                      Try again
+                    </button>
+                  </div>
+                </div>
+              )}
 
-        <div className="relative flex items-center w-full bg-surface border border-surface-container-high rounded-2xl p-2 shadow-sm focus-within:border-primary transition-colors">
-          <input
-            type="text"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Ask anything about your finances..."
-            className="flex-1 bg-transparent border-none px-3 font-body-sm text-on-surface focus:outline-none focus:ring-0"
-          />
-
-          <button
-            onClick={onSubmit}
-            disabled={!inputValue.trim() || isTyping}
-            className="ml-2 p-3 rounded-xl bg-primary-container text-on-primary-container hover:brightness-110 disabled:opacity-80 disabled:cursor-not-allowed transition-all shadow-sm"
-          >
-            <PaperAirplaneIcon className="h-5 w-5" />
-          </button>
+              <div ref={messagesEndRef} />
+            </div>
+          )}
         </div>
 
-        <div className="text-center mt-3 mb-1">
-          <span className="text-[10px] text-on-surface-variant/70">
-            AI can make mistakes. Verify important financial data.
-          </span>
+        {/* Input Area */}
+        <div className="mt-auto shrink-0 flex flex-col">
+          {messages.length === 0 && (
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              {['Summarize expenses', 'Vendor risk analysis'].map(suggestion => (
+                <button
+                  key={suggestion}
+                  onClick={() => handleSend(suggestion)}
+                  className="px-4 py-1.5 rounded-full bg-surface-container-highest hover:bg-surface-container-high text-xs text-on-surface-variant transition-colors"
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
+          )}
+
+          <div className="relative flex items-center w-full bg-surface border border-surface-container-high rounded-2xl p-2 shadow-sm focus-within:border-primary transition-colors">
+            <input
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask anything about your finances..."
+              className="flex-1 bg-transparent border-none px-3 font-body-sm text-on-surface focus:outline-none focus:ring-0"
+            />
+
+            <button
+              onClick={onSubmit}
+              disabled={!inputValue.trim() || isTyping}
+              className="ml-2 p-3 rounded-xl bg-primary-container text-on-primary-container hover:brightness-110 disabled:opacity-80 disabled:cursor-not-allowed transition-all shadow-sm"
+            >
+              <PaperAirplaneIcon className="h-5 w-5" />
+            </button>
+          </div>
+
+          <div className="text-center mt-3 mb-1">
+            <span className="text-[10px] text-on-surface-variant/70">
+              AI can make mistakes. Verify important financial data.
+            </span>
+          </div>
         </div>
       </div>
+      
+      <AskHistoryPanel />
     </div>
   );
 }
