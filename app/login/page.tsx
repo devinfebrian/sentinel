@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ShieldCheckIcon } from '@heroicons/react/24/solid';
+import Image from 'next/image';
 import LoginForm from '@/components/auth/LoginForm';
 import AuthFooterLink from '@/components/auth/AuthFooterLink';
 import LoadingScreen from '@/components/common/LoadingScreen';
@@ -55,26 +55,26 @@ export default function LoginPage() {
           />
           <div className="absolute -top-32 -left-32 w-96 h-96 bg-primary-container rounded-full mix-blend-multiply filter blur-3xl opacity-20" />
 
-          <div className="relative z-10">
-            <img
-              src="/logo-full.png"
-              alt="Sentinel Logo"
-              className="w-40 h-auto object-contain object-left mix-blend-darken"
-              style={{ mixBlendMode: 'darken' }}
-            />
+          <div className="relative z-10 flex items-center gap-3">
+            <span className="relative h-10 w-10 shrink-0">
+              <Image src="/sentinel_logo.png" alt="" fill priority sizes="40px" className="object-contain" />
+            </span>
+            <span className="font-headline-md text-headline-md text-on-surface font-bold tracking-tight">
+              Sentinel
+            </span>
           </div>
         </div>
 
         {/* Form panel */}
         <div className="flex flex-col justify-center items-center p-margin-mobile md:p-margin-desktop bg-surface-container-lowest">
           <div className="w-full max-w-sm mx-auto">
-            <div className="lg:hidden flex justify-center mb-8">
-              <img
-                src="/logo-full.png"
-                alt="Sentinel Logo"
-                className="w-32 h-auto object-contain mix-blend-darken"
-                style={{ mixBlendMode: 'darken' }}
-              />
+            <div className="lg:hidden flex items-center justify-center gap-2.5 mb-8">
+              <span className="relative h-9 w-9 shrink-0">
+                <Image src="/sentinel_logo.png" alt="" fill priority sizes="36px" className="object-contain" />
+              </span>
+              <span className="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight">
+                Sentinel
+              </span>
             </div>
 
             <div className="text-center mb-6">
