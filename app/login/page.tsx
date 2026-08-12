@@ -55,26 +55,26 @@ export default function LoginPage() {
           />
           <div className="absolute -top-32 -left-32 w-96 h-96 bg-primary-container rounded-full mix-blend-multiply filter blur-3xl opacity-20" />
 
-          <div className="relative z-10 flex items-center gap-3">
-            <span className="bg-on-surface p-2 rounded-lg">
-                <ShieldCheckIcon aria-hidden="true" className="h-6 w-6 text-primary-container" />
-              </span>
-            <span className="font-headline-lg text-headline-lg text-on-surface font-bold">
-              Sentinel
-            </span>
+          <div className="relative z-10">
+            <img
+              src="/logo-full.png"
+              alt="Sentinel Logo"
+              className="w-40 h-auto object-contain object-left mix-blend-darken"
+              style={{ mixBlendMode: 'darken' }}
+            />
           </div>
         </div>
 
         {/* Form panel */}
         <div className="flex flex-col justify-center items-center p-margin-mobile md:p-margin-desktop bg-surface-container-lowest">
           <div className="w-full max-w-sm mx-auto">
-            <div className="lg:hidden flex items-center justify-center gap-3 mb-8">
-              <span className="bg-on-surface p-2 rounded-lg">
-                  <ShieldCheckIcon aria-hidden="true" className="h-6 w-6 text-primary-container" />
-                </span>
-              <span className="font-headline-lg text-headline-lg text-on-surface font-bold">
-                Sentinel
-              </span>
+            <div className="lg:hidden flex justify-center mb-8">
+              <img
+                src="/logo-full.png"
+                alt="Sentinel Logo"
+                className="w-32 h-auto object-contain mix-blend-darken"
+                style={{ mixBlendMode: 'darken' }}
+              />
             </div>
 
             <div className="text-center mb-6">

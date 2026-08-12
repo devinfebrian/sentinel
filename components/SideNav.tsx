@@ -14,6 +14,7 @@ import {
   Squares2X2Icon,
   UsersIcon,
 } from '@heroicons/react/24/outline';
+import { ShieldCheckIcon } from '@heroicons/react/24/solid';
 import type { IconComponent } from '@/lib/types/icon';
 
 /**
@@ -133,6 +134,22 @@ export default function SideNav() {
           isCollapsed ? 'w-[var(--sidebar-w-rail)] px-2' : 'w-[var(--sidebar-w-full)] px-3'
         }`}
       >
+      {/* Logo Area */}
+      <div className={`flex shrink-0 items-center mb-8 mt-2 transition-all duration-300 ${
+        isCollapsed ? 'mx-auto w-9 justify-center' : 'w-full px-2.5 justify-start'
+      }`}>
+        <div className="flex items-center gap-3">
+          <span className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-xl bg-primary shadow-sm">
+            <ShieldCheckIcon aria-hidden="true" className="h-5 w-5 text-on-primary" />
+          </span>
+          {!isCollapsed && (
+            <span className="font-headline-sm text-lg text-on-surface font-bold tracking-tight whitespace-nowrap">
+              Sentinel
+            </span>
+          )}
+        </div>
+      </div>
+
       {/* The toggle borrows the nav row's own geometry in each state — the same
           px-2.5 when open, the same centred 36px square on the rail — so its
           icon lands on the nav icons' axis by construction rather than by a
