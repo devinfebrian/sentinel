@@ -20,10 +20,16 @@ export default function BottomNav() {
   const isAdmin = useAuthStore((s) => s.user?.isAdmin ?? false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
         setMenuOpen(false);
       }
     };
@@ -129,6 +135,7 @@ export default function BottomNav() {
 
         {/* Menu Toggle for dropdown */}
         <button
+          ref={buttonRef}
           type="button"
           onClick={() => setMenuOpen((o) => !o)}
           className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${

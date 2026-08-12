@@ -16,6 +16,7 @@ import Badge, { type BadgeTone } from '@/components/common/Badge';
 import { FilterSelect, FILTER_INPUT_CLASSES } from '@/components/common/FilterControls';
 import EvidenceModal from '@/components/findings/EvidenceModal';
 import RippleButton, { PRIMARY_ACTION_CLASSES } from '@/components/common/RippleButton';
+import { DataLoadingSkeleton, DataErrorState } from '@/components/common/DataState';
 import { useAnalysisRun, type LogLine } from '@/lib/hooks/use-analysis-run';
 import {
   listFindingsApi,
@@ -397,12 +398,6 @@ export default function FindingsClient() {
       </section>
 
       {/* ---- Counts ---------------------------------------------------- */}
-      {error && (
-        <div className="flex items-start gap-2 rounded-xl bg-error-container px-4 py-3 font-body-md text-body-md text-on-error-container">
-          <ExclamationTriangleIcon aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0" />
-          <span>{error}</span>
-        </div>
-      )}
 
       {summary && (
         <div className="grid grid-cols-1 gap-gutter md:grid-cols-12">
@@ -513,8 +508,16 @@ export default function FindingsClient() {
           </div>
         </div>
 
-        <div className="w-full overflow-x-auto">
-          <table className="w-full border-collapse text-left">
+        {error ? (
+          <DataErrorState message={error} onRetry={load} />
+        ) : loading && findings.length === 0 ? (
+          <div className="p-6">
+            <DataLoadingSkeleton columns={6} rows={6} />
+          </div>
+        ) : (
+          <>
+            <div className="w-full overflow-x-auto">
+              <table className="w-full border-collapse text-left">
             <thead>
               <tr className="bg-surface-container-low font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">
                 <th className="w-20 px-6 py-4">ID</th>
@@ -601,6 +604,8 @@ export default function FindingsClient() {
               Show more
             </button>
           </div>
+        )}
+        </>
         )}
       </section>
 
