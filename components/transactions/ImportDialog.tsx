@@ -116,20 +116,6 @@ export default function ImportDialog({ isOpen, onClose, onImported }: ImportDial
       footer={
         step === 'review' ? (
           <>
-            {lastVendorUpdate && (
-              <div className="mr-auto flex items-center text-[11px] text-on-surface-variant leading-tight">
-                Vendor Updated:<br />
-                <span className="font-semibold text-primary ml-1">{lastVendorUpdate}</span>
-              </div>
-            )}
-            <button
-              type="button"
-              onClick={handleDownloadTemplate}
-              className="flex h-10 items-center gap-2 rounded-lg border border-outline-variant/50 bg-surface px-4 font-label-sm text-label-sm text-on-surface transition-colors hover:bg-surface-container"
-            >
-              <ArrowDownTrayIcon aria-hidden="true" className="h-4 w-4" />
-              Download Template
-            </button>
             <button
               type="button"
               className="h-10 rounded-lg px-4 font-label-sm text-label-sm text-on-surface-variant transition-colors hover:bg-surface-container"
