@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  CircleStackIcon,
   MagnifyingGlassIcon,
   FingerPrintIcon,
   ShieldCheckIcon,
@@ -56,11 +57,14 @@ const LOG_TONES: Record<LogLine['tone'], string> = {
 const CARD = 'rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-6 card-shadow';
 
 /**
- * One of the three agents.
+ * One node in the pipeline: the Python query/detection step, or one of the
+ * three LLM agents.
  *
- * Three, not the four the mockup drew: agent 3 both reviews the detectives and
- * writes the final narrative, so a separate "Synthesizer" would be a box with
- * nothing behind it.
+ * Three agent boxes, not the four the mockup drew: agent 3 both reviews the
+ * detectives and writes the final narrative, so a separate "Synthesizer"
+ * would be a box with nothing behind it. Query is a fourth, earlier node —
+ * it runs for every expense transaction, not just the candidates that reach
+ * the agents.
  *
  * `active` reflects a real `agent` SSE event from the backend (see
  * `useAnalysisRun`'s `activeAgents`), not a shared "a run is happening" flag —
@@ -328,7 +332,18 @@ export default function FindingsClient() {
           </Badge>
         </div>
 
-        <div className="grid items-center gap-4 md:grid-cols-[1fr_auto_1fr]">
+        <div className="grid items-center gap-4 md:grid-cols-[1fr_auto_1fr_auto_1fr]">
+          <AgentNode
+            icon={CircleStackIcon}
+            name="Query"
+            role="Screens for candidates"
+            active={run.activeAgents.query}
+            done={run.status === 'done'}
+          />
+          <ChevronRightIcon
+            aria-hidden="true"
+            className="mx-auto hidden h-6 w-6 text-outline-variant md:block"
+          />
           <div className="flex flex-col gap-3">
             <AgentNode
               icon={MagnifyingGlassIcon}
