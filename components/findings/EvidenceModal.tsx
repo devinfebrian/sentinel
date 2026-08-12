@@ -123,15 +123,20 @@ export default function EvidenceModal({ findingId, onClose, onResolved }: Eviden
   const [note, setNote] = useState('');
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    if (findingId == null || !accessToken) return;
-
-    // Reset first. Without this, switching straight from one finding to another
-    // leaves the previous one's evidence on screen under the new heading.
+  // Switching from one finding to another must clear the previous finding's
+  // state. This is state that depends on a prop, so it resets during render
+  // rather than in the fetch effect below.
+  const [shownId, setShownId] = useState<number | null>(findingId);
+  if (shownId !== findingId) {
+    setShownId(findingId);
     setData(null);
     setError(null);
     setChoosing(false);
     setNote('');
+  }
+
+  useEffect(() => {
+    if (findingId == null || !accessToken) return;
 
     const controller = new AbortController();
     let ignore = false;

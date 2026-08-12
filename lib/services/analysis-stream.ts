@@ -47,7 +47,7 @@ export interface AnalysisEvent {
 }
 
 /** One `data:` frame, or null for anything we should ignore (heartbeats, junk). */
-function parseFrame(frame: string): AnalysisEvent | null {
+export function parseFrame(frame: string): AnalysisEvent | null {
   const payload = frame
     .split('\n')
     // A line starting with ':' is a comment — that is what the relay's keepalive
