@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ArrowLeftStartOnRectangleIcon,
@@ -30,6 +30,26 @@ export default function TopAppBar() {
   const clearSession = useAuthStore((s) => s.clearSession);
 
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
+        setMenuOpen(false);
+      }
+    };
+    if (menuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [menuOpen]);
+
   const now = useNow();
   const { resolvedTheme, setTheme } = useTheme();
 
@@ -71,6 +91,7 @@ export default function TopAppBar() {
 
         <div className="relative">
           <button
+            ref={buttonRef}
             type="button"
             onClick={() => setMenuOpen((open) => !open)}
             aria-expanded={menuOpen}
@@ -95,11 +116,7 @@ export default function TopAppBar() {
           {menuOpen && (
             <>
               <div
-                className="fixed inset-0 z-40"
-                aria-hidden="true"
-                onClick={() => setMenuOpen(false)}
-              />
-              <div
+                ref={menuRef}
                 role="menu"
                 className="absolute right-0 top-full z-50 mt-2 flex min-w-[220px] flex-col overflow-hidden rounded-xl border border-outline-variant/30 bg-surface card-shadow"
               >
