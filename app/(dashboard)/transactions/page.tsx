@@ -22,6 +22,7 @@ import {
 } from '@/lib/services/api';
 import { useAuthStore } from '@/lib/stores/auth.store';
 import { formatDate } from '@/lib/format/datetime';
+import { DataLoadingSkeleton, DataErrorState } from '@/components/common/DataState';
 import { FilterSelect, FILTER_INPUT_CLASSES } from '@/components/common/FilterControls';
 import {
   ArrowDownTrayIcon,
@@ -278,14 +279,13 @@ export default function TransactionsPage() {
   
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [totalItems, setTotalItems] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
-
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState('All');
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [vendorFilter, setVendorFilter] = useState('All');
   const [sortBy, setSortBy] = useState('date-desc');
+  const [fetchError, setFetchError] = useState('');
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -322,6 +322,7 @@ export default function TransactionsPage() {
   const fetchTransactions = () => {
     if (!accessToken) return;
     setIsLoading(true);
+    setFetchError('');
     // Fetch up to 1000 transactions and do all filtering/pagination locally
     // because the backend doesn't support searching by vendor name.
     listTransactionsApi(accessToken, {
@@ -331,9 +332,11 @@ export default function TransactionsPage() {
       .then((res) => {
         if (res.success) {
           setTransactions(res.data.transactions);
+        } else {
+          setFetchError(res.message || 'Failed to fetch transactions');
         }
       })
-      .catch(console.error)
+      .catch((err) => setFetchError(err.message || 'Network error'))
       .finally(() => setIsLoading(false));
   };
 
@@ -490,9 +493,17 @@ export default function TransactionsPage() {
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-xl border border-surface-container-high bg-surface card-shadow">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[960px] border-collapse text-left">
+        {fetchError ? (
+          <DataErrorState message={fetchError} onRetry={fetchTransactions} />
+        ) : isLoading ? (
+          <div className="rounded-xl border border-surface-container-high bg-surface p-6 card-shadow">
+            <DataLoadingSkeleton columns={6} rows={8} />
+          </div>
+        ) : (
+          <>
+            <div className="overflow-hidden rounded-xl border border-surface-container-high bg-surface card-shadow">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[960px] border-collapse text-left">
             <thead>
               <tr className="border-b border-surface-container-high bg-surface-container-highest/30 font-label-sm text-label-sm text-on-surface-variant">
                 <th className="w-12 px-4 py-3 text-center font-semibold">No.</th>
@@ -570,6 +581,7 @@ export default function TransactionsPage() {
               })}
             </tbody>
           </table>
+          </div>
         </div>
         <Pagination 
           currentPage={currentPage}
@@ -582,7 +594,8 @@ export default function TransactionsPage() {
             setCurrentPage(1);
           }}
         />
-      </div>
+        </>
+        )}
       </div>
 
       <ImportDialog isOpen={isImportOpen} onClose={() => setIsImportOpen(false)} onSuccess={fetchTransactions} />
