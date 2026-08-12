@@ -157,8 +157,19 @@ export function AskHistoryPanel() {
       )}
 
       <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-3">
-        {loading && history.length === 0 ? (
-          <div className="text-center py-6 text-sm text-on-surface-variant animate-pulse">Loading history...</div>
+        {loading ? (
+          <div className="space-y-3">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="border border-surface-container-high rounded-xl bg-surface-container-lowest p-3 flex items-start gap-2">
+                <div className="flex-1 min-w-0 space-y-2">
+                  <div className="h-3.5 bg-surface-container rounded-md w-full animate-pulse" />
+                  <div className="h-3.5 bg-surface-container rounded-md w-4/5 animate-pulse" />
+                  <div className="h-2.5 bg-surface-container rounded-md w-1/3 animate-pulse mt-1" />
+                </div>
+                <div className="w-4 h-4 rounded bg-surface-container animate-pulse shrink-0 mt-0.5" />
+              </div>
+            ))}
+          </div>
         ) : error ? (
           <div className="text-center py-6 text-sm text-error">{error}</div>
         ) : history.length === 0 ? (
