@@ -16,13 +16,15 @@ import { formatClock, formatDayDate } from '@/lib/format/datetime';
 import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
 import { useTheme } from 'next-themes';
 
-const getInitials = (fullname: string) =>
-  fullname
+const getInitials = (fullname?: string | null) => {
+  if (!fullname) return '';
+  return fullname
     .trim()
     .split(/\s+/)
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase())
     .join('');
+};
 
 export default function TopAppBar() {
   const router = useRouter();
@@ -99,7 +101,7 @@ export default function TopAppBar() {
             className="flex items-center gap-1 sm:gap-2 rounded-full p-1 transition-colors hover:bg-surface-container"
           >
             <span className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-secondary-container font-label-sm text-[10px] sm:text-label-sm font-semibold text-on-secondary-container">
-              {user ? getInitials(user.fullname) : '?'}
+              {user ? (getInitials(user.fullname) || getInitials(user.email) || '?') : '?'}
             </span>
             <span className="hidden font-label-sm text-label-sm text-on-surface sm:inline">
               {user?.fullname ?? user?.email ?? 'Account'}
