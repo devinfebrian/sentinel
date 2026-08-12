@@ -569,7 +569,7 @@ export default function DashboardPage() {
       const dates = transactions.map(t => new Date(t.created_at).getTime());
       const minDate = new Date(Math.min(...dates));
       const maxDate = new Date(Math.max(...dates));
-      let current = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
+      const current = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
       const end = new Date(maxDate.getFullYear(), maxDate.getMonth(), 1);
       
       while (current <= end) {
