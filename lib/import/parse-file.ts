@@ -71,20 +71,34 @@ function excelSerialToIso(serial: number): string {
 
 /**
  * Coerces a money cell to a number. Accepts raw numbers and the string forms
- * found in real exports — "Rp 25.000.000", "25,000,000", "25.5".
+ * found in real exports �?" "Rp 25.000.000", "25,000,000", "25.5".
  * Returns null when unparseable.
  */
 export function parseAmount(value: unknown): number | null {
   if (typeof value === 'number' && Number.isFinite(value)) return value;
   if (typeof value !== 'string') return null;
 
-  let s = value.trim().replace(/^Rp\s?/i, '').replace(/\s/g, '');
-  if (!s) return null;
+  const clean = value.trim().replace(/^Rp\s?/i, '').replace(/\s/g, '').replace(/[^0-9.,]/g, '');
+  if (!clean) return null;
 
-  // Robust Indonesian format: assume dots are thousands, commas are decimals.
-  s = s.replace(/\./g, '').replace(/,/g, '.').replace(/[^0-9.-]+/g, '');
+  // Pick the decimal separator: when both '.' and ',' are present, the last
+  // one wins (25.000.000,50 -> 50 is the decimal, dots are thousands).
+  let normalized: string;
+  if (clean.includes('.') && clean.includes(',')) {
+    normalized = clean.lastIndexOf('.') > clean.lastIndexOf(',')
+      ? clean.replace(/,/g, '')
+      : clean.replace(/\./g, '').replace(/,/g, '.');
+  } else if (clean.includes(',')) {
+    // Only commas: "25,000,000" is US thousands, "25,5" is a decimal comma.
+    normalized = /^\d{1,3}(,\d{3})+$/.test(clean) ? clean.replace(/,/g, '') : clean.replace(',', '.');
+  } else if (clean.includes('.')) {
+    // Only dots: "25.000.000" is ID thousands, "25.5" is a decimal point.
+    normalized = /^\d{1,3}(\.\d{3})+$/.test(clean) ? clean.replace(/\./g, '') : clean;
+  } else {
+    normalized = clean;
+  }
 
-  const n = Number(s);
+  const n = Number(normalized);
   return Number.isFinite(n) ? n : null;
 }
 
@@ -142,14 +156,15 @@ export function parseSpreadsheetRows(
     const amount = parseAmount(get('amount'));
     const type = parseType(get('type'));
     const categoryRaw = String(get('category') ?? '').trim();
-    const description = String(get('description') ?? '').trim() || '-';
+    const descriptionRaw = String(get('description') ?? '').trim();
+    const description = descriptionRaw || '-';
 
     // A fully blank line is noise, not an error.
     if (
       amount === null &&
       type === null &&
       categoryRaw === '' &&
-      description === '' &&
+      descriptionRaw === '' &&
       isEmpty(get('date')) &&
       isEmpty(get('vendor_name'))
     ) {
