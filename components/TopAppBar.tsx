@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ArrowLeftStartOnRectangleIcon,
@@ -17,13 +17,15 @@ import { formatClock, formatDayDate } from '@/lib/format/datetime';
 import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
 import { useTheme } from 'next-themes';
 
-const getInitials = (fullname: string) =>
-  fullname
+const getInitials = (fullname?: string | null) => {
+  if (!fullname) return '';
+  return fullname
     .trim()
     .split(/\s+/)
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase())
     .join('');
+};
 
 export default function TopAppBar() {
   const router = useRouter();
@@ -31,6 +33,26 @@ export default function TopAppBar() {
   const clearSession = useAuthStore((s) => s.clearSession);
 
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
+        setMenuOpen(false);
+      }
+    };
+    if (menuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [menuOpen]);
+
   const now = useNow();
   const { resolvedTheme, setTheme } = useTheme();
 
@@ -87,6 +109,7 @@ export default function TopAppBar() {
 
         <div className="relative">
           <button
+            ref={buttonRef}
             type="button"
             onClick={() => setMenuOpen((open) => !open)}
             aria-expanded={menuOpen}
@@ -94,7 +117,7 @@ export default function TopAppBar() {
             className="flex items-center gap-1 sm:gap-2 rounded-full p-1 transition-colors hover:bg-surface-container"
           >
             <span className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-secondary-container font-label-sm text-[10px] sm:text-label-sm font-semibold text-on-secondary-container">
-              {user ? getInitials(user.fullname) : '?'}
+              {user ? (getInitials(user.fullname) || getInitials(user.email) || '?') : '?'}
             </span>
             <span className="hidden font-label-sm text-label-sm text-on-surface sm:inline">
               {user?.fullname ?? user?.email ?? 'Account'}
@@ -111,11 +134,7 @@ export default function TopAppBar() {
           {menuOpen && (
             <>
               <div
-                className="fixed inset-0 z-40"
-                aria-hidden="true"
-                onClick={() => setMenuOpen(false)}
-              />
-              <div
+                ref={menuRef}
                 role="menu"
                 className="absolute right-0 top-full z-50 mt-2 flex min-w-[220px] flex-col overflow-hidden rounded-xl border border-outline-variant/30 bg-surface card-shadow"
               >

@@ -44,7 +44,10 @@ const RISK_TONES: Record<RiskLevel, BadgeTone> = {
 
 // --- CHARTS (SVG/CSS based) ---
 
-function SimpleLineChart({ data }: { data: { label: string; income: number; expense: number; net?: number }[] }) {
+export function SimpleLineChart({ data, isAllTime = false, metricFilter = 'All' }: { data: { label: string; income: number; expense: number; net?: number }[], isAllTime?: boolean, metricFilter?: string }) {
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+
   if (data.length === 0) return <div className="h-full min-h-[220px] flex items-center justify-center text-on-surface-variant font-body-sm">No transaction data available</div>;
 
   const series = data.map((d) => ({
@@ -52,8 +55,18 @@ function SimpleLineChart({ data }: { data: { label: string; income: number; expe
     net: d.net !== undefined ? d.net : d.income - d.expense,
   }));
 
-  const rawMax = Math.max(0, ...series.flatMap((d) => [d.income, d.net]));
-  const rawMin = Math.min(0, ...series.flatMap((d) => [-d.expense, d.net]));
+  const showIncome = metricFilter === 'All' || metricFilter === 'Income';
+  const showExpense = metricFilter === 'All' || metricFilter === 'Expense';
+  const showNet = metricFilter === 'All' || metricFilter === 'Net Cash Flow';
+
+  const rawMax = Math.max(0, ...series.flatMap((d) => [
+    showIncome ? d.income : 0,
+    showNet ? d.net : 0
+  ]));
+  const rawMin = Math.min(0, ...series.flatMap((d) => [
+    showExpense ? -d.expense : 0,
+    showNet ? d.net : 0
+  ]));
 
   let minVal = rawMin;
   let maxVal = rawMax;
@@ -88,9 +101,8 @@ function SimpleLineChart({ data }: { data: { label: string; income: number; expe
   const span = Math.max(maxVal - minVal, 1e-9);
   const yPct = (v: number) => ((v - minVal) / span) * 100;
   
-  const xPadding = series.length === 1 ? 50 : 8; 
-  const availableWidth = 100 - xPadding * 2;
-  const xPct = (i: number) => series.length > 1 ? xPadding + (i / (series.length - 1)) * availableWidth : 50;
+  const colWidth = 100 / Math.max(series.length, 1);
+  const xPct = (i: number) => (i + 0.5) * colWidth;
 
   const toPoints = (key: 'net') =>
     series.map((d, i) => `${xPct(i)},${100 - yPct(d[key])}`).join(' ');
@@ -106,9 +118,10 @@ function SimpleLineChart({ data }: { data: { label: string; income: number; expe
   };
 
   return (
-    <div className="w-full flex-1 flex flex-col min-h-0">
+    <div className="w-full flex-1 flex flex-col min-h-0 relative">
       <div className="flex flex-1 min-h-[220px] relative">
-        <div className="relative w-10 shrink-0 sm:w-12 h-full">
+        {/* Fixed Y-Axis */}
+        <div className="relative w-11 shrink-0 sm:w-14 h-full z-10 bg-surface border-r border-surface-container-highest/50 pr-1">
           {ticks.map((tick) => (
             <span
               key={tick}
@@ -120,144 +133,214 @@ function SimpleLineChart({ data }: { data: { label: string; income: number; expe
           ))}
         </div>
 
-        <div className="relative min-w-0 flex-1 border-b border-surface-container-high h-full">
-          {/* Background Grid Lines */}
-          <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full overflow-visible">
-            {ticks.map((tick) => (
-              <line
-                key={tick}
-                x1="0"
-                y1={100 - yPct(tick)}
-                x2="100"
-                y2={100 - yPct(tick)}
-                stroke="currentColor"
-                className={tick === 0 ? "text-on-surface-variant opacity-40" : "text-surface-container-high"}
-                strokeWidth={tick === 0 ? "2" : "1"}
-                vectorEffect="non-scaling-stroke"
-              />
-            ))}
-          </svg>
+        {/* Scrollable Data Area */}
+        <div 
+          className="flex-1 overflow-x-auto hide-scrollbar relative flex flex-col"
+          onClick={() => setSelectedIdx(null)}
+        >
+          <div 
+            className="relative flex-1 min-h-[180px] border-b border-surface-container-high"
+            style={{ minWidth: isAllTime ? `${Math.max(100, series.length * (100 / 6))}%` : '100%' }}
+            onMouseLeave={() => setHoveredIdx(null)}
+          >
+            {/* Background Grid Lines */}
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full overflow-visible">
+              {ticks.map((tick) => (
+                <line
+                  key={tick}
+                  x1="0"
+                  y1={100 - yPct(tick)}
+                  x2="100"
+                  y2={100 - yPct(tick)}
+                  stroke="currentColor"
+                  className={tick === 0 ? "text-on-surface-variant opacity-40" : "text-surface-container-high"}
+                  strokeWidth={tick === 0 ? "2" : "1"}
+                  vectorEffect="non-scaling-stroke"
+                />
+              ))}
+            </svg>
 
-          {/* HTML Bars */}
-          <div className="absolute inset-0 w-full h-full pointer-events-none z-0">
-            {series.map((d, i) => {
-              const x = xPct(i);
-              const bottomZeroPct = yPct(0);
-              const incomeHeight = Math.max(0, yPct(d.income) - yPct(0));
-              const expenseHeight = Math.max(0, yPct(0) - yPct(-d.expense));
-              const barWidthPct = Math.max(2, Math.min(8, 60 / Math.max(series.length, 1)));
-              
+            {/* HTML Bars */}
+            <div className="absolute inset-0 w-full h-full pointer-events-none z-0">
+              {series.map((d, i) => {
+                const x = xPct(i);
+                const bottomZeroPct = yPct(0);
+                const incomeHeight = Math.max(0, yPct(d.income) - yPct(0));
+                const expenseHeight = Math.max(0, yPct(0) - yPct(-d.expense));
+                const barWidthPctCol = (100 / Math.max(series.length, 1)) * 0.4;
+                
+                const isMuted = selectedIdx !== null && selectedIdx !== i;
+                const opacityClass = isMuted ? 'opacity-40' : 'opacity-100';
+
+                return (
+                  <div 
+                    key={`bars-${i}`} 
+                    className={`absolute top-0 bottom-0 flex flex-col items-center transition-opacity duration-200 ${opacityClass}`} 
+                    style={{ 
+                      left: `${x}%`, 
+                      transform: 'translateX(-50%)', 
+                      width: `${barWidthPctCol}%`, 
+                      maxWidth: '40px', 
+                      minWidth: '8px' 
+                    }}
+                  >
+                     {showIncome && incomeHeight > 0 && (
+                       <div 
+                         className="absolute w-full"
+                         style={{
+                           backgroundColor: '#D4E7CE',
+                           bottom: `${bottomZeroPct}%`,
+                           height: `${incomeHeight}%`,
+                           borderTopLeftRadius: '4px',
+                           borderTopRightRadius: '4px',
+                         }}
+                       />
+                     )}
+                     {showExpense && expenseHeight > 0 && (
+                       <div 
+                         className="absolute w-full"
+                         style={{
+                           backgroundColor: '#FFD6D2',
+                           top: `${100 - bottomZeroPct}%`,
+                           height: `${expenseHeight}%`,
+                           borderBottomLeftRadius: '4px',
+                           borderBottomRightRadius: '4px',
+                         }}
+                       />
+                     )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Foreground Line */}
+            {showNet && (
+              <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full overflow-visible pointer-events-none z-10">
+                <polyline 
+                  points={toPoints('net')} 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2.5" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  className="text-[#243B53]" 
+                  vectorEffect="non-scaling-stroke" 
+                />
+              </svg>
+            )}
+
+            {/* Points */}
+            {showNet && series.map((d, i) => {
+              const isMuted = selectedIdx !== null && selectedIdx !== i;
               return (
-                <div 
-                  key={`bars-${i}`} 
-                  className="absolute top-0 bottom-0 flex flex-col items-center" 
-                  style={{ 
-                    left: `${x}%`, 
-                    transform: 'translateX(-50%)', 
-                    width: `${barWidthPct}%`, 
-                    maxWidth: '48px', 
-                    minWidth: '12px' 
-                  }}
-                >
-                   {incomeHeight > 0 && (
-                     <div 
-                       className="absolute bg-secondary-container w-full"
-                       style={{
-                         bottom: `${bottomZeroPct}%`,
-                         height: `${incomeHeight}%`,
-                         borderTopLeftRadius: '5px',
-                         borderTopRightRadius: '5px',
-                       }}
-                     />
-                   )}
-                   {expenseHeight > 0 && (
-                     <div 
-                       className="absolute bg-error-container w-full"
-                       style={{
-                         top: `${100 - bottomZeroPct}%`,
-                         height: `${expenseHeight}%`,
-                         borderBottomLeftRadius: '5px',
-                         borderBottomRightRadius: '5px',
-                       }}
-                     />
-                   )}
-                </div>
+                <span 
+                  key={`m-${i}`}
+                  className={`absolute h-[7px] w-[7px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#243B53] shadow-sm ring-[1.5px] ring-surface pointer-events-none z-10 transition-opacity duration-200 ${isMuted ? 'opacity-40' : 'opacity-100'}`}
+                  style={{ left: `${xPct(i)}%`, top: `${100 - yPct(d.net)}%` }}
+                />
               );
             })}
+
+            <div className="absolute inset-0 z-20 flex">
+              {series.map((d, i) => (
+                <div 
+                  key={i} 
+                  className="relative h-full flex-1 cursor-pointer"
+                  onMouseEnter={() => setHoveredIdx(i)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedIdx(prev => prev === i ? null : i);
+                  }}
+                >
+                  <div className={`absolute inset-0 transition-colors duration-200 ${hoveredIdx === i ? 'bg-surface-variant/10' : ''}`} />
+                </div>
+              ))}
+            </div>
+
+            {/* Dynamic Tooltip */}
+            {hoveredIdx !== null && (
+              (() => {
+                const activeData = series[hoveredIdx];
+                let peakValue = 0;
+                if (showIncome) peakValue = Math.max(peakValue, activeData.income);
+                if (showNet) peakValue = Math.max(peakValue, activeData.net);
+                const topEdgePct = 100 - yPct(peakValue);
+                
+                const isTopTight = topEdgePct < 30;
+                const isLeftTight = hoveredIdx === 0 || hoveredIdx === 1;
+                const isRightTight = hoveredIdx === series.length - 1 || hoveredIdx === series.length - 2;
+
+                return (
+                  <div 
+                    className="pointer-events-none absolute z-50 rounded-lg bg-surface p-3 text-[11px] text-on-surface shadow-lg border border-surface-container-highest w-max max-w-[220px]"
+                    style={{
+                      left: `${xPct(hoveredIdx)}%`,
+                      top: `${topEdgePct}%`,
+                      transform: `translate(${isRightTight ? '-110%' : isLeftTight ? '10%' : '-50%'}, ${isTopTight ? '20px' : '-110%'})`
+                    }}
+                  >
+                    <div className="mb-2 font-bold text-[12px] border-b border-surface-container-highest pb-1">{activeData.label}</div>
+                    {showIncome && (
+                      <div className="flex justify-between gap-4 font-medium text-[#596B58]">
+                        <span>Income:</span>
+                        <span>{formatCurrency(activeData.income)}</span>
+                      </div>
+                    )}
+                    {showExpense && (
+                      <div className={`flex justify-between gap-4 font-medium text-[#C92A2A] ${showIncome ? 'mt-0.5' : ''}`}>
+                        <span>Expense:</span>
+                        <span>{formatCurrency(activeData.expense)}</span>
+                      </div>
+                    )}
+                    {showNet && (
+                      <div className={`flex justify-between gap-4 font-bold text-[#243B53] ${(showIncome || showExpense) ? 'mt-1.5 border-t border-surface-container-highest pt-1.5' : ''}`}>
+                        <span>Net Cash Flow:</span>
+                        <span>{formatCurrency(activeData.net)}</span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()
+            )}
           </div>
 
-          {/* Foreground Line */}
-          <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full overflow-visible pointer-events-none z-10">
-            <polyline 
-              points={toPoints('net')} 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2.5" 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              className="text-[#243B53]" 
-              vectorEffect="non-scaling-stroke" 
-            />
-          </svg>
-
-          {/* Points */}
-          {series.map((d, i) => (
-            <span 
-              key={`m-${i}`}
-              className="absolute h-[7px] w-[7px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#243B53] shadow-sm ring-[1.5px] ring-surface pointer-events-none z-10"
-              style={{ left: `${xPct(i)}%`, top: `${100 - yPct(d.net)}%` }}
-            />
-          ))}
-
-          <div className="absolute inset-0 z-20 flex">
+          {/* X-Axis Labels embedded inside scroll area */}
+          <div 
+            className="relative h-6 shrink-0 mt-3"
+            style={{ minWidth: isAllTime ? `${Math.max(100, series.length * (100 / 6))}%` : '100%' }}
+          >
             {series.map((d, i) => (
-              <div key={i} className="group relative h-full flex-1 hover:bg-surface-variant/5 transition-colors">
-                <div className="pointer-events-none absolute left-1/2 top-1/2 hidden w-max max-w-[220px] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-surface p-3 text-[11px] text-on-surface group-hover:block z-50 shadow-lg border border-surface-container-highest">
-                  <div className="mb-2 font-bold text-[12px] border-b border-surface-container-highest pb-1">{d.label}</div>
-                  <div className="flex justify-between gap-4 font-medium text-secondary">
-                    <span>Income:</span>
-                    <span>{formatCurrency(d.income)}</span>
-                  </div>
-                  <div className="flex justify-between gap-4 font-medium text-error mt-0.5">
-                    <span>Expense:</span>
-                    <span>{formatCurrency(d.expense)}</span>
-                  </div>
-                  <div className="flex justify-between gap-4 mt-1.5 border-t border-surface-container-highest pt-1.5 font-bold text-[#243B53]">
-                    <span>Net Cash Flow:</span>
-                    <span>{formatCurrency(d.net)}</span>
-                  </div>
-                </div>
-              </div>
+              <span 
+                key={i} 
+                className="absolute -translate-x-1/2 text-center text-[10px] font-medium text-on-surface-variant whitespace-nowrap"
+                style={{ left: `${xPct(i)}%` }}
+              >
+                {d.label}
+              </span>
             ))}
           </div>
         </div>
       </div>
 
-      <div className="ml-10 mt-3 relative h-4 sm:ml-12 shrink-0">
-        {series.map((d, i) => (
-          <span 
-            key={i} 
-            className={`absolute -translate-x-1/2 text-center text-[10px] font-medium text-on-surface-variant whitespace-nowrap ${series.length > 6 && i % 2 !== 0 ? 'hidden md:block' : ''}`}
-            style={{ left: `${xPct(i)}%` }}
-          >
-            {d.label}
-          </span>
-        ))}
-      </div>
-
-      <div className="mt-4 flex justify-center gap-6 shrink-0">
-        <div className="flex items-center gap-2">
-          <span className="h-3 w-3 rounded-[2px] bg-secondary-container"></span>
-          <span className="text-[10px] font-medium text-on-surface">Income</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="h-3 w-3 rounded-[2px] bg-error-container"></span>
-          <span className="text-[10px] font-medium text-on-surface">Expense</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="h-0 w-3 border-t-[3px] border-solid border-[#243B53]"></span>
-          <span className="text-[10px] font-medium text-on-surface">Net Cash Flow</span>
-        </div>
+      <div className="mt-2 flex flex-wrap justify-center gap-4 sm:gap-6 shrink-0 bg-surface z-10 pt-2 pb-1">
+        {showIncome && (
+          <div className="flex items-center gap-2">
+            <span className="h-3 w-3 rounded-[2px]" style={{ backgroundColor: '#D4E7CE' }}></span>
+            <span className="text-[10px] sm:text-[11px] font-medium text-on-surface">Income</span>
+          </div>
+        )}
+        {showExpense && (
+          <div className="flex items-center gap-2">
+            <span className="h-3 w-3 rounded-[2px]" style={{ backgroundColor: '#FFD6D2' }}></span>
+            <span className="text-[10px] sm:text-[11px] font-medium text-on-surface">Expense</span>
+          </div>
+        )}
+        {showNet && (
+          <div className="flex items-center gap-2">
+            <span className="h-0 w-3 border-t-[3px] border-solid border-[#243B53]"></span>
+            <span className="text-[10px] sm:text-[11px] font-medium text-on-surface">Net Cash Flow</span>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -268,18 +351,43 @@ function DonutChart({ data, total }: { data: { label: string; value: number; col
   const [tooltip, setTooltip] = useState<{ x: number; y: number; data: typeof data[0] } | null>(null);
 
   if (total === 0 || data.length === 0) return <div className="h-64 flex items-center justify-center text-on-surface-variant font-body-sm">No expense data available</div>;
-
   const getCoordinatesForPercent = (percent: number, radius: number) => {
     const x = radius * Math.cos(2 * Math.PI * percent);
     const y = radius * Math.sin(2 * Math.PI * percent);
     return [x, y];
   };
 
-  const slices = data.reduce((acc, slice) => {
-    const slicePercent = slice.value / total;
-    const startPercent = acc.length > 0 ? acc[acc.length - 1].endPercent : 0;
-    const endPercent = startPercent + slicePercent;
-    acc.push({ ...slice, slicePercent, startPercent, endPercent });
+  // Pre-calculate rendering percentages to account for round linecaps
+  const activeSlices = data.filter(d => d.value > 0);
+  const baseRadius = 0.8;
+  const strokeW = 0.25;
+  const capPercent = strokeW / (2 * Math.PI * baseRadius); 
+  const visibleGap = 0.015; // ~5 degrees visual gap
+  const GAP_PERCENT = activeSlices.length > 1 ? (capPercent + visibleGap) : 0;
+  
+  const totalGap = activeSlices.length * GAP_PERCENT;
+  const availableSpace = Math.max(0, 1 - totalGap);
+  
+  const unnormalizedSlices = data.map(slice => {
+    if (slice.value === 0 || total === 0) return { ...slice, renderedPercent: 0 };
+    const rawPercent = slice.value / total;
+    return { ...slice, renderedPercent: Math.max(0.001, rawPercent * availableSpace) };
+  });
+  
+  const sumRendered = unnormalizedSlices.reduce((sum, s) => sum + s.renderedPercent, 0);
+  const normalizationFactor = sumRendered > 0 ? availableSpace / sumRendered : 1;
+  
+  const slices = unnormalizedSlices.reduce((acc, slice) => {
+    if (slice.renderedPercent === 0) {
+      acc.push({ ...slice, slicePercent: 0, startPercent: 0, endPercent: 0 });
+      return acc;
+    }
+    const finalRendered = slice.renderedPercent * normalizationFactor;
+    const prev = acc.slice().reverse().find(s => s.slicePercent > 0);
+    const startPercent = prev ? prev.endPercent + GAP_PERCENT : 0;
+    const endPercent = startPercent + finalRendered;
+    
+    acc.push({ ...slice, slicePercent: slice.value / total, startPercent, endPercent });
     return acc;
   }, [] as (typeof data[0] & { slicePercent: number; startPercent: number; endPercent: number })[]);
 
@@ -288,21 +396,22 @@ function DonutChart({ data, total }: { data: { label: string; value: number; col
       className="flex flex-row flex-wrap items-center justify-center h-full gap-x-10 gap-y-6 w-full relative"
       onClick={() => setSelectedIdx(null)}
     >
-      <div className="relative w-48 h-48 shrink-0">
+      <div className="relative w-56 h-56 shrink-0">
         <svg viewBox="-1 -1 2 2" className="transform -rotate-90 w-full h-full overflow-visible">
           {slices.map((slice, i) => {
             if (slice.slicePercent === 0) return null;
             
             const isSelected = selectedIdx === i;
             const isOtherSelected = selectedIdx !== null && selectedIdx !== i;
-            const currentRadius = isSelected ? 0.84 : 0.8;
-            const strokeW = isSelected ? 0.28 : 0.25;
+            // Pop out selected segment
+            const currentRadius = isSelected ? 0.85 : 0.8;
+            const currentStrokeW = 0.25; 
             
             if (slice.slicePercent === 1) {
               return (
                 <circle 
                   key={i} 
-                  cx="0" cy="0" r={currentRadius} fill="none" stroke={slice.color} strokeWidth={strokeW}
+                  cx="0" cy="0" r={currentRadius} fill="none" stroke={slice.color} strokeWidth={currentStrokeW}
                   className={`transition-all duration-300 cursor-pointer ${isOtherSelected ? 'opacity-40' : 'opacity-100 hover:opacity-85'}`}
                   onClick={(e) => { e.stopPropagation(); setSelectedIdx(isSelected ? null : i); }}
                   onMouseEnter={(e) => setTooltip({ x: e.clientX, y: e.clientY, data: slice })}
@@ -312,20 +421,9 @@ function DonutChart({ data, total }: { data: { label: string; value: number; col
               );
             }
 
-            const capPercent = strokeW / (2 * Math.PI * currentRadius);
-            const gapPerSide = slices.length > 1 ? (capPercent + 0.01) / 2 : 0; 
-            let startP = slice.startPercent + gapPerSide;
-            let endP = slice.endPercent - gapPerSide;
-            
-            if (endP <= startP) {
-              const midP = slice.startPercent + slice.slicePercent / 2;
-              startP = midP - 0.00001;
-              endP = midP + 0.00001;
-            }
-
-            const [startX, startY] = getCoordinatesForPercent(startP, currentRadius);
-            const [endX, endY] = getCoordinatesForPercent(endP, currentRadius);
-            const largeArcFlag = endP - startP > 0.5 ? 1 : 0;
+            const [startX, startY] = getCoordinatesForPercent(slice.startPercent, currentRadius);
+            const [endX, endY] = getCoordinatesForPercent(slice.endPercent, currentRadius);
+            const largeArcFlag = slice.endPercent - slice.startPercent > 0.5 ? 1 : 0;
             const pathData = [
               `M ${startX} ${startY}`,
               `A ${currentRadius} ${currentRadius} 0 ${largeArcFlag} 1 ${endX} ${endY}`
@@ -337,8 +435,9 @@ function DonutChart({ data, total }: { data: { label: string; value: number; col
                 d={pathData} 
                 fill="none" 
                 stroke={slice.color} 
-                strokeWidth={strokeW} 
+                strokeWidth={currentStrokeW} 
                 strokeLinecap="round" 
+                strokeLinejoin="round"
                 className={`transition-all duration-300 cursor-pointer ${isOtherSelected ? 'opacity-40' : 'opacity-100 hover:opacity-85'}`}
                 onClick={(e) => { e.stopPropagation(); setSelectedIdx(isSelected ? null : i); }}
                 onMouseEnter={(e) => setTooltip({ x: e.clientX, y: e.clientY, data: slice })}
@@ -349,10 +448,10 @@ function DonutChart({ data, total }: { data: { label: string; value: number; col
           })}
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 pointer-events-none">
-          <span className="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider mb-1 line-clamp-2 text-center break-words">
+          <span className="text-[12px] font-medium text-on-surface-variant uppercase tracking-wider mb-1 line-clamp-2 text-center break-words">
             {selectedIdx !== null ? data[selectedIdx].label : "Total Expense"}
           </span>
-          <span className="text-[14px] font-bold text-on-surface truncate w-full">
+          <span className="text-[16px] font-bold text-on-surface truncate w-full">
             {selectedIdx !== null ? formatCurrency(data[selectedIdx].value) : formatCurrency(total)}
           </span>
         </div>
@@ -422,13 +521,24 @@ export default function DashboardPage() {
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [period, setPeriod] = useState('All Time');
+  const [metricFilter, setMetricFilter] = useState('All');
 
   useEffect(() => {
     if (!accessToken) return;
     setIsLoading(true);
-    // Fetch data independently so one failure doesn't block the others
     Promise.allSettled([
-      listTransactionsApi(accessToken, { limit: 100 }),
+      (async () => {
+        let allTx: Transaction[] = [];
+        let page = 1;
+        while (allTx.length < 2000) {
+          const res = await listTransactionsApi(accessToken, { page, limit: 100 });
+          if (!res.success) throw new Error(res.message);
+          allTx = [...allTx, ...res.data.transactions];
+          if (res.data.transactions.length < 100) break;
+          page++;
+        }
+        return { success: true, data: { transactions: allTx } };
+      })(),
       listFindingsApi(accessToken, { limit: 100 }),
       listVendorsApi(accessToken)
     ])
@@ -481,22 +591,51 @@ export default function DashboardPage() {
     return d.toLocaleString('default', { month: 'short', year: 'numeric' });
   })));
 
-  // Chart Data: Cash Flow Trend (by month) - Uses UNFILTERED transactions to show trend over time
+  // Chart Data: Cash Flow Trend
   const trendDataMap: Record<string, { income: number; expense: number; timestamp: number }> = {};
-  transactions.forEach(t => {
-    const d = new Date(t.created_at);
-    const month = d.toLocaleString('default', { month: 'short', year: '2-digit' });
-    if (!trendDataMap[month]) {
-      trendDataMap[month] = { 
-        income: 0, 
-        expense: 0, 
-        timestamp: new Date(d.getFullYear(), d.getMonth(), 1).getTime() 
-      };
-    }
-    if (t.type === 'income') trendDataMap[month].income += parseFloat(t.amount);
-    if (t.type === 'expense') trendDataMap[month].expense += Math.abs(parseFloat(t.amount));
-  });
   
+  if (period === 'All Time') {
+    if (transactions.length > 0) {
+      const dates = transactions.map(t => new Date(t.created_at).getTime());
+      const minDate = new Date(Math.min(...dates));
+      const maxDate = new Date(Math.max(...dates));
+      const current = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
+      const end = new Date(maxDate.getFullYear(), maxDate.getMonth(), 1);
+      
+      while (current <= end) {
+        const monthStr = current.toLocaleString('default', { month: 'short', year: 'numeric' });
+        trendDataMap[monthStr] = { income: 0, expense: 0, timestamp: current.getTime() };
+        current.setMonth(current.getMonth() + 1);
+      }
+      
+      transactions.forEach(t => {
+        const d = new Date(t.created_at);
+        const monthStr = d.toLocaleString('default', { month: 'short', year: 'numeric' });
+        if (t.type === 'income') trendDataMap[monthStr].income += parseFloat(t.amount);
+        if (t.type === 'expense') trendDataMap[monthStr].expense += Math.abs(parseFloat(t.amount));
+      });
+    }
+  } else {
+    // Specific month: aggregate by week
+    filteredTransactions.forEach(t => {
+      const d = new Date(t.created_at);
+      const dateNum = d.getDate();
+      const weekNum = Math.min(4, Math.ceil(dateNum / 7)); 
+      const weekStr = `Week ${weekNum}`;
+      if (!trendDataMap[weekStr]) {
+        trendDataMap[weekStr] = { income: 0, expense: 0, timestamp: weekNum };
+      }
+      if (t.type === 'income') trendDataMap[weekStr].income += parseFloat(t.amount);
+      if (t.type === 'expense') trendDataMap[weekStr].expense += Math.abs(parseFloat(t.amount));
+    });
+    // Ensure all 4 weeks are present for the month to keep the timeline consistent
+    for (let w = 1; w <= 4; w++) {
+      if (!trendDataMap[`Week ${w}`]) {
+        trendDataMap[`Week ${w}`] = { income: 0, expense: 0, timestamp: w };
+      }
+    }
+  }
+
   // Sort chronologically
   const trendData = Object.keys(trendDataMap)
     .map(k => ({
@@ -518,7 +657,7 @@ export default function DashboardPage() {
     trueTotalExpense += amount;
   });
   
-  const top5Colors = ['#576400', '#8FA800', '#B0CC00', '#CFE1CA', '#EDFF8C'];
+  const top4Colors = ['#667000', '#8FAF00', '#B7D000', '#CFE1CA'];
   const othersColor = '#D8DFE9';
   
   let donutData: { label: string; value: number; color?: string; subcategories?: { label: string; value: number }[] }[] = Object.keys(expenseByCategory)
@@ -535,7 +674,7 @@ export default function DashboardPage() {
   
   const donutChartData = donutData.map((d, i) => ({
     ...d,
-    color: d.label === 'Others' ? othersColor : top5Colors[i % top5Colors.length]
+    color: d.label === 'Others' ? othersColor : top4Colors[i % top4Colors.length]
   }));
 
   // AI Findings calculations
@@ -623,15 +762,34 @@ export default function DashboardPage() {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
         <div className="lg:col-span-2 overflow-hidden rounded-xl border border-surface-container-high bg-surface p-5 card-shadow flex flex-col">
-          <div className="flex flex-col gap-1 mb-6">
-            <h2 className="font-headline-sm text-headline-sm text-on-surface">Cash Flow Trend</h2>
-            <p className="font-body-sm text-on-surface-variant">Income and expenses over time.</p>
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
+            <div className="flex flex-col gap-1">
+              <h2 className="font-headline-sm text-headline-sm text-on-surface">Cash Flow Trend</h2>
+              <p className="font-body-sm text-on-surface-variant">Income and expenses over time.</p>
+            </div>
+            <div className="flex items-center gap-2 bg-surface border border-surface-container-high rounded-lg p-1 card-shadow self-start sm:self-auto">
+              <select 
+                value={metricFilter} 
+                onChange={(e) => setMetricFilter(e.target.value)}
+                className="bg-transparent text-sm font-medium text-on-surface py-1 px-2 outline-none cursor-pointer appearance-none"
+              >
+                 <option value="All">All</option>
+                 <option value="Income">Income</option>
+                 <option value="Expense">Expense</option>
+                 <option value="Net Cash Flow">Net Cash Flow</option>
+              </select>
+              <div className="pr-2 text-on-surface-variant pointer-events-none">
+                <svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+            </div>
           </div>
           <div className="flex-1 flex flex-col min-h-0">
              {isLoading ? (
                <div className="flex-1 flex items-center justify-center text-on-surface-variant">Loading chart...</div>
              ) : (
-               <SimpleLineChart data={trendData} />
+               <SimpleLineChart data={trendData} isAllTime={period === 'All Time'} metricFilter={metricFilter} />
              )}
           </div>
         </div>

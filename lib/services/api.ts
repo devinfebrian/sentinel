@@ -1,4 +1,20 @@
 import { clearSessionOutsideReact, type AuthTokens, type User } from '@/lib/stores/auth.store';
+import type {
+  FindingRow,
+  SummaryRow,
+  RiskLevel,
+  Resolution,
+  FindingStatusFilter,
+} from '@/lib/contract/findings.contract';
+
+// Finding contract values/types come from the agent server's OpenAPI snapshot —
+// see lib/contract/findings.contract.ts and scripts/contract-pull.mjs.
+export { RISK_LEVELS, RESOLUTIONS, FINDING_STATUS_FILTERS } from '@/lib/contract/findings.contract';
+export type {
+  RiskLevel,
+  Resolution,
+  FindingStatusFilter,
+} from '@/lib/contract/findings.contract';
 
 // Same-origin. next.config.ts rewrites /api/v1/* to the backend, so the
 // browser never talks to another origin and CORS never applies.
@@ -224,20 +240,59 @@ export function listTransactionsApi(
     if (params.search) searchParams.set('search', params.search);
     url += searchParams.toString();
   }
-  return request<{ transactions: Transaction[], pagination: any }>(url, authGet(accessToken));
+  return request<{ transactions: Transaction[]; pagination: unknown }>(url, authGet(accessToken));
 }
 
-export function updateTransactionApi(id: number, payload: Partial<Transaction>, accessToken: string) {
+export function updateTransactionApi(
+  id: number,
+  payload: {
+    amount?: number;
+    type?: string;
+    category?: string;
+    description?: string;
+    vendor_id?: number | null;
+  },
+  accessToken: string
+) {
   return request<{ transaction: Transaction }>(`/transactions/${id}`, jsonPut(payload, accessToken));
 }
 
-export function createTransactionApi(payload: { amount: number; type: string; category: string; description: string; vendor_id?: number | null; input_by_user_id: number }, accessToken: string) {
+export function createTransactionApi(
+  payload: {
+    amount: number;
+    type: string;
+    category: string;
+    description: string;
+    vendor_id?: number | null;
+    input_by_user_id: number;
+  },
+  accessToken: string
+) {
   return request<{ transaction: Transaction }>('/transactions', jsonPost(payload, accessToken));
 }
 
 export function getTransactionCategoriesApi(type: string | undefined, accessToken: string) {
   const url = type ? `/transactions/categories?type=${type}` : '/transactions/categories';
   return request<{ income?: string[], expense?: string[] }>(url, authGet(accessToken));
+}
+
+export interface ImportTransactionRow {
+  amount: number;
+  type: 'income' | 'expense';
+  category: string;
+  description: string;
+  date?: string;
+  invoice_no?: string;
+  vendor_name?: string;
+  vendor_id?: number | null;
+}
+
+export function importTransactionsApi(rows: ImportTransactionRow[], accessToken: string) {
+  return request<{
+    inserted: number;
+    rejected: { row: number; message: string }[];
+    transactions: Transaction[];
+  }>('/transactions/import', jsonPost({ transactions: rows }, accessToken));
 }
 
 export function listVendorsApi(accessToken: string) {
@@ -264,10 +319,6 @@ export interface AskResponse {
 export function askApi(question: string, accessToken: string) {
   return request<AskResponse>('/ask', jsonPost({ question }, accessToken));
 }
-
-export type RiskLevel = 'low' | 'medium' | 'high' | 'critical';
-export type Resolution = 'justified' | 'false_positive' | 'confirmed_fraud' | 'escalated';
-export type FindingStatusFilter = 'open' | 'resolved' | 'all';
 
 /** Why the score is what it is. One entry per rule that fired. */
 export interface Trigger {
@@ -313,47 +364,16 @@ export interface Analysis {
   context?: { source: string; insight: string }[];
 }
 
-export interface Finding {
-  id: number;
-  transaction_id: number;
-  /** Every transaction this one finding covers, anchor included. */
-  related_transaction_ids: number[];
-  risk_score: number;
-  risk_level: RiskLevel;
-  /** Indonesian display text. The UI renders `risk_level` instead. */
-  risk_label: string;
-  /** Indonesian, one sentence per risk band. */
-  recommended_action: string;
-  /** Indonesian. The LLM narrative, or a fact-assembled fallback when it failed. */
-  description: string;
-  resolution: Resolution | null;
-  resolution_note: string | null;
-  resolved_by: number | null;
-  resolved_at: string | null;
-  created_at: string;
-  updated_at: string | null;
-  /** More transactions joined after the narrative was written: the numbers are current, the sentence is not. */
-  narrative_stale: boolean;
-}
+/** A finding as served by the agent server; wire shape single-sourced from the OpenAPI contract. */
+export type Finding = FindingRow;
 
-export interface FindingDetail extends Finding {
+export interface FindingDetail extends Omit<Finding, 'evidence' | 'analysis'> {
   evidence: Evidence;
   analysis: Analysis | null;
 }
 
-export interface FindingsSummary {
-  perlu_tindakan: number;
-  perlu_ditinjau: number;
-  aman: number;
-  gagal: number;
-  belum_diperiksa: number;
-  total_transaksi: number;
-  per_tingkat: Partial<Record<RiskLevel, number>>;
-  selesai: number;
-  total_temuan: number;
-  /** Null when no finding exists yet — which is not the same as zero percent cleared. */
-  clear_rate: number | null;
-}
+/** Headline counts for the findings page; wire shape from the OpenAPI contract. */
+export type FindingsSummary = SummaryRow;
 
 export function listFindingsApi(
   accessToken: string,

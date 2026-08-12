@@ -7,6 +7,7 @@ import { listVendorsApi, createVendorApi, updateVendorApi, type Vendor } from '@
 import { useAuthStore } from '@/lib/stores/auth.store';
 import { formatDate } from '@/lib/format/datetime';
 import { FilterSelect, FILTER_INPUT_CLASSES } from '@/components/common/FilterControls';
+import { DataLoadingSkeleton, DataErrorState } from '@/components/common/DataState';
 import Pagination from '@/components/common/Pagination';
 import Modal from '@/components/common/Modal';
 import RippleButton, { PRIMARY_ACTION_CLASSES } from '@/components/common/RippleButton';
@@ -73,8 +74,8 @@ function VendorDialog({
           onClose();
         }
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to save vendor');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save vendor');
     } finally {
       setIsSubmitting(false);
     }
@@ -148,18 +149,23 @@ export default function VendorsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   
+  const [fetchError, setFetchError] = useState('');
+  
   const accessToken = useAuthStore((s) => s.accessToken);
 
   const fetchVendors = () => {
     if (!accessToken) return;
     setIsLoading(true);
+    setFetchError('');
     listVendorsApi(accessToken)
       .then((res) => {
         if (res.success) {
           setVendors(res.data.vendors);
+        } else {
+          setFetchError(res.message || 'Failed to fetch vendors');
         }
       })
-      .catch(console.error)
+      .catch((err) => setFetchError(err.message || 'Network error'))
       .finally(() => setIsLoading(false));
   };
 
@@ -223,9 +229,6 @@ export default function VendorsPage() {
   );
 
   return (
-    // No animate-fade-in here: it animates `transform`, which turns this div
-    // into a backdrop root and leaves the modal's backdrop-blur with nothing
-    // behind it to sample.
     <div className="space-y-stack-lg">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
@@ -288,8 +291,16 @@ export default function VendorsPage() {
           </div>
         </div>
         
-        <div className="overflow-hidden rounded-xl border border-surface-container-high bg-surface card-shadow">
-          <div className="overflow-x-auto">
+        {fetchError ? (
+          <DataErrorState message={fetchError} onRetry={fetchVendors} />
+        ) : isLoading ? (
+          <div className="rounded-xl border border-surface-container-high bg-surface p-6 card-shadow">
+            <DataLoadingSkeleton columns={6} rows={6} />
+          </div>
+        ) : (
+          <>
+            <div className="overflow-hidden rounded-xl border border-surface-container-high bg-surface card-shadow">
+              <div className="overflow-x-auto custom-scrollbar">
             <table className="w-full text-left border-collapse min-w-[700px]">
               <thead>
                 <tr className="bg-surface-container-highest/30 border-b border-surface-container-high">
@@ -384,7 +395,8 @@ export default function VendorsPage() {
               </tbody>
             </table>
           </div>
-          
+        </div>
+        
           <Pagination 
             currentPage={currentPage}
             totalPages={totalPages}
@@ -396,7 +408,8 @@ export default function VendorsPage() {
               setCurrentPage(1);
             }}
           />
-        </div>
+        </>
+        )}
       </div>
 
       <VendorDialog 

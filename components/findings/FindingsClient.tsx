@@ -16,6 +16,7 @@ import Badge, { type BadgeTone } from '@/components/common/Badge';
 import { FilterSelect, FILTER_INPUT_CLASSES } from '@/components/common/FilterControls';
 import EvidenceModal from '@/components/findings/EvidenceModal';
 import RippleButton, { PRIMARY_ACTION_CLASSES } from '@/components/common/RippleButton';
+import { DataLoadingSkeleton, DataErrorState } from '@/components/common/DataState';
 import { useAnalysisRun, type LogLine } from '@/lib/hooks/use-analysis-run';
 import {
   listFindingsApi,
@@ -185,12 +186,19 @@ export default function FindingsClient() {
   }, [accessToken, statusFilter, riskFilter, limit]);
 
   useEffect(() => {
+    // Fetch on mount. This is the React-documented data-fetching-in-effect
+    // pattern — the rule flags it because `load` sets loading synchronously,
+    // but there is no event handler that can trigger the first fetch.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
   }, [load]);
 
   // A finished run changes both the queue and the counts.
   const runStatus = run.status;
   useEffect(() => {
+    // Reload after a backfill completes. Same pattern as above: the trigger is
+    // a state change, not a user event.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (runStatus === 'done') load();
   }, [runStatus, load]);
 
@@ -390,12 +398,6 @@ export default function FindingsClient() {
       </section>
 
       {/* ---- Counts ---------------------------------------------------- */}
-      {error && (
-        <div className="flex items-start gap-2 rounded-xl bg-error-container px-4 py-3 font-body-md text-body-md text-on-error-container">
-          <ExclamationTriangleIcon aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0" />
-          <span>{error}</span>
-        </div>
-      )}
 
       {summary && (
         <div className="grid grid-cols-1 gap-gutter md:grid-cols-12">
@@ -506,8 +508,16 @@ export default function FindingsClient() {
           </div>
         </div>
 
-        <div className="w-full overflow-x-auto">
-          <table className="w-full border-collapse text-left">
+        {error ? (
+          <DataErrorState message={error} onRetry={load} />
+        ) : loading && findings.length === 0 ? (
+          <div className="p-6">
+            <DataLoadingSkeleton columns={6} rows={6} />
+          </div>
+        ) : (
+          <>
+            <div className="w-full overflow-x-auto">
+              <table className="w-full border-collapse text-left">
             <thead>
               <tr className="bg-surface-container-low font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">
                 <th className="w-20 px-6 py-4">ID</th>
@@ -581,17 +591,21 @@ export default function FindingsClient() {
         </div>
 
         {/* The API takes a limit but has no offset, so this raises the ceiling
-            rather than pretending to paginate. */}
-        {findings.length >= limit && limit < 200 && (
+            rather than pretending to paginate. Backend zod caps the wire value
+            at 100 — a higher request fails validation, so the ceiling has to
+            stop there. */}
+        {findings.length >= limit && limit < 100 && (
           <div className="flex items-center justify-center border-t border-surface-container-high p-4">
             <button
               type="button"
-              onClick={() => setLimit((n) => Math.min(n * 2, 200))}
+              onClick={() => setLimit((n) => Math.min(n * 2, 100))}
               className="font-label-lg text-label-lg text-primary transition-opacity hover:opacity-80"
             >
               Show more
             </button>
           </div>
+        )}
+        </>
         )}
       </section>
 

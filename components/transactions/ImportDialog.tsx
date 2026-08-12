@@ -1,47 +1,60 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import {
   ArrowRightIcon,
   CheckCircleIcon,
   DocumentArrowUpIcon,
-  SparklesIcon,
+  ExclamationTriangleIcon,
+  XCircleIcon,
   ArrowDownTrayIcon,
-  XMarkIcon,
-  DocumentIcon,
 } from '@heroicons/react/24/outline';
 import Modal from '@/components/common/Modal';
 import { useAuthStore } from '@/lib/stores/auth.store';
-import { listVendorsApi, getTransactionCategoriesApi, createTransactionApi } from '@/lib/services/api';
+import {
+  importTransactionsApi,
+  ApiError,
+  type ImportTransactionRow,
+  type Vendor,
+  listVendorsApi,
+  getTransactionCategoriesApi
+} from '@/lib/services/api';
+import { parseSpreadsheetFile, type ImportParseResult } from '@/lib/import/parse-file';
 
 interface ImportDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess?: () => void;
+  /** Fired after a successful import so the page can reload its list. */
+  onImported: () => void;
 }
 
-export default function ImportDialog({ isOpen, onClose, onSuccess }: ImportDialogProps) {
-  const [showToast, setShowToast] = useState(false);
-  const [lastVendorUpdate, setLastVendorUpdate] = useState<string | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+type Step = 'upload' | 'review' | 'done';
+
+const MAX_ROWS = 2000;
+
+const ACCEPTED = '.xlsx,.xls,.csv';
+
+export default function ImportDialog({ isOpen, onClose, onImported }: ImportDialogProps) {
   const accessToken = useAuthStore((s) => s.accessToken);
-  const user = useAuthStore((s) => s.user);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
-  useEffect(() => {
-    if (!isOpen) {
-      setSelectedFile(null);
-      setIsDragging(false);
-    }
-  }, [isOpen]);
+  const [step, setStep] = useState<Step>('upload');
+  const [fileName, setFileName] = useState<string | null>(null);
+  const [parsed, setParsed] = useState<ImportParseResult | null>(null);
+  const [parsing, setParsing] = useState(false);
+  const [parseError, setParseError] = useState<string | null>(null);
+  const [importing, setImporting] = useState(false);
+  const [result, setResult] = useState<{
+    inserted: number;
+    rejected: { row: number; message: string }[];
+  } | null>(null);
+  const [lastVendorUpdate, setLastVendorUpdate] = useState<string | null>(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (isOpen && accessToken) {
       listVendorsApi(accessToken).then(res => {
         if (res.success && res.data.vendors.length > 0) {
-          const maxTime = Math.max(...res.data.vendors.map((v: any) => new Date(v.join_date || 0).getTime()));
+          const maxTime = Math.max(...res.data.vendors.map((v) => new Date(v.join_date || 0).getTime()));
           if (maxTime > 0) {
             setLastVendorUpdate(new Date(maxTime).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }));
           } else {
@@ -52,110 +65,68 @@ export default function ImportDialog({ isOpen, onClose, onSuccess }: ImportDialo
     }
   }, [isOpen, accessToken]);
 
-  const handleUpload = async () => {
-    if (!selectedFile || !accessToken || !user) return;
-    setIsUploading(true);
+  const reset = useCallback(() => {
+    setStep('upload');
+    setFileName(null);
+    setParsed(null);
+    setParsing(false);
+    setParseError(null);
+    setImporting(false);
+    setResult(null);
+    if (inputRef.current) inputRef.current.value = '';
+  }, []);
+
+  const handleClose = () => {
+    reset();
+    onClose();
+  };
+
+  const handleFile = useCallback(
+    async (file: File) => {
+      if (!file) return;
+      setParsing(true);
+      setParseError(null);
+      setFileName(file.name);
+      try {
+        const result = await parseSpreadsheetFile(file);
+        if (result.rows.length > MAX_ROWS) {
+          setParseError(`Too many rows (${result.rows.length}). Limit is ${MAX_ROWS} per import.`);
+          setStep('upload');
+        } else {
+          setParsed(result);
+          setStep('review');
+        }
+      } catch (error) {
+        setParseError(
+          error instanceof Error ? error.message : 'Could not read that file. Try .xlsx or .csv.'
+        );
+        setStep('upload');
+      } finally {
+        setParsing(false);
+      }
+    },
+    []
+  );
+
+  const handleImport = async () => {
+    if (!accessToken || !parsed) return;
+    setImporting(true);
     try {
-      const ExcelJS = (await import('exceljs')).default;
-      const workbook = new ExcelJS.Workbook();
-      
-      if (selectedFile.name.endsWith('.csv')) {
-        // Minimal CSV support, but focusing on XLSX
-        const text = await selectedFile.text();
-        const lines = text.split('\n');
-        for (let i = 1; i < lines.length; i++) {
-          const row = lines[i].split(',');
-          if (row.length < 5) continue;
-          let vendor_id = null;
-          const vMatch = row[3].match(/^(\d+)\s+-/);
-          if (vMatch) vendor_id = parseInt(vMatch[1], 10);
-          
-          await createTransactionApi({
-            type: row[0].toLowerCase(),
-            amount: parseFloat(row[1]),
-            category: row[2],
-            vendor_id: vendor_id,
-            description: row[4],
-            input_by_user_id: user.id
-          }, accessToken).catch(e => console.error(e));
-        }
-      } else {
-        await workbook.xlsx.load(await selectedFile.arrayBuffer());
-        const sheet = workbook.getWorksheet('Transactions') || workbook.worksheets[0];
-        const rowCount = sheet.rowCount;
-        
-        for (let i = 2; i <= rowCount; i++) {
-          const row = sheet.getRow(i);
-          const type = row.getCell(1).text || row.getCell(1).value?.toString() || '';
-          const amountVal = row.getCell(2).value;
-          const category = row.getCell(3).text || row.getCell(3).value?.toString() || '';
-          const vendorStr = row.getCell(4).text || row.getCell(4).value?.toString() || '';
-          const description = row.getCell(5).text || row.getCell(5).value?.toString() || '';
-
-          if (!type || !amountVal || !category) continue;
-          
-          const amount = typeof amountVal === 'number' ? amountVal : parseFloat(amountVal.toString());
-
-          let vendor_id = null;
-          const match = vendorStr.match(/^(\d+)\s+-/);
-          if (match) vendor_id = parseInt(match[1], 10);
-
-          await createTransactionApi({
-            type: type.toLowerCase(),
-            amount,
-            category,
-            description,
-            vendor_id,
-            input_by_user_id: user.id
-          }, accessToken).catch(e => console.error(e));
-        }
-      }
-
-      setShowToast(true);
-      setTimeout(() => {
-        setShowToast(false);
-      }, 3000);
-      
-      if (onSuccess) onSuccess();
-      onClose();
-    } catch (err) {
-      console.error('Failed to parse and upload', err);
-      alert('Failed to process the uploaded file.');
+      const res = await importTransactionsApi(parsed.rows as ImportTransactionRow[], accessToken);
+      setResult({ inserted: res.data.inserted, rejected: res.data.rejected });
+      setStep('done');
+      onImported();
+    } catch (error) {
+      setParseError(error instanceof ApiError ? error.message : 'Import failed. Please retry.');
+      setStep('upload');
     } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      const file = e.dataTransfer.files[0];
-      if (file.name.endsWith('.xlsx') || file.name.endsWith('.csv')) {
-        setSelectedFile(file);
-      }
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setSelectedFile(e.target.files[0]);
+      setImporting(false);
     }
   };
 
   const handleDownloadTemplate = async () => {
     try {
-      let activeVendors: any[] = [];
+      let activeVendors: Vendor[] = [];
       let categories: string[] = [];
 
       if (accessToken) {
@@ -164,7 +135,7 @@ export default function ImportDialog({ isOpen, onClose, onSuccess }: ImportDialo
           getTransactionCategoriesApi(undefined, accessToken)
         ]);
         if (vendorRes.success) {
-          activeVendors = vendorRes.data.vendors.filter((v: any) => v.status === 'active');
+          activeVendors = vendorRes.data.vendors.filter((v) => v.status === 'active');
         }
         if (catRes.success) {
           const arr = [...(catRes.data.income || []), ...(catRes.data.expense || [])];
@@ -176,11 +147,13 @@ export default function ImportDialog({ isOpen, onClose, onSuccess }: ImportDialo
         categories = ['Sales', 'B2B Sales', 'Payroll & Benefits', 'Office Supplies', 'Rent & Lease']; // Fallback
       }
 
-      const ExcelJS = (await import('exceljs')).default;
+      const exceljsModule = await import('exceljs');
+      const ExcelJS = exceljsModule.default || exceljsModule;
       const workbook = new ExcelJS.Workbook();
       
       const sheet = workbook.addWorksheet('Transactions');
       sheet.columns = [
+        { header: 'Date', key: 'date', width: 15 },
         { header: 'Type', key: 'type', width: 15 },
         { header: 'Amount', key: 'amount', width: 20 },
         { header: 'Category', key: 'category', width: 25 },
@@ -188,7 +161,9 @@ export default function ImportDialog({ isOpen, onClose, onSuccess }: ImportDialo
         { header: 'Description', key: 'description', width: 40 },
       ];
 
+      const today = new Date().toISOString().split('T')[0];
       sheet.addRow({
+        date: today,
         type: 'income',
         amount: 15000000,
         category: 'Sales',
@@ -196,6 +171,7 @@ export default function ImportDialog({ isOpen, onClose, onSuccess }: ImportDialo
         description: 'Pendapatan harian ritel (Vendor opsional)'
       });
       sheet.addRow({
+        date: today,
         type: 'expense',
         amount: 500000,
         category: 'Office Supplies',
@@ -209,7 +185,7 @@ export default function ImportDialog({ isOpen, onClose, onSuccess }: ImportDialo
       
       listSheet.getColumn('A').values = ['Categories', ...categories];
       
-      const vendorOptions = activeVendors.map((v: any) => `${v.id} - ${v.vendor_name}`);
+      const vendorOptions = activeVendors.map((v) => `${v.id} - ${v.vendor_name}`);
       listSheet.getColumn('B').values = ['Vendors', ...vendorOptions];
 
       const catCount = categories.length;
@@ -217,14 +193,14 @@ export default function ImportDialog({ isOpen, onClose, onSuccess }: ImportDialo
 
       // Apply data validation to rows 2 - 1000
       for (let i = 2; i <= 1000; i++) {
-        sheet.getCell(`A${i}`).dataValidation = {
+        sheet.getCell(`B${i}`).dataValidation = {
           type: 'list',
           allowBlank: true,
           formulae: ['"income,expense"']
         };
 
         if (catCount > 0) {
-          sheet.getCell(`C${i}`).dataValidation = {
+          sheet.getCell(`D${i}`).dataValidation = {
             type: 'list',
             allowBlank: true,
             formulae: [`Lists!$A$2:$A$${catCount + 1}`]
@@ -232,7 +208,7 @@ export default function ImportDialog({ isOpen, onClose, onSuccess }: ImportDialo
         }
 
         if (vendorCount > 0) {
-          sheet.getCell(`D${i}`).dataValidation = {
+          sheet.getCell(`E${i}`).dataValidation = {
             type: 'list',
             allowBlank: true,
             formulae: [`Lists!$B$2:$B$${vendorCount + 1}`]
@@ -255,15 +231,46 @@ export default function ImportDialog({ isOpen, onClose, onSuccess }: ImportDialo
     }
   };
 
+  const canImport = (parsed?.rows.length ?? 0) > 0;
+
   return (
-    <>
-      <Modal
-        open={isOpen}
-        onClose={onClose}
-        title="Import Transaction Data"
-        size="xl"
-        bare
-        footer={
+    <Modal
+      open={isOpen}
+      onClose={handleClose}
+      title="Import Transaction Data"
+      size="xl"
+      bare
+      footer={
+        step === 'review' ? (
+          <>
+            <button
+              type="button"
+              className="h-10 rounded-lg px-4 font-label-sm text-label-sm text-on-surface-variant transition-colors hover:bg-surface-container"
+              onClick={() => {
+                reset();
+              }}
+            >
+              Choose another file
+            </button>
+            <button
+              type="button"
+              disabled={!canImport || importing}
+              className="flex h-10 items-center gap-2 rounded-lg bg-primary-container px-5 font-label-sm text-label-sm text-on-primary-container transition-colors hover:bg-primary-fixed disabled:cursor-not-allowed disabled:opacity-40"
+              onClick={handleImport}
+            >
+              {importing ? 'Importing…' : `Import ${parsed?.rows.length ?? 0} rows`}
+              {!importing && <ArrowRightIcon aria-hidden="true" className="h-4 w-4" />}
+            </button>
+          </>
+        ) : step === 'done' ? (
+          <button
+            type="button"
+            className="h-10 rounded-lg bg-primary-container px-5 font-label-sm text-label-sm text-on-primary-container transition-colors hover:bg-primary-fixed"
+            onClick={handleClose}
+          >
+            Done
+          </button>
+        ) : (
           <>
             {lastVendorUpdate && (
               <div className="mr-auto flex items-center text-[11px] text-on-surface-variant leading-tight">
@@ -282,139 +289,218 @@ export default function ImportDialog({ isOpen, onClose, onSuccess }: ImportDialo
             <button
               type="button"
               className="h-10 rounded-lg px-4 font-label-sm text-label-sm text-on-surface-variant transition-colors hover:bg-surface-container"
-              onClick={onClose}
+              onClick={handleClose}
             >
               Cancel
             </button>
-            <button
-              type="button"
-              disabled={!selectedFile || isUploading}
-              className="flex h-10 items-center gap-2 rounded-lg bg-primary-container px-5 font-label-sm text-label-sm text-on-primary-container transition-colors hover:bg-primary-fixed disabled:opacity-50 disabled:cursor-not-allowed"
-              onClick={handleUpload}
-            >
-              {isUploading ? 'Uploading...' : 'Process Upload'}
-              <ArrowRightIcon aria-hidden="true" className="h-4 w-4" />
-            </button>
           </>
-        }
-      >
-        {/* Stepper. `bare` drops the modal's body padding so this strip can span
-            the full width like the header above it. */}
-        <div className="flex items-center gap-2 border-b border-surface-container-high bg-surface-container-low px-6 py-3 font-label-sm text-[11px] font-semibold">
-          <span className="flex items-center gap-1 text-on-surface">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary-container text-on-primary-container">
-              1
-            </span>
-            Upload
-          </span>
-          <div className="h-px w-8 bg-outline-variant/50" />
-          <span className="flex items-center gap-1 text-on-surface-variant">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-surface-variant text-on-surface-variant">
-              2
-            </span>
-            Map Columns
-          </span>
-          <div className="h-px w-8 bg-outline-variant/50" />
-          <span className="flex items-center gap-1 text-on-surface-variant">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-surface-variant text-on-surface-variant">
-              3
-            </span>
-            Validate
-          </span>
-        </div>
+        )
+      }
+    >
+      {/* Stepper. `bare` drops the modal's body padding so this strip can span
+          the full width like the header above it. */}
+      <div className="flex items-center gap-2 border-b border-surface-container-high bg-surface-container-low px-6 py-3 font-label-sm text-[11px] font-semibold">
+        {(
+          [
+            ['upload', 'Upload'],
+            ['review', 'Review'],
+            ['done', 'Validate'],
+          ] as const
+        ).map(([id, label], i) => {
+          const stepIndex = step === 'upload' ? 0 : step === 'review' ? 1 : 2;
+          const active = stepIndex === i;
+          const done = stepIndex > i;
+          return (
+            <React.Fragment key={id}>
+              {i > 0 && <div className="h-px w-8 bg-outline-variant/50" />}
+              <span
+                className={`flex items-center gap-1 ${
+                  active ? 'text-on-surface' : done ? 'text-primary' : 'text-on-surface-variant'
+                }`}
+              >
+                <span
+                  className={`flex h-5 w-5 items-center justify-center rounded-full ${
+                    done
+                      ? 'bg-primary-container text-on-primary-container'
+                      : active
+                        ? 'bg-primary-container text-on-primary-container'
+                        : 'bg-surface-variant text-on-surface-variant'
+                  }`}
+                >
+                  {done ? <CheckCircleIcon aria-hidden="true" className="h-3.5 w-3.5" /> : i + 1}
+                </span>
+                {label}
+              </span>
+            </React.Fragment>
+          );
+        })}
+      </div>
 
+      {step === 'upload' && (
         <div className="flex min-h-[300px] flex-col items-center justify-center bg-background p-8">
-          <input
-            type="file"
-            accept=".xlsx,.csv"
-            className="hidden"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-          />
-          
-          {!selectedFile ? (
-            <div 
-              className={`group flex w-full max-w-md cursor-pointer flex-col items-center rounded-xl border-2 border-dashed ${isDragging ? 'border-primary bg-primary-container/10' : 'border-outline-variant/50 bg-surface'} p-8 text-center transition-colors hover:border-primary`}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-surface-container transition-colors group-hover:bg-primary-container">
-                <DocumentArrowUpIcon
-                  aria-hidden="true"
-                  className="h-6 w-6 text-tertiary group-hover:text-on-primary-container"
-                />
-              </div>
-              <h4 className="mb-1 font-headline-sm text-headline-sm text-on-surface">
-                Drag and drop your Excel file
-              </h4>
-              <p className="mb-4 font-body-sm text-body-sm text-on-surface-variant">
-                Supported formats: .xlsx, .csv (Max 50MB)
-              </p>
-              <button
-                type="button"
-                className="h-10 rounded-lg border border-outline-variant/50 bg-surface px-4 font-label-sm text-label-sm text-on-surface transition-colors hover:bg-surface-container card-shadow"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  fileInputRef.current?.click();
-                }}
-              >
-                Browse Files
-              </button>
+          <label
+            className={`group flex w-full max-w-md cursor-pointer flex-col items-center rounded-xl border-2 border-dashed border-outline-variant/50 bg-surface p-8 text-center transition-colors hover:border-primary ${
+              parsing ? 'pointer-events-none opacity-60' : ''
+            }`}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              e.preventDefault();
+              const file = e.dataTransfer.files?.[0];
+              if (file) handleFile(file);
+            }}
+          >
+            <input
+              ref={inputRef}
+              type="file"
+              accept={ACCEPTED}
+              className="sr-only"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleFile(file);
+              }}
+            />
+            <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-surface-container transition-colors group-hover:bg-primary-container">
+              <DocumentArrowUpIcon
+                aria-hidden="true"
+                className="h-6 w-6 text-tertiary group-hover:text-on-primary-container"
+              />
+            </span>
+            <span className="mb-1 font-headline-sm text-headline-sm text-on-surface">
+              {parsing ? 'Reading file…' : fileName ?? 'Drag and drop your Excel file'}
+            </span>
+            <span className="mb-4 font-body-sm text-body-sm text-on-surface-variant">
+              Supported formats: .xlsx, .csv (max {MAX_ROWS.toLocaleString('en-US')} rows)
+            </span>
+            <span className="h-10 rounded-lg border border-outline-variant/50 bg-surface px-4 font-label-sm text-label-sm text-on-surface transition-colors hover:bg-surface-container card-shadow">
+              Browse Files
+            </span>
+          </label>
+
+          {parseError && (
+            <div className="mt-4 flex w-full max-w-md items-start gap-2 rounded-lg bg-error-container px-3 py-2.5 font-body-sm text-body-sm text-on-error-container">
+              <ExclamationTriangleIcon aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
+              <span>{parseError}</span>
             </div>
-          ) : (
-            <div className="flex w-full max-w-md flex-col items-center rounded-xl border border-outline-variant/50 bg-surface p-6 text-center card-shadow">
-              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary-container text-on-primary-container">
-                <DocumentIcon aria-hidden="true" className="h-8 w-8" />
-              </div>
-              <h4 className="mb-1 font-headline-sm text-headline-sm text-on-surface truncate w-full px-4">
-                {selectedFile.name}
-              </h4>
-              <p className="mb-4 font-body-sm text-body-sm text-on-surface-variant">
-                {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+          )}
+        </div>
+      )}
+
+      {step === 'review' && parsed && (
+        <div className="bg-background p-6">
+          <p className="mb-1 font-body-sm text-body-sm text-on-surface-variant">
+            {fileName} · {parsed.rows.length} rows ready to import
+            {parsed.errors.length > 0 ? `, ${parsed.errors.length} rows with errors` : ''}.
+          </p>
+          <p className="mb-4 font-body-sm text-body-sm text-on-surface-variant">
+            Vendor names are matched case-insensitively and created if new. Imported expenses are
+            analyzed automatically in the background.
+          </p>
+
+          {parsed.headers.length > 0 && (
+            <div className="mb-4">
+              <p className="mb-1.5 font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant">
+                Columns found
               </p>
-              <button
-                type="button"
-                className="flex items-center gap-2 text-error hover:underline font-label-sm text-label-sm"
-                onClick={() => setSelectedFile(null)}
-              >
-                <XMarkIcon className="h-4 w-4" />
-                Remove File
-              </button>
+              <div className="flex flex-wrap gap-1.5">
+                {parsed.headers.map((h) => (
+                  <span
+                    key={h}
+                    className="rounded bg-surface-container px-2 py-1 font-mono text-[11px] text-on-surface"
+                  >
+                    {h}
+                  </span>
+                ))}
+              </div>
             </div>
           )}
 
-          <div className="mt-6 flex w-full max-w-md items-start gap-3 rounded-lg border border-surface-container-high bg-surface p-3 ai-glow">
-            <SparklesIcon aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
-            <div>
-              <p className="mb-0.5 font-label-sm text-label-sm text-on-surface">
-                AI Auto-Mapping enabled
-              </p>
-              <p className="font-body-sm text-body-sm text-on-surface-variant">
-                Our models will automatically detect and map headers based on historical transaction
-                structures.
-              </p>
+          {parsed.rows.length > 0 && (
+            <div className="mb-4 max-h-56 overflow-y-auto rounded-lg border border-outline-variant/30">
+              <table className="w-full border-collapse text-left font-table-data text-table-data">
+                <thead className="sticky top-0 bg-surface-container-low font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">
+                  <tr>
+                    <th className="px-4 py-2">Date</th>
+                    <th className="px-4 py-2">Type</th>
+                    <th className="px-4 py-2">Amount</th>
+                    <th className="px-4 py-2">Category</th>
+                    <th className="px-4 py-2">Vendor</th>
+                    <th className="px-4 py-2">Description</th>
+                  </tr>
+                </thead>
+                <tbody className="text-on-surface">
+                  {parsed.rows.slice(0, 100).map((row, i) => (
+                    <tr key={i} className="border-t border-outline-variant/20">
+                      <td className="whitespace-nowrap px-4 py-2 text-on-surface-variant">
+                        {row.date ?? '—'}
+                      </td>
+                      <td className="px-4 py-2">{row.type}</td>
+                      <td className="whitespace-nowrap px-4 py-2">
+                        {row.amount.toLocaleString('id-ID')}
+                      </td>
+                      <td className="px-4 py-2">{row.category}</td>
+                      <td className="px-4 py-2 text-on-surface-variant">{row.vendor_name ?? '—'}</td>
+                      <td className="max-w-xs truncate px-4 py-2 text-on-surface-variant">
+                        {row.description}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {parsed.rows.length > 100 && (
+                <p className="bg-surface-container-low px-4 py-2 font-body-sm text-body-sm text-on-surface-variant">
+                  …and {parsed.rows.length - 100} more.
+                </p>
+              )}
             </div>
-          </div>
-        </div>
-      </Modal>
+          )}
 
-      {/* Sits outside the dialog on purpose: it appears after the modal closes. */}
-      {showToast && (
-        <div
-          role="status"
-          className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-lg bg-inverse-surface px-4 py-3 font-body-sm text-body-sm text-inverse-on-surface shadow-ambient-lvl-2 animate-fade-in"
-        >
-          <CheckCircleIcon aria-hidden="true" className="h-6 w-6 shrink-0 text-primary-container" />
-          <div>
-            <p className="font-semibold">Import Started</p>
-            <p className="text-xs text-outline-variant">
-              Processing 1,240 rows. AI mapping in progress.
-            </p>
-          </div>
+          {parsed.errors.length > 0 && (
+            <div className="rounded-lg bg-error-container/60 px-4 py-3">
+              <p className="mb-1.5 font-label-sm text-label-sm uppercase tracking-widest text-error">
+                {parsed.errors.length} rows skipped
+              </p>
+              <ul className="flex flex-col gap-1">
+                {parsed.errors.slice(0, 20).map((e) => (
+                  <li key={e.row} className="font-body-sm text-body-sm text-on-error-container">
+                    Row {e.row}: {e.message}
+                  </li>
+                ))}
+              </ul>
+              {parsed.errors.length > 20 && (
+                <p className="mt-1 font-body-sm text-body-sm text-on-error-container">
+                  …and {parsed.errors.length - 20} more. Fix the file and re-upload to import them.
+                </p>
+              )}
+            </div>
+          )}
         </div>
       )}
-    </>
+
+      {step === 'done' && result && (
+        <div className="flex min-h-[300px] flex-col items-center justify-center bg-background p-8 text-center">
+          <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary-container">
+            <CheckCircleIcon aria-hidden="true" className="h-8 w-8 text-on-primary-container" />
+          </span>
+          <h4 className="mb-1 font-headline-sm text-headline-sm text-on-surface">
+            {result.inserted} transaction{result.inserted === 1 ? '' : 's'} imported
+          </h4>
+          <p className="mb-4 font-body-sm text-body-sm text-on-surface-variant">
+            {result.rejected.length > 0
+              ? `${result.rejected.length} row${result.rejected.length === 1 ? '' : 's'} rejected server-side.`
+              : 'Imported expenses are being analyzed in the background — findings will appear shortly.'}
+          </p>
+          {result.rejected.length > 0 && (
+            <div className="flex w-full max-w-md items-start gap-2 rounded-lg bg-error-container/60 px-3 py-2.5 text-left font-body-sm text-body-sm text-on-error-container">
+              <XCircleIcon aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
+              <ul className="flex flex-col gap-0.5">
+                {result.rejected.slice(0, 10).map((r) => (
+                  <li key={r.row}>Row {r.row}: {r.message}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+    </Modal>
   );
 }
