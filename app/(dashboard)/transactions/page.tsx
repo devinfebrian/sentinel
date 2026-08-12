@@ -140,7 +140,14 @@ function TransactionDialog({
     setError('');
 
     try {
-      const payload: any = {
+      const payload: {
+        amount: number;
+        type: string;
+        category: string;
+        description: string;
+        vendor_id: number | null;
+        input_by_user_id?: number;
+      } = {
         amount: parseFloat(amount),
         type,
         category,
@@ -155,15 +162,17 @@ function TransactionDialog({
           onClose();
         }
       } else {
-        payload.input_by_user_id = user.id;
-        const res = await createTransactionApi(payload, accessToken);
+        const res = await createTransactionApi(
+          { ...payload, input_by_user_id: user.id },
+          accessToken
+        );
         if (res.success) {
           onSuccess();
           onClose();
         }
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to save transaction');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save transaction');
     } finally {
       setIsSubmitting(false);
     }
@@ -598,7 +607,7 @@ export default function TransactionsPage() {
         )}
       </div>
 
-      <ImportDialog isOpen={isImportOpen} onClose={() => setIsImportOpen(false)} onSuccess={fetchTransactions} />
+      <ImportDialog isOpen={isImportOpen} onClose={() => setIsImportOpen(false)} onImported={fetchTransactions} />
       <TransactionDialog isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} onSuccess={fetchTransactions} txToEdit={txToEdit} />
       <VendorDrawer isOpen={!!selectedVendor} onClose={() => setSelectedVendor(null)} vendorName={selectedVendor} />
     </div>
