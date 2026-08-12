@@ -149,7 +149,13 @@ export default function FindingsClient() {
 
   const [statusFilter, setStatusFilter] = useState<FindingStatusFilter>('open');
   const [riskFilter, setRiskFilter] = useState<RiskLevel | 'all'>('all');
-  const [limit, setLimit] = useState(50);
+  const limit = 100;
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter, riskFilter, findings.length]);
 
   const year = new Date().getFullYear();
   const [showRunForm, setShowRunForm] = useState(false);
@@ -183,7 +189,7 @@ export default function FindingsClient() {
     } finally {
       setLoading(false);
     }
-  }, [accessToken, statusFilter, riskFilter, limit]);
+  }, [accessToken, statusFilter, riskFilter]);
 
   useEffect(() => {
     // Fetch on mount. This is the React-documented data-fetching-in-effect
@@ -213,6 +219,9 @@ export default function FindingsClient() {
     const counts = Object.values(summary?.per_tingkat ?? {});
     return counts.length ? Math.max(...counts) : 0;
   }, [summary]);
+
+  const totalPages = Math.ceil(findings.length / itemsPerPage);
+  const paginatedFindings = findings.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const startRun = () => {
     if (!accessToken) return;
@@ -306,8 +315,8 @@ export default function FindingsClient() {
               come back as candidates.
             </p>
           </div>
-          <Badge tone={running ? 'high' : run.status === 'error' ? 'critical' : 'neutral'}>
-            {running ? 'Running' : run.status === 'idle' ? 'Idle' : run.status}
+          <Badge tone={running ? 'high' : run.status === 'error' ? 'critical' : run.status === 'done' ? 'success' : 'neutral'}>
+            {running ? 'Running' : run.status === 'idle' ? 'Idle' : run.status.charAt(0).toUpperCase() + run.status.slice(1)}
           </Badge>
         </div>
 
@@ -366,11 +375,26 @@ export default function FindingsClient() {
                 ['Failed', run.counters.failed],
               ] as const
             ).map(([label, value]) => (
-              <div key={label} className="rounded-lg bg-surface-container-low px-3 py-2">
-                <dt className="font-label-sm text-label-sm uppercase tracking-wide text-on-surface-variant">
+              <div key={label} className={`rounded-lg px-3 py-2 border ${
+                label === 'Failed' ? 'bg-red-100 border-red-200' :
+                label === 'New findings' ? 'bg-amber-50 border-amber-200' :
+                label === 'Updated' ? 'bg-blue-50 border-blue-200' :
+                label === 'Clean' ? 'bg-emerald-50 border-emerald-200' : 'bg-surface-container-low border-surface-container-high'
+              }`}>
+                <dt className={`font-label-sm text-label-sm uppercase tracking-wide ${
+                  label === 'Failed' ? 'text-red-800' :
+                  label === 'New findings' ? 'text-amber-800' :
+                  label === 'Updated' ? 'text-blue-800' :
+                  label === 'Clean' ? 'text-emerald-800' : 'text-on-surface-variant'
+                }`}>
                   {label}
                 </dt>
-                <dd className="font-kpi-value text-body-lg text-on-surface">{value}</dd>
+                <dd className={`font-kpi-value text-body-lg ${
+                  label === 'Failed' ? 'text-red-800' :
+                  label === 'New findings' ? 'text-amber-800' :
+                  label === 'Updated' ? 'text-blue-800' :
+                  label === 'Clean' ? 'text-emerald-800' : 'text-on-surface'
+                }`}>{value}</dd>
               </div>
             ))}
           </dl>
@@ -529,7 +553,7 @@ export default function FindingsClient() {
               </tr>
             </thead>
             <tbody className="font-table-data text-table-data text-on-surface">
-              {findings.map((f) => (
+              {paginatedFindings.map((f) => (
                 <tr
                   key={f.id}
                   onClick={() => setEvidenceFor(f.id)}
@@ -590,19 +614,29 @@ export default function FindingsClient() {
           )}
         </div>
 
-        {/* The API takes a limit but has no offset, so this raises the ceiling
-            rather than pretending to paginate. Backend zod caps the wire value
-            at 100 — a higher request fails validation, so the ceiling has to
-            stop there. */}
-        {findings.length >= limit && limit < 100 && (
-          <div className="flex items-center justify-center border-t border-surface-container-high p-4">
-            <button
-              type="button"
-              onClick={() => setLimit((n) => Math.min(n * 2, 100))}
-              className="font-label-lg text-label-lg text-primary transition-opacity hover:opacity-80"
-            >
-              Show more
-            </button>
+        {findings.length > 0 && (
+          <div className="flex items-center justify-between border-t border-surface-container-high px-6 py-4">
+            <span className="font-body-sm text-body-sm text-on-surface-variant">
+              Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, findings.length)} of {findings.length} entries
+            </span>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(p => p - 1)}
+                className="rounded-lg border border-outline-variant/50 px-4 py-1.5 font-label-sm text-label-sm text-on-surface transition-colors hover:bg-surface-container disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+              <button
+                type="button"
+                disabled={currentPage === totalPages || totalPages === 0}
+                onClick={() => setCurrentPage(p => p + 1)}
+                className="rounded-lg border border-outline-variant/50 px-4 py-1.5 font-label-sm text-label-sm text-on-surface transition-colors hover:bg-surface-container disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
           </div>
         )}
         </>
