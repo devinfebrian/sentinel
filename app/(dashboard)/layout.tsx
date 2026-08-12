@@ -24,8 +24,8 @@ export default function DashboardLayout({
               leftover space into a margin, so the gap against the sidebar (and
               against the right edge) would change with the viewport and with
               the sidebar's collapsed state. Padding alone defines both gaps. */}
-          <main className="flex-1 overflow-y-auto hide-scrollbar w-full pb-16 md:pb-0">
-            <div className="w-full p-4 md:p-container-padding">{children}</div>
+          <main className="flex-1 overflow-y-auto custom-scrollbar w-full pb-16 md:pb-0 flex flex-col">
+            <div className="w-full p-4 md:p-container-padding flex-1 flex flex-col">{children}</div>
           </main>
           <BottomNav />
         </DashboardLayoutWrapper>

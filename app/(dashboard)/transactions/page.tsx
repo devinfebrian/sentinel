@@ -332,21 +332,27 @@ export default function TransactionsPage() {
     if (!accessToken) return;
     setIsLoading(true);
     setFetchError('');
-    // Fetch up to 1000 transactions and do all filtering/pagination locally
+    // Fetch up to 2000 transactions and do all filtering/pagination locally
     // because the backend doesn't support searching by vendor name.
-    listTransactionsApi(accessToken, {
-      page: 1,
-      limit: 100
-    })
-      .then((res) => {
-        if (res.success) {
-          setTransactions(res.data.transactions);
-        } else {
-          setFetchError(res.message || 'Failed to fetch transactions');
+    const fetchAll = async () => {
+      let allTx: Transaction[] = [];
+      let page = 1;
+      try {
+        while (allTx.length < 2000) {
+          const res = await listTransactionsApi(accessToken, { page, limit: 100 });
+          if (!res.success) throw new Error(res.message);
+          allTx = [...allTx, ...res.data.transactions];
+          if (res.data.transactions.length < 100) break;
+          page++;
         }
-      })
-      .catch((err) => setFetchError(err.message || 'Network error'))
-      .finally(() => setIsLoading(false));
+        setTransactions(allTx);
+      } catch (err: any) {
+        setFetchError(err.message || 'Network error');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchAll();
   };
 
   // Any filter change invalidates the current page
@@ -511,7 +517,7 @@ export default function TransactionsPage() {
         ) : (
           <>
             <div className="overflow-hidden rounded-xl border border-surface-container-high bg-surface card-shadow">
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto custom-scrollbar">
               <table className="w-full min-w-[960px] border-collapse text-left">
             <thead>
               <tr className="border-b border-surface-container-high bg-surface-container-highest/30 font-label-sm text-label-sm text-on-surface-variant">

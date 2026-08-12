@@ -300,7 +300,7 @@ export default function VendorsPage() {
         ) : (
           <>
             <div className="overflow-hidden rounded-xl border border-surface-container-high bg-surface card-shadow">
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto custom-scrollbar">
             <table className="w-full text-left border-collapse min-w-[700px]">
               <thead>
                 <tr className="bg-surface-container-highest/30 border-b border-surface-container-high">
