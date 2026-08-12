@@ -7,7 +7,6 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
   ClockIcon,
-  Cog6ToothIcon,
   KeyIcon,
 } from '@heroicons/react/24/outline';
 import { useAuthStore } from '@/lib/stores/auth.store';
@@ -63,15 +62,6 @@ export default function TopAppBar() {
 
       <div className="flex shrink-0 items-center gap-1.5 sm:gap-4">
         {/* Hide these placeholder buttons on mobile to save space */}
-        <button
-          type="button"
-          disabled
-          aria-label="Settings"
-          className="hidden sm:flex h-10 w-10 items-center justify-center rounded-full bg-surface-container text-on-surface-variant transition-colors hover:bg-surface-container-high disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <Cog6ToothIcon aria-hidden="true" className="h-6 w-6" />
-        </button>
-
         <AnimatedThemeToggler 
           className="!flex h-8 w-8 sm:h-10 sm:w-10 !p-0 items-center justify-center rounded-full bg-surface-container text-on-surface-variant transition-colors hover:bg-primary-container hover:text-on-primary-container active:bg-primary-container active:text-on-primary-container" 
           variant="circle"
