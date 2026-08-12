@@ -346,8 +346,8 @@ export default function TransactionsPage() {
           page++;
         }
         setTransactions(allTx);
-      } catch (err: any) {
-        setFetchError(err.message || 'Network error');
+      } catch (err) {
+        setFetchError(err instanceof Error ? err.message : 'Network error');
       } finally {
         setIsLoading(false);
       }

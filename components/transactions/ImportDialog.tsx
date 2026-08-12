@@ -7,6 +7,7 @@ import {
   DocumentArrowUpIcon,
   ExclamationTriangleIcon,
   XCircleIcon,
+  ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline';
 import Modal from '@/components/common/Modal';
 import { useAuthStore } from '@/lib/stores/auth.store';
@@ -14,6 +15,8 @@ import {
   importTransactionsApi,
   ApiError,
   type ImportTransactionRow,
+  listVendorsApi,
+  getTransactionCategoriesApi
 } from '@/lib/services/api';
 import { parseSpreadsheetFile, type ImportParseResult } from '@/lib/import/parse-file';
 
@@ -44,6 +47,22 @@ export default function ImportDialog({ isOpen, onClose, onImported }: ImportDial
     inserted: number;
     rejected: { row: number; message: string }[];
   } | null>(null);
+  const [lastVendorUpdate, setLastVendorUpdate] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (isOpen && accessToken) {
+      listVendorsApi(accessToken).then(res => {
+        if (res.success && res.data.vendors.length > 0) {
+          const maxTime = Math.max(...res.data.vendors.map((v: any) => new Date(v.join_date || 0).getTime()));
+          if (maxTime > 0) {
+            setLastVendorUpdate(new Date(maxTime).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }));
+          } else {
+            setLastVendorUpdate(new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }));
+          }
+        }
+      }).catch(console.error);
+    }
+  }, [isOpen, accessToken]);
 
   const reset = useCallback(() => {
     setStep('upload');
@@ -104,6 +123,113 @@ export default function ImportDialog({ isOpen, onClose, onImported }: ImportDial
     }
   };
 
+  const handleDownloadTemplate = async () => {
+    try {
+      let activeVendors: any[] = [];
+      let categories: string[] = [];
+
+      if (accessToken) {
+        const [vendorRes, catRes] = await Promise.all([
+          listVendorsApi(accessToken),
+          getTransactionCategoriesApi(undefined, accessToken)
+        ]);
+        if (vendorRes.success) {
+          activeVendors = vendorRes.data.vendors.filter((v: any) => v.status === 'active');
+        }
+        if (catRes.success) {
+          const arr = [...(catRes.data.income || []), ...(catRes.data.expense || [])];
+          categories = Array.from(new Set(arr)).sort();
+        }
+      }
+
+      if (categories.length === 0) {
+        categories = ['Sales', 'B2B Sales', 'Payroll & Benefits', 'Office Supplies', 'Rent & Lease']; // Fallback
+      }
+
+      const exceljsModule = await import('exceljs');
+      const ExcelJS = exceljsModule.default || exceljsModule;
+      const workbook = new ExcelJS.Workbook();
+      
+      const sheet = workbook.addWorksheet('Transactions');
+      sheet.columns = [
+        { header: 'Date', key: 'date', width: 15 },
+        { header: 'Type', key: 'type', width: 15 },
+        { header: 'Amount', key: 'amount', width: 20 },
+        { header: 'Category', key: 'category', width: 25 },
+        { header: 'Vendor (ID - Name)', key: 'vendor', width: 40 },
+        { header: 'Description', key: 'description', width: 40 },
+      ];
+
+      const today = new Date().toISOString().split('T')[0];
+      sheet.addRow({
+        date: today,
+        type: 'income',
+        amount: 15000000,
+        category: 'Sales',
+        vendor: '',
+        description: 'Pendapatan harian ritel (Vendor opsional)'
+      });
+      sheet.addRow({
+        date: today,
+        type: 'expense',
+        amount: 500000,
+        category: 'Office Supplies',
+        vendor: activeVendors.length > 0 ? `${activeVendors[0].id} - ${activeVendors[0].vendor_name}` : '',
+        description: 'Pembelian alat tulis (Vendor Wajib)'
+      });
+
+      // Data Validation Lists Sheet
+      const listSheet = workbook.addWorksheet('Lists');
+      listSheet.state = 'hidden';
+      
+      listSheet.getColumn('A').values = ['Categories', ...categories];
+      
+      const vendorOptions = activeVendors.map((v: any) => `${v.id} - ${v.vendor_name}`);
+      listSheet.getColumn('B').values = ['Vendors', ...vendorOptions];
+
+      const catCount = categories.length;
+      const vendorCount = vendorOptions.length;
+
+      // Apply data validation to rows 2 - 1000
+      for (let i = 2; i <= 1000; i++) {
+        sheet.getCell(`B${i}`).dataValidation = {
+          type: 'list',
+          allowBlank: true,
+          formulae: ['"income,expense"']
+        };
+
+        if (catCount > 0) {
+          sheet.getCell(`D${i}`).dataValidation = {
+            type: 'list',
+            allowBlank: true,
+            formulae: [`Lists!$A$2:$A$${catCount + 1}`]
+          };
+        }
+
+        if (vendorCount > 0) {
+          sheet.getCell(`E${i}`).dataValidation = {
+            type: 'list',
+            allowBlank: true,
+            formulae: [`Lists!$B$2:$B$${vendorCount + 1}`]
+          };
+        }
+      }
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', 'template_transactions.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to generate excel template', error);
+    }
+  };
+
   const canImport = (parsed?.rows.length ?? 0) > 0;
 
   return (
@@ -144,13 +270,29 @@ export default function ImportDialog({ isOpen, onClose, onImported }: ImportDial
             Done
           </button>
         ) : (
-          <button
-            type="button"
-            className="h-10 rounded-lg px-4 font-label-sm text-label-sm text-on-surface-variant transition-colors hover:bg-surface-container"
-            onClick={handleClose}
-          >
-            Cancel
-          </button>
+          <>
+            {lastVendorUpdate && (
+              <div className="mr-auto flex items-center text-[11px] text-on-surface-variant leading-tight">
+                Vendor Updated:<br />
+                <span className="font-semibold text-primary ml-1">{lastVendorUpdate}</span>
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={handleDownloadTemplate}
+              className="flex h-10 items-center gap-2 rounded-lg border border-outline-variant/50 bg-surface px-4 font-label-sm text-label-sm text-on-surface transition-colors hover:bg-surface-container"
+            >
+              <ArrowDownTrayIcon aria-hidden="true" className="h-4 w-4" />
+              Download Template
+            </button>
+            <button
+              type="button"
+              className="h-10 rounded-lg px-4 font-label-sm text-label-sm text-on-surface-variant transition-colors hover:bg-surface-container"
+              onClick={handleClose}
+            >
+              Cancel
+            </button>
+          </>
         )
       }
     >
