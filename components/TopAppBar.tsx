@@ -9,6 +9,7 @@ import {
   ClockIcon,
   KeyIcon,
 } from '@heroicons/react/24/outline';
+import { ShieldCheckIcon } from '@heroicons/react/24/solid';
 import { useAuthStore } from '@/lib/stores/auth.store';
 
 import { useNow } from '@/lib/hooks/use-now';
@@ -64,25 +65,40 @@ export default function TopAppBar() {
   const roleLabel = user?.isAdmin ? 'Finance Lead' : 'Finance Staff';
 
   return (
-    <header className="sticky top-0 z-40 flex min-w-0 w-full items-center justify-between gap-2 sm:gap-4 border-b border-outline-variant/30 bg-surface/80 px-2 sm:px-4 py-2 sm:py-4 backdrop-blur-md md:px-container-padding">
-      <div className="flex min-w-0 shrink items-center">
-        <div className="flex min-w-0 items-center gap-1.5 sm:gap-2 rounded-full border border-outline-variant/30 bg-surface-container-low px-2 sm:px-4 py-1.5 sm:py-2">
-          <ClockIcon aria-hidden="true" className="h-4 w-4 sm:h-5 sm:w-5 shrink-0 text-on-surface-variant" />
-        {/* aria-live is deliberately off: a clock announcing itself every
-            second would flood a screen reader. */}
-        <p className="flex items-baseline gap-1.5 sm:gap-2 whitespace-nowrap text-[10px] sm:text-table-data">
-          <span className="font-semibold tabular-nums text-on-surface">
-            {now ? formatClock(now) : '--:--:--'}
+    <header className="sticky top-0 z-40 flex w-full items-center justify-between gap-1 sm:gap-4 border-b border-outline-variant/30 bg-surface/80 px-2 sm:px-4 py-2 sm:py-4 backdrop-blur-md md:px-container-padding">
+      
+      {/* Mobile Logo (Left, hidden on desktop where sidebar handles it) */}
+      <div className="flex flex-1 justify-start md:hidden min-w-0 pr-1">
+        <div className="flex items-center gap-2">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary shadow-sm">
+            <ShieldCheckIcon aria-hidden="true" className="h-[18px] w-[18px] text-on-primary" />
           </span>
-          <span className="text-on-surface-variant hidden sm:inline">WIB</span>
-          <span className="hidden text-on-surface-variant/70 md:inline">
-            {now ? formatDayDate(now) : ''}
+          <span className="font-headline-sm text-[17px] text-on-surface font-bold tracking-tight">
+            Sentinel
           </span>
-        </p>
-      </div>
+        </div>
       </div>
 
-      <div className="flex shrink-0 items-center gap-1.5 sm:gap-4">
+      {/* Clock Widget (Center on mobile, Left on desktop) */}
+      <div className="flex shrink-0 items-center justify-center md:justify-start">
+        <div className="flex min-w-0 items-center gap-1.5 sm:gap-2 rounded-full border border-outline-variant/30 bg-surface-container-low px-2 sm:px-4 py-1.5 sm:py-2">
+          <ClockIcon aria-hidden="true" className="h-4 w-4 sm:h-5 sm:w-5 shrink-0 text-on-surface-variant" />
+          {/* aria-live is deliberately off: a clock announcing itself every
+              second would flood a screen reader. */}
+          <p className="flex items-baseline gap-1.5 sm:gap-2 whitespace-nowrap text-[10px] sm:text-table-data">
+            <span className="font-semibold tabular-nums text-on-surface">
+              {now ? formatClock(now) : '--:--:--'}
+            </span>
+            <span className="text-on-surface-variant hidden sm:inline">WIB</span>
+            <span className="hidden text-on-surface-variant/70 md:inline">
+              {now ? formatDayDate(now) : ''}
+            </span>
+          </p>
+        </div>
+      </div>
+
+      {/* Right Actions (Profile, Theme) */}
+      <div className="flex flex-1 shrink-0 items-center justify-end gap-1.5 sm:gap-4 md:flex-none">
         {/* Hide these placeholder buttons on mobile to save space */}
         <AnimatedThemeToggler 
           className="!flex h-8 w-8 sm:h-10 sm:w-10 !p-0 items-center justify-center rounded-full bg-surface-container text-on-surface-variant transition-colors hover:bg-primary-container hover:text-on-primary-container active:bg-primary-container active:text-on-primary-container" 

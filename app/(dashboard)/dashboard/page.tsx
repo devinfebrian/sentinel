@@ -346,7 +346,7 @@ export function SimpleLineChart({ data, isAllTime = false, metricFilter = 'All' 
   );
 }
 
-function DonutChart({ data, total }: { data: { label: string; value: number; color: string }[], total: number }) {
+function DonutChart({ data, total }: { data: { label: string; value: number; color: string; subcategories?: { label: string; value: number }[] }[], total: number }) {
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const [tooltip, setTooltip] = useState<{ x: number; y: number; data: typeof data[0] } | null>(null);
 
@@ -478,14 +478,34 @@ function DonutChart({ data, total }: { data: { label: string; value: number; col
 
       {tooltip && (
         <div 
-          className="fixed z-50 pointer-events-none bg-inverse-surface text-inverse-on-surface px-3 py-2 rounded-lg text-xs shadow-lg transform -translate-x-1/2 -translate-y-[calc(100%+12px)]"
+          className="fixed z-50 pointer-events-none bg-inverse-surface text-inverse-on-surface px-3 py-2.5 rounded-xl text-xs shadow-xl transform -translate-x-1/2 -translate-y-[calc(100%+12px)] min-w-[200px] max-w-[240px]"
           style={{ left: tooltip.x, top: tooltip.y }}
         >
-          <div className="font-semibold mb-1">{tooltip.data.label}</div>
+          <div className="font-semibold mb-1.5 text-[13px]">{tooltip.data.label}</div>
           <div className="flex justify-between gap-4">
-            <span>{formatCurrency(tooltip.data.value)}</span>
+            <span className="text-inverse-on-surface/90">{formatCurrency(tooltip.data.value)}</span>
             <span className="font-bold">{((tooltip.data.value / total) * 100).toFixed(0)}%</span>
           </div>
+          {tooltip.data.label === 'Others' && tooltip.data.subcategories && (
+            <div className="mt-2 border-t border-inverse-on-surface/20 pt-2 flex flex-col gap-1">
+              <div className="text-[9px] text-inverse-on-surface/70 font-semibold uppercase tracking-wider mb-0.5">
+                Minor Categories
+              </div>
+              <div className="flex flex-col gap-1">
+                {tooltip.data.subcategories.slice(0, 8).map(sub => (
+                  <div key={sub.label} className="flex justify-between gap-3 text-[11px] text-inverse-on-surface/90">
+                    <span className="truncate">{sub.label}</span>
+                    <span className="shrink-0 font-medium">{formatCurrency(sub.value)}</span>
+                  </div>
+                ))}
+                {tooltip.data.subcategories.length > 8 && (
+                  <div className="text-[10px] text-inverse-on-surface/60 italic mt-0.5">
+                    + {tooltip.data.subcategories.length - 8} more categories
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -640,14 +660,16 @@ export default function DashboardPage() {
   const top4Colors = ['#667000', '#8FAF00', '#B7D000', '#CFE1CA'];
   const othersColor = '#D8DFE9';
   
-  let donutData = Object.keys(expenseByCategory)
+  let donutData: { label: string; value: number; color?: string; subcategories?: { label: string; value: number }[] }[] = Object.keys(expenseByCategory)
     .map(k => ({ label: k, value: expenseByCategory[k] }))
     .sort((a, b) => b.value - a.value);
     
-  if (donutData.length > 4) {
-    const top = donutData.slice(0, 4);
-    const otherVal = donutData.slice(4).reduce((sum, d) => sum + d.value, 0);
-    donutData = [...top, { label: 'Others', value: otherVal }];
+  if (donutData.length > 5) {
+    const top = donutData.slice(0, 5);
+    const topSum = top.reduce((sum, d) => sum + d.value, 0);
+    const otherVal = trueTotalExpense - topSum;
+    const minorCategories = donutData.slice(5).map(d => ({ label: d.label, value: d.value }));
+    donutData = [...top, { label: 'Others', value: otherVal, subcategories: minorCategories }];
   }
   
   const donutChartData = donutData.map((d, i) => ({
