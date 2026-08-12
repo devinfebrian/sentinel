@@ -81,16 +81,8 @@ export function parseAmount(value: unknown): number | null {
   let s = value.trim().replace(/^Rp\s?/i, '').replace(/\s/g, '');
   if (!s) return null;
 
-  const idThousands = /^\d{1,3}(\.\d{3})+(,\d+)?$/.test(s);
-  const usThousands = /^\d{1,3}(,\d{3})+(\.\d+)?$/.test(s);
-
-  if (idThousands) {
-    s = s.replace(/\./g, '').replace(',', '.');
-  } else if (usThousands) {
-    s = s.replace(/,/g, '');
-  } else {
-    s = s.replace(/,/g, '');
-  }
+  // Robust Indonesian format: assume dots are thousands, commas are decimals.
+  s = s.replace(/\./g, '').replace(/,/g, '.').replace(/[^0-9.-]+/g, '');
 
   const n = Number(s);
   return Number.isFinite(n) ? n : null;
@@ -150,7 +142,7 @@ export function parseSpreadsheetRows(
     const amount = parseAmount(get('amount'));
     const type = parseType(get('type'));
     const categoryRaw = String(get('category') ?? '').trim();
-    const description = String(get('description') ?? '').trim();
+    const description = String(get('description') ?? '').trim() || '-';
 
     // A fully blank line is noise, not an error.
     if (
@@ -169,7 +161,6 @@ export function parseSpreadsheetRows(
     if (amount === null) rowErrors.push('amount tidak terbaca sebagai angka');
     if (type === null) rowErrors.push('type harus income atau expense');
     if (categoryRaw === '') rowErrors.push('category wajib diisi');
-    if (description === '') rowErrors.push('description wajib diisi');
 
     const dateCell = get('date');
     let date: string | undefined;
