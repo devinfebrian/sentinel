@@ -277,7 +277,7 @@ export function AskSentinel() {
           <button
             onClick={onSubmit}
             disabled={!inputValue.trim() || isTyping}
-            className="ml-2 p-3 rounded-xl bg-warning text-white hover:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className="ml-2 p-3 rounded-xl bg-primary-container text-on-primary-container hover:bg-primary-fixed disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <PaperAirplaneIcon className="h-5 w-5" />
           </button>
