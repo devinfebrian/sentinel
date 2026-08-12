@@ -66,11 +66,13 @@ const CARD = 'rounded-xl border border-outline-variant/30 bg-surface-container-l
  * it runs for every expense transaction, not just the candidates that reach
  * the agents.
  *
- * `active` reflects a real `agent` SSE event from the backend (see
- * `useAnalysisRun`'s `activeAgents`), not a shared "a run is happening" flag —
- * agent 1 and 2 do light up together, but that is because they genuinely run
- * concurrently on the same thread pool, not because the UI can't tell them
- * apart.
+ * The three agent boxes' `active` reflects a real `agent` SSE event from the
+ * backend (see `useAnalysisRun`'s `activeAgents`) — agent 1 and 2 do light up
+ * together, but that is because they genuinely run concurrently on the same
+ * thread pool, not because the UI can't tell them apart. Query is the one
+ * exception: it has no event of its own (see analysis-stream.ts) and is
+ * passed the run's overall `running` flag instead, which for a step that
+ * touches every transaction is an accurate "in progress" signal, not a fake.
  */
 function AgentNode({
   icon: Icon,
@@ -337,7 +339,11 @@ export default function FindingsClient() {
             icon={CircleStackIcon}
             name="Query"
             role="Screens for candidates"
-            active={run.activeAgents.query}
+            // Detection is a sub-millisecond DB call fired for every
+            // transaction — an event per instance would blink faster than
+            // it's visible. This node just tracks "a run is in progress",
+            // which for this one step is actually true continuously.
+            active={running}
             done={run.status === 'done'}
           />
           <ChevronRightIcon

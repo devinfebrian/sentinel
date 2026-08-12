@@ -16,7 +16,7 @@ import { ApiError, type Finding, type RiskLevel } from '@/lib/services/api';
 const API_BASE_URL = '/api/v1';
 
 export type RunPhase = 'created' | 'updated' | 'clean' | 'failed';
-export type AgentName = 'query' | 'agent1' | 'agent2' | 'agent3';
+export type AgentName = 'agent1' | 'agent2' | 'agent3';
 
 export interface RunSummary {
   diperiksa: number;
@@ -43,12 +43,15 @@ export interface AnalysisEvent {
   risk_level?: RiskLevel | null;
   risk_score?: number | null;
   /**
-   * agent — fired around the checkpoints inside a single transaction's
-   * analysis. `query` (Python detection) runs for every expense transaction,
-   * candidate or not; `agent1`/`agent2`/`agent3` are LLM calls and only fire
-   * for candidates (agent1+agent2 start/finish together, they run
+   * agent — fired around the two LLM checkpoints inside a single candidate
+   * transaction's analysis (agent1+agent2 start/finish together, they run
    * concurrently; agent3 starts after). There is no "in progress" state
-   * between started and done, only those two instants.
+   * between started and done, only those two instants. The query/detection
+   * step that runs ahead of these for every transaction has no event of its
+   * own — it is a sub-millisecond synchronous DB call, so a started/done
+   * pair around it would always land back-to-back with no visible gap. The
+   * Query pipeline node is driven by the run's overall status instead — see
+   * FindingsClient.
    */
   agent?: AgentName;
   agent_phase?: 'started' | 'done';

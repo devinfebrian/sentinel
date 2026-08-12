@@ -30,7 +30,6 @@ const EMPTY_COUNTERS: Record<RunPhase, number> = {
 };
 
 const NO_ACTIVE_AGENTS: Record<AgentName, boolean> = {
-  query: false,
   agent1: false,
   agent2: false,
   agent3: false,
