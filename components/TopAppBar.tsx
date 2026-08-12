@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import {
   ArrowLeftStartOnRectangleIcon,
   ChevronDownIcon,
@@ -129,8 +130,8 @@ export default function TopAppBar() {
       {/* Mobile Logo (Left, hidden on desktop where sidebar handles it) */}
       <div className="flex flex-1 justify-start md:hidden min-w-0 pr-1">
         <div className="flex items-center gap-2">
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary shadow-sm">
-            <ShieldCheckIcon aria-hidden="true" className="h-[18px] w-[18px] text-on-primary" />
+          <span className="relative h-[28px] w-[28px] shrink-0">
+            <Image src="/sentinel_logo.png" alt="" fill sizes="28px" className="object-contain" />
           </span>
           <span className="font-headline-sm text-[17px] text-on-surface font-bold tracking-tight">
             Sentinel
@@ -257,7 +258,7 @@ export default function TopAppBar() {
                   className="flex items-center gap-2 px-4 py-3 text-left font-label-sm font-bold text-on-surface transition-colors hover:bg-surface-container-high"
                 >
                   <KeyIcon aria-hidden="true" className="h-[18px] w-[18px]" />
-                  Setup / Change Password
+                  Change Password
                 </button>
                 <button
                   type="button"

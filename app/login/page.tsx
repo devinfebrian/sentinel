@@ -59,8 +59,8 @@ export default function LoginPage() {
             <img
               src="/logo-full.png"
               alt="Sentinel Logo"
-              className="w-40 h-auto object-contain object-left mix-blend-darken"
-              style={{ mixBlendMode: 'darken' }}
+              className="w-40 h-auto object-contain object-left mix-blend-multiply"
+              style={{ mixBlendMode: 'multiply' }}
             />
           </div>
         </div>
@@ -72,8 +72,8 @@ export default function LoginPage() {
               <img
                 src="/logo-full.png"
                 alt="Sentinel Logo"
-                className="w-32 h-auto object-contain mix-blend-darken"
-                style={{ mixBlendMode: 'darken' }}
+                className="w-32 h-auto object-contain mix-blend-multiply"
+                style={{ mixBlendMode: 'multiply' }}
               />
             </div>
 

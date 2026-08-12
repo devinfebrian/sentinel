@@ -46,7 +46,6 @@ const SHOWCASE: ShowcaseCard[] = [
     description: 'Risk-scored results from the audit pipeline, with the evidence behind each.',
     href: '/findings',
     cta: 'Preview',
-    soon: true,
   },
   {
     icon: SparklesIcon,
@@ -72,7 +71,7 @@ const QUICK_START = [
   },
   {
     title: 'Run an audit',
-    body: 'Sentinel reviews the transactions and reports what looks wrong. Arriving in Sprint 2.',
+    body: 'Sentinel reviews the transactions and reports what looks wrong.',
     href: '/findings',
     linkText: 'Preview findings',
   },
