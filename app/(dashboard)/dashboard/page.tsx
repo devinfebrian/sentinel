@@ -16,7 +16,6 @@ import { formatDate } from '@/lib/format/datetime';
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { FilterSelect } from '@/components/common/FilterControls';
-import { AskSentinel } from '@/components/dashboard/AskSentinel';
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('id-ID', {
@@ -162,7 +161,7 @@ function SimpleLineChart({ data }: { data: { label: string; income: number; expe
                 >
                    {incomeHeight > 0 && (
                      <div 
-                       className="absolute bg-[#596B00] w-full"
+                       className="absolute bg-secondary-container w-full"
                        style={{
                          bottom: `${bottomZeroPct}%`,
                          height: `${incomeHeight}%`,
@@ -173,7 +172,7 @@ function SimpleLineChart({ data }: { data: { label: string; income: number; expe
                    )}
                    {expenseHeight > 0 && (
                      <div 
-                       className="absolute bg-error w-full"
+                       className="absolute bg-error-container w-full"
                        style={{
                          top: `${100 - bottomZeroPct}%`,
                          height: `${expenseHeight}%`,
@@ -215,7 +214,7 @@ function SimpleLineChart({ data }: { data: { label: string; income: number; expe
               <div key={i} className="group relative h-full flex-1 hover:bg-surface-variant/5 transition-colors">
                 <div className="pointer-events-none absolute left-1/2 top-1/2 hidden w-max max-w-[220px] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-surface p-3 text-[11px] text-on-surface group-hover:block z-50 shadow-lg border border-surface-container-highest">
                   <div className="mb-2 font-bold text-[12px] border-b border-surface-container-highest pb-1">{d.label}</div>
-                  <div className="flex justify-between gap-4 font-medium text-[#596B00]">
+                  <div className="flex justify-between gap-4 font-medium text-secondary">
                     <span>Income:</span>
                     <span>{formatCurrency(d.income)}</span>
                   </div>
@@ -248,11 +247,11 @@ function SimpleLineChart({ data }: { data: { label: string; income: number; expe
 
       <div className="mt-4 flex justify-center gap-6 shrink-0">
         <div className="flex items-center gap-2">
-          <span className="h-3 w-3 rounded-[2px] bg-[#596B00]"></span>
+          <span className="h-3 w-3 rounded-[2px] bg-secondary-container"></span>
           <span className="text-[10px] font-medium text-on-surface">Income</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="h-3 w-3 rounded-[2px] bg-error"></span>
+          <span className="h-3 w-3 rounded-[2px] bg-error-container"></span>
           <span className="text-[10px] font-medium text-on-surface">Expense</span>
         </div>
         <div className="flex items-center gap-2">
@@ -286,7 +285,7 @@ function DonutChart({ data, total }: { data: { label: string; value: number; col
 
   return (
     <div 
-      className="flex flex-row flex-wrap items-center justify-center h-full gap-x-10 gap-y-8 w-full py-4 relative"
+      className="flex flex-row flex-wrap items-center justify-center h-full gap-x-10 gap-y-6 w-full relative"
       onClick={() => setSelectedIdx(null)}
     >
       <div className="relative w-48 h-48 shrink-0">
@@ -543,13 +542,13 @@ export default function DashboardPage() {
   const recentFindings = filteredFindings.slice(0, 5);
 
   return (
-    <div className="space-y-stack-lg">
-      <header className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-        <div>
+    <div className="flex flex-col gap-gutter">
+      <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div className="flex flex-col gap-1">
           <h1 className="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">
             Dashboard
           </h1>
-          <p className="font-body-md text-body-md text-on-surface-variant mt-2">
+          <p className="font-body-md text-body-md text-on-surface-variant">
             Financial performance and AI audit insights across the transactions.
           </p>
         </div>
@@ -572,7 +571,7 @@ export default function DashboardPage() {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 gap-gutter sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { label: 'Total Income', value: totalIncome, icon: ArrowUpIcon, color: 'text-[#596B00]', bg: 'bg-[#596B00] text-white' },
+          { label: 'Total Income', value: totalIncome, icon: ArrowUpIcon, color: 'text-secondary', bg: 'bg-secondary-container text-on-secondary-container' },
           { label: 'Total Expenses', value: totalExpenses, icon: ArrowDownIcon, color: 'text-error', bg: 'bg-error-container text-on-error-container' },
           { label: 'Net Cash Flow', value: netCashFlow, icon: BanknotesIcon, color: netCashFlow >= 0 ? 'text-secondary' : 'text-error', bg: 'bg-primary-container text-on-primary-container' },
           { label: 'Total Transactions', value: txCount, isCount: true, icon: DocumentTextIcon, color: 'text-on-surface', bg: 'bg-surface-container-highest text-on-surface' },
@@ -602,8 +601,10 @@ export default function DashboardPage() {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
         <div className="lg:col-span-2 overflow-hidden rounded-xl border border-surface-container-high bg-surface p-5 card-shadow flex flex-col">
-          <h2 className="font-headline-sm text-headline-sm text-on-surface">Cash Flow Trend</h2>
-          <p className="font-body-sm text-on-surface-variant mb-2">Income and expenses over time.</p>
+          <div className="flex flex-col gap-1 mb-6">
+            <h2 className="font-headline-sm text-headline-sm text-on-surface">Cash Flow Trend</h2>
+            <p className="font-body-sm text-on-surface-variant">Income and expenses over time.</p>
+          </div>
           <div className="flex-1 flex flex-col min-h-0">
              {isLoading ? (
                <div className="flex-1 flex items-center justify-center text-on-surface-variant">Loading chart...</div>
@@ -613,9 +614,11 @@ export default function DashboardPage() {
           </div>
         </div>
         <div className="lg:col-span-1 overflow-hidden rounded-xl border border-surface-container-high bg-surface p-5 card-shadow flex flex-col">
-          <h2 className="font-headline-sm text-headline-sm text-on-surface">Expense Breakdown</h2>
-          <p className="font-body-sm text-on-surface-variant mb-4">Distribution of spending across categories.</p>
-          <div className="flex-1 mt-auto">
+          <div className="flex flex-col gap-1 mb-6">
+            <h2 className="font-headline-sm text-headline-sm text-on-surface">Expense Breakdown</h2>
+            <p className="font-body-sm text-on-surface-variant">Distribution of spending across categories.</p>
+          </div>
+          <div className="flex-1 flex flex-col min-h-0">
              {isLoading ? (
                <div className="h-64 flex items-center justify-center text-on-surface-variant">Loading chart...</div>
              ) : (
@@ -626,16 +629,18 @@ export default function DashboardPage() {
       </div>
 
       {/* AI Section Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
-        {/* Left Column (2/3): AI Audit Summary & Risk Distribution */}
-        <div className="lg:col-span-2 flex flex-col gap-gutter">
+      <div className="grid grid-cols-1 gap-gutter">
+        {/* AI Audit Summary & Risk Distribution */}
+        <div className="flex flex-col gap-gutter">
           {/* AI Audit Summary */}
-          <div className="overflow-hidden rounded-xl border border-surface-container-high bg-surface p-5 card-shadow ai-glow relative">
-            <div className="flex items-center gap-2 mb-1">
-               <ChartBarIcon className="h-5 w-5 text-primary" />
-               <h2 className="font-headline-sm text-headline-sm text-on-surface">AI Audit Summary</h2>
+          <div className="overflow-hidden rounded-xl border border-surface-container-high bg-surface p-5 card-shadow relative">
+            <div className="flex flex-col gap-1 mb-6">
+              <div className="flex items-center gap-2">
+                 <ChartBarIcon className="h-5 w-5 text-primary" />
+                 <h2 className="font-headline-sm text-headline-sm text-on-surface">AI Audit Summary</h2>
+              </div>
+              <p className="font-body-sm text-on-surface-variant">{period}</p>
             </div>
-            <p className="font-body-sm text-on-surface-variant mb-6">{period}</p>
             
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
                <div className="flex flex-col gap-1 p-3 rounded-lg bg-surface-container-low border border-surface-container-high">
@@ -663,8 +668,8 @@ export default function DashboardPage() {
 
           {/* Risk Distribution */}
           <div className="overflow-hidden rounded-xl border border-surface-container-high bg-surface p-5 card-shadow">
-            <h2 className="font-headline-sm text-headline-sm text-on-surface">Risk Distribution</h2>
-            <div className="flex flex-col gap-4 mt-6">
+            <h2 className="font-headline-sm text-headline-sm text-on-surface mb-6">Risk Distribution</h2>
+            <div className="flex flex-col gap-4">
                {riskDistribution.map((item, idx) => {
                  const maxCount = Math.max(1, ...riskDistribution.map(d => d.count));
                  const widthPct = (item.count / maxCount) * 100;
@@ -683,15 +688,10 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-
-        {/* Right Column (1/3): Ask Sentinel */}
-        <div className="lg:col-span-1 overflow-hidden rounded-xl border border-surface-container-high bg-surface p-5 card-shadow flex flex-col h-[600px] max-h-[600px]">
-          <AskSentinel />
-        </div>
       </div>
 
       {/* Recent AI Findings */}
-      <div className="space-y-stack-md pt-4">
+      <div className="flex flex-col gap-4">
         <h2 className="font-headline-sm text-headline-sm text-on-surface">Recent Findings</h2>
         <div className="overflow-hidden rounded-xl border border-surface-container-high bg-surface card-shadow">
           <div className="overflow-x-auto">
