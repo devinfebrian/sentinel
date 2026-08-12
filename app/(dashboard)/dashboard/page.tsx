@@ -408,8 +408,8 @@ export default function DashboardPage() {
     setIsLoading(true);
     // Fetch data independently so one failure doesn't block the others
     Promise.allSettled([
-      listTransactionsApi(accessToken, { limit: 100 }),
-      listFindingsApi(accessToken, { limit: 100 }),
+      listTransactionsApi(accessToken, { limit: 5000 }),
+      listFindingsApi(accessToken, { limit: 5000 }),
       listVendorsApi(accessToken)
     ])
       .then(([txResult, findResult, vendorResult]) => {

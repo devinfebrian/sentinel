@@ -327,7 +327,7 @@ export default function TransactionsPage() {
     // because the backend doesn't support searching by vendor name.
     listTransactionsApi(accessToken, {
       page: 1,
-      limit: 100
+      limit: 5000
     })
       .then((res) => {
         if (res.success) {
