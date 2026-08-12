@@ -585,7 +585,7 @@ export default function TransactionsPage() {
       </div>
       </div>
 
-      <ImportDialog isOpen={isImportOpen} onClose={() => setIsImportOpen(false)} />
+      <ImportDialog isOpen={isImportOpen} onClose={() => setIsImportOpen(false)} onSuccess={fetchTransactions} />
       <TransactionDialog isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} onSuccess={fetchTransactions} txToEdit={txToEdit} />
       <VendorDrawer isOpen={!!selectedVendor} onClose={() => setSelectedVendor(null)} vendorName={selectedVendor} />
     </div>
