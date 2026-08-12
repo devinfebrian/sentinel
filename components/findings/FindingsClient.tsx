@@ -153,9 +153,14 @@ export default function FindingsClient() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  useEffect(() => {
+  const handleStatusFilterChange = (value: FindingStatusFilter) => {
+    setStatusFilter(value);
     setCurrentPage(1);
-  }, [statusFilter, riskFilter, findings.length]);
+  };
+  const handleRiskFilterChange = (value: RiskLevel | 'all') => {
+    setRiskFilter(value);
+    setCurrentPage(1);
+  };
 
   const year = new Date().getFullYear();
   const [showRunForm, setShowRunForm] = useState(false);
@@ -221,7 +226,8 @@ export default function FindingsClient() {
   }, [summary]);
 
   const totalPages = Math.ceil(findings.length / itemsPerPage);
-  const paginatedFindings = findings.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const safePage = Math.min(currentPage, Math.max(totalPages, 1));
+  const paginatedFindings = findings.slice((safePage - 1) * itemsPerPage, safePage * itemsPerPage);
 
   const startRun = () => {
     if (!accessToken) return;
@@ -500,7 +506,7 @@ export default function FindingsClient() {
             <FilterSelect
               label="Filter by status"
               value={statusFilter}
-              onChange={setStatusFilter}
+              onChange={handleStatusFilterChange}
               className="w-36"
             >
               <option value="open">Open</option>
@@ -510,7 +516,7 @@ export default function FindingsClient() {
             <FilterSelect
               label="Filter by risk level"
               value={riskFilter}
-              onChange={setRiskFilter}
+              onChange={handleRiskFilterChange}
               className="w-36"
             >
               <option value="all">All risks</option>
@@ -617,12 +623,12 @@ export default function FindingsClient() {
         {findings.length > 0 && (
           <div className="flex items-center justify-between border-t border-surface-container-high px-6 py-4">
             <span className="font-body-sm text-body-sm text-on-surface-variant">
-              Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, findings.length)} of {findings.length} entries
+              Showing {(safePage - 1) * itemsPerPage + 1} to {Math.min(safePage * itemsPerPage, findings.length)} of {findings.length} entries
             </span>
             <div className="flex gap-2">
               <button
                 type="button"
-                disabled={currentPage === 1}
+                disabled={safePage === 1}
                 onClick={() => setCurrentPage(p => p - 1)}
                 className="rounded-lg border border-outline-variant/50 px-4 py-1.5 font-label-sm text-label-sm text-on-surface transition-colors hover:bg-surface-container disabled:opacity-40 disabled:cursor-not-allowed"
               >
@@ -630,7 +636,7 @@ export default function FindingsClient() {
               </button>
               <button
                 type="button"
-                disabled={currentPage === totalPages || totalPages === 0}
+                disabled={safePage === totalPages || totalPages === 0}
                 onClick={() => setCurrentPage(p => p + 1)}
                 className="rounded-lg border border-outline-variant/50 px-4 py-1.5 font-label-sm text-label-sm text-on-surface transition-colors hover:bg-surface-container disabled:opacity-40 disabled:cursor-not-allowed"
               >
