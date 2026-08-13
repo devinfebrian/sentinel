@@ -53,6 +53,11 @@ export default function TopAppBar() {
 
 
   const { resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleLogout = () => {
     clearSession();
@@ -82,12 +87,16 @@ export default function TopAppBar() {
       {/* Right Actions (Profile, Theme) */}
       <div className="flex flex-1 shrink-0 items-center justify-end gap-1.5 sm:gap-4 md:flex-none ml-auto">
         {/* Hide these placeholder buttons on mobile to save space */}
-        <AnimatedThemeToggler 
-          className="!flex h-8 w-8 sm:h-10 sm:w-10 !p-0 items-center justify-center rounded-full bg-surface-container text-on-surface-variant transition-colors hover:bg-primary-container hover:text-on-primary-container active:bg-primary-container active:text-on-primary-container" 
-          variant="circle"
-          theme={resolvedTheme === "dark" ? "dark" : "light"}
-          onThemeChange={setTheme}
-        />
+        {mounted ? (
+          <AnimatedThemeToggler 
+            className="!flex h-8 w-8 sm:h-10 sm:w-10 !p-0 items-center justify-center rounded-full bg-surface-container text-on-surface-variant transition-colors hover:bg-primary-container hover:text-on-primary-container active:bg-primary-container active:text-on-primary-container" 
+            variant="circle"
+            theme={resolvedTheme === "dark" ? "dark" : "light"}
+            onThemeChange={setTheme}
+          />
+        ) : (
+          <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-surface-container" />
+        )}
 
         <div className="relative">
           <button

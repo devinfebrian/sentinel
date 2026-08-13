@@ -212,6 +212,7 @@ export interface Transaction {
   type: string;
   category: string;
   description: string;
+  invoice_no: string | null;
   vendor_id: number | null;
   vendor_name: string | null;
   input_by_user_id: number;
@@ -257,6 +258,7 @@ export function updateTransactionApi(
     type?: string;
     category?: string;
     description?: string;
+    invoice_no?: string | null;
     vendor_id?: number | null;
   },
   accessToken: string
@@ -270,6 +272,7 @@ export function createTransactionApi(
     type: string;
     category: string;
     description: string;
+    invoice_no?: string | null;
     vendor_id?: number | null;
     input_by_user_id: number;
   },

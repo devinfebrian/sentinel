@@ -38,12 +38,6 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={`${urbanist.variable} ${inter.variable} h-full antialiased`}>
       <head>
-
-      </head>
-      {/* Auth state lives in a Zustand store, so no provider is needed here —
-          which also keeps Server Components free of a React context they
-          could not read anyway. */}
-      <body className="min-h-full flex flex-col bg-background font-sans antialiased text-on-surface">
         {/* Only loaded when Google sign-in is actually switched on. */}
         {googleAuthEnabled && (
           <Script
@@ -51,6 +45,11 @@ export default function RootLayout({
             strategy="beforeInteractive"
           />
         )}
+      </head>
+      {/* Auth state lives in a Zustand store, so no provider is needed here —
+          which also keeps Server Components free of a React context they
+          could not read anyway. */}
+      <body className="min-h-full flex flex-col bg-background font-sans antialiased text-on-surface">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
           {/* Inside ThemeProvider, not beside it: AppToaster reads
