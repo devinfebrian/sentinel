@@ -157,6 +157,7 @@ export default function ImportDialog({ isOpen, onClose, onImported }: ImportDial
         { header: 'Type', key: 'type', width: 15 },
         { header: 'Amount', key: 'amount', width: 20 },
         { header: 'Category', key: 'category', width: 25 },
+        { header: 'Invoice', key: 'invoice_no', width: 20 },
         { header: 'Vendor (ID - Name)', key: 'vendor', width: 40 },
         { header: 'Description', key: 'description', width: 40 },
       ];
@@ -167,6 +168,7 @@ export default function ImportDialog({ isOpen, onClose, onImported }: ImportDial
         type: 'income',
         amount: 15000000,
         category: 'Sales',
+        invoice_no: 'INV-2023001',
         vendor: '',
         description: 'Pendapatan harian ritel (Vendor opsional)'
       });
@@ -175,6 +177,7 @@ export default function ImportDialog({ isOpen, onClose, onImported }: ImportDial
         type: 'expense',
         amount: 500000,
         category: 'Office Supplies',
+        invoice_no: 'INV-2023002',
         vendor: activeVendors.length > 0 ? `${activeVendors[0].id} - ${activeVendors[0].vendor_name}` : '',
         description: 'Pembelian alat tulis (Vendor Wajib)'
       });
@@ -208,7 +211,7 @@ export default function ImportDialog({ isOpen, onClose, onImported }: ImportDial
         }
 
         if (vendorCount > 0) {
-          sheet.getCell(`E${i}`).dataValidation = {
+          sheet.getCell(`F${i}`).dataValidation = {
             type: 'list',
             allowBlank: true,
             formulae: [`Lists!$B$2:$B$${vendorCount + 1}`]
@@ -423,6 +426,7 @@ export default function ImportDialog({ isOpen, onClose, onImported }: ImportDial
                     <th className="px-4 py-2">Type</th>
                     <th className="px-4 py-2">Amount</th>
                     <th className="px-4 py-2">Category</th>
+                    <th className="px-4 py-2">Invoice</th>
                     <th className="px-4 py-2">Vendor</th>
                     <th className="px-4 py-2">Description</th>
                   </tr>
@@ -438,6 +442,7 @@ export default function ImportDialog({ isOpen, onClose, onImported }: ImportDial
                         {row.amount.toLocaleString('id-ID')}
                       </td>
                       <td className="px-4 py-2">{row.category}</td>
+                      <td className="px-4 py-2 text-on-surface-variant">{row.invoice_no ?? '—'}</td>
                       <td className="px-4 py-2 text-on-surface-variant">{row.vendor_name ?? '—'}</td>
                       <td className="max-w-xs truncate px-4 py-2 text-on-surface-variant">
                         {row.description}

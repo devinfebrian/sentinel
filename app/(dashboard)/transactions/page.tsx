@@ -76,6 +76,7 @@ function TransactionDialog({
   const [type, setType] = useState('expense');
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
+  const [invoiceNo, setInvoiceNo] = useState('');
   const [vendorId, setVendorId] = useState('');
 
   const [categories, setCategories] = useState<string[]>([]);
@@ -92,12 +93,14 @@ function TransactionDialog({
       setType(txToEdit.type);
       setCategory(txToEdit.category);
       setDescription(txToEdit.description);
+      setInvoiceNo(txToEdit.invoice_no || '');
       setVendorId(txToEdit.vendor_id ? txToEdit.vendor_id.toString() : '');
     } else {
       setAmount('');
       setType('expense');
       setCategory('');
       setDescription('');
+      setInvoiceNo('');
       setVendorId('');
     }
     setError('');
@@ -145,6 +148,7 @@ function TransactionDialog({
         type: string;
         category: string;
         description: string;
+        invoice_no: string | null;
         vendor_id: number | null;
         input_by_user_id?: number;
       } = {
@@ -152,6 +156,7 @@ function TransactionDialog({
         type,
         category,
         description,
+        invoice_no: invoiceNo || null,
         vendor_id: vendorId ? parseInt(vendorId, 10) : null,
       };
 
@@ -252,18 +257,31 @@ function TransactionDialog({
               </div>
             </div>
 
-            <div className="flex flex-col gap-2">
-              <label className="font-label-sm text-label-sm font-semibold text-on-surface">Vendor (Optional)</label>
-              <select
-                className="px-3 py-2 bg-surface-container-low border border-outline-variant/50 rounded-lg text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
-                value={vendorId}
-                onChange={(e) => setVendorId(e.target.value)}
-              >
-                <option value="">-- No Vendor --</option>
-                {vendors.map(v => (
-                  <option key={v.id} value={v.id.toString()}>{v.vendor_name}</option>
-                ))}
-              </select>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-2">
+                <label className="font-label-sm text-label-sm font-semibold text-on-surface">Invoice No. (Optional)</label>
+                <input
+                  type="text"
+                  className="px-3 py-2 bg-surface-container-low border border-outline-variant/50 rounded-lg text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
+                  placeholder="INV-..."
+                  value={invoiceNo}
+                  onChange={(e) => setInvoiceNo(e.target.value)}
+                />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="font-label-sm text-label-sm font-semibold text-on-surface">Vendor (Optional)</label>
+                <select
+                  className="px-3 py-2 bg-surface-container-low border border-outline-variant/50 rounded-lg text-on-surface focus:outline-none focus:ring-1 focus:ring-primary"
+                  value={vendorId}
+                  onChange={(e) => setVendorId(e.target.value)}
+                >
+                  <option value="">-- No Vendor --</option>
+                  {vendors.map(v => (
+                    <option key={v.id} value={v.id.toString()}>{v.vendor_name}</option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             <div className="flex flex-col gap-2">
@@ -385,7 +403,8 @@ export default function TransactionsPage() {
       const matchDesc = tx.description?.toLowerCase().includes(q) || false;
       const matchCat = tx.category?.toLowerCase().includes(q) || false;
       const matchVendor = tx.vendor_name?.toLowerCase().includes(q) || false;
-      if (!matchDesc && !matchCat && !matchVendor) return false;
+      const matchInvoice = tx.invoice_no?.toLowerCase().includes(q) || false;
+      if (!matchDesc && !matchCat && !matchVendor && !matchInvoice) return false;
     }
     return true;
   }).sort((a, b) => {
@@ -412,6 +431,7 @@ export default function TransactionsPage() {
         'Description': tx.description,
         'Category': tx.category,
         'Type': tx.type.toUpperCase(),
+        'Invoice': tx.invoice_no || '-',
         'Vendor': tx.vendor_name || '-',
         'Amount': parseFloat(tx.amount.toString())
       }));
@@ -549,6 +569,7 @@ export default function TransactionsPage() {
                 <th className="w-[25%] px-4 py-3 text-center font-semibold">Description</th>
                 <th className="px-4 py-3 text-center font-semibold">Category</th>
                 <th className="px-4 py-3 text-center font-semibold">Type</th>
+                <th className="px-4 py-3 text-center font-semibold">Invoice</th>
                 <th className="px-4 py-3 text-center font-semibold">Vendor</th>
                 <th className="px-4 py-3 text-center font-semibold">Amount</th>
                 <th className="w-16 px-4 py-3 text-center font-semibold">Actions</th>
@@ -585,6 +606,9 @@ export default function TransactionsPage() {
                     <td className="px-4 py-3 text-center">{tx.category}</td>
                     <td className="px-4 py-3 text-center">
                       <TypeChip type={tx.type} />
+                    </td>
+                    <td className="px-4 py-3 text-center text-on-surface-variant font-medium">
+                      {tx.invoice_no || '-'}
                     </td>
                     <td className="px-4 py-3 text-center">
                       {tx.vendor_name ? (

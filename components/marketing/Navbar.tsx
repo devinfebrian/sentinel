@@ -8,6 +8,11 @@ import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
 
 export function Navbar() {
   const { resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-surface/80 backdrop-blur-md border-b border-outline-variant/20">
@@ -45,12 +50,16 @@ export function Navbar() {
 
           {/* Right: Sign in + CTA */}
           <div className="flex items-center gap-4">
-            <AnimatedThemeToggler
-              className="!flex h-9 w-9 !p-0 items-center justify-center rounded-full bg-surface-container text-on-surface-variant transition-colors hover:bg-primary-container hover:text-on-primary-container active:bg-primary-container active:text-on-primary-container"
-              variant="circle"
-              theme={resolvedTheme === 'dark' ? 'dark' : 'light'}
-              onThemeChange={setTheme}
-            />
+            {mounted ? (
+              <AnimatedThemeToggler
+                className="!flex h-9 w-9 !p-0 items-center justify-center rounded-full bg-surface-container text-on-surface-variant transition-colors hover:bg-primary-container hover:text-on-primary-container active:bg-primary-container active:text-on-primary-container"
+                variant="circle"
+                theme={resolvedTheme === 'dark' ? 'dark' : 'light'}
+                onThemeChange={setTheme}
+              />
+            ) : (
+              <div className="h-9 w-9 rounded-full bg-surface-container" />
+            )}
             <Link
               href="/login"
               className="hidden md:block text-body-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors"
