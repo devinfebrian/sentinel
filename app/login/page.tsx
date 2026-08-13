@@ -30,7 +30,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (hydrated && accessToken) {
-      router.replace(mustChangePassword ? '/change-password' : '/');
+      router.replace(mustChangePassword ? '/change-password' : '/overview');
     }
   }, [hydrated, accessToken, mustChangePassword, router]);
 

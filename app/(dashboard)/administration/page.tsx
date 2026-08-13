@@ -67,7 +67,7 @@ export default function AdministrationPage() {
   useEffect(() => {
     if (!currentUser) return;
     if (!currentUser.isAdmin) {
-      router.replace('/');
+      router.replace('/overview');
       return;
     }
     if (!accessToken) return;
@@ -88,7 +88,7 @@ export default function AdministrationPage() {
       } catch (err) {
         if (cancelled) return;
         if (err instanceof ApiError && err.status === 403) {
-          router.replace('/');
+          router.replace('/overview');
           return;
         }
         setLoadError(

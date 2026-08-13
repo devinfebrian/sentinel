@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
+
 @theme {
   --color-primary: var(--primary);
   --color-primary-fixed: var(--primary-fixed);
@@ -236,7 +238,6 @@ body {
   animation: none;
   mix-blend-mode: normal;
 }
-
 
 /* Custom Spacing Utility Classes to avoid overriding Tailwind max-w-sm / max-w-md */
 .space-y-xs > :not([hidden]) ~ :not([hidden]) { margin-top: 4px; }
@@ -542,6 +543,37 @@ input[type='number']::-webkit-calendar-picker-indicator {
   display: none !important;
 }
 
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 25s linear infinite;
+}
+
+@keyframes orbit-forward {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes orbit-reverse {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(-360deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-fade-in {
     animation: none !important;
@@ -554,5 +586,17 @@ input[type='number']::-webkit-calendar-picker-indicator {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+@theme inline {
+  --animate-orbit: orbit calc(var(--duration)*1s) linear infinite;
+  @keyframes orbit {
+  0% {
+    transform: rotate(calc(var(--angle) * 1deg)) translateY(calc(var(--radius) * 1px)) rotate(calc(var(--angle) * -1deg));
+    }
+  100% {
+    transform: rotate(calc(var(--angle) * 1deg + 360deg)) translateY(calc(var(--radius) * 1px)) rotate(calc((var(--angle) * -1deg) - 360deg));
+    }
   }
 }

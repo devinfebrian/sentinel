@@ -45,7 +45,7 @@ export default function LoginForm() {
   // stays the only writer of auth state.
   const enterApp = (data: SessionResult) => {
     setSession(data);
-    router.replace(data.mustChangePassword ? '/change-password' : '/');
+    router.replace(data.mustChangePassword ? '/change-password' : '/overview');
   };
 
   const handleFailure = (err: unknown, fallback: string) => {

@@ -89,7 +89,7 @@ export default function ChangePasswordPage() {
           : await changePasswordApi({ currentPassword, newPassword }, accessToken);
 
       setUser(res.data.user);
-      router.replace('/');
+      router.replace('/overview');
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.status === 400 && err.message.toLowerCase().includes('no password yet')) {
