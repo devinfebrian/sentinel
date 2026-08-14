@@ -57,13 +57,6 @@ function ProvenanceItem({ label, value }: { label: string; value: React.ReactNod
 function TriggerRow({ trigger }: { trigger: Trigger }) {
   const d = trigger.detail ?? {};
   const stats: [string, unknown][] = [
-    ['method', d.method],
-    ['baseline n', d.n_baseline],
-    ['median', d.median != null ? number(d.median) : null],
-    ['MAD', d.mad != null ? number(d.mad) : null],
-    ['threshold', d.threshold],
-    ['computed value', d.computed_value],
-    ['confidence', d.confidence],
     ['rule', d.rule],
     ['matches', d.match_count],
     ['total', d.total_amount != null ? number(d.total_amount) : null],
